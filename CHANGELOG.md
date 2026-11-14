@@ -10,6 +10,7 @@
 
 ## Changes
 
+- The bilingual fork now translates Access Control rules, tags, groups, policy editors, syntax diagnostics and save results into Simplified Chinese, with bilingual usage documentation.
 - The bilingual fork now translates user management, account linking, roles, ownership transfer, groups and the member device connection guide into Simplified Chinese, with bilingual usage documentation.
 - The bilingual fork now translates the Machines list, details, filters, dialogs, validation and action results into Simplified Chinese. Headscale diagnostics keep their original text alongside a translated explanation.
 - The bilingual fork can switch between English and Simplified Chinese on the sign-in page and dashboard. The choice is saved per browser. Sign-in and SSO notices, shared navigation, dates and relative times are translated; the remaining pages and documentation are still in progress.

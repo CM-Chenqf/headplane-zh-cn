@@ -1,5 +1,9 @@
+import type { ActionFunctionArgs } from "react-router";
 import * as v from "valibot";
 
+import type { Locale } from "~/i18n/locale";
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, headscaleContext, requestApiContext } from "~/server/context";
 import { isDataWithApiError } from "~/server/headscale/api/error-client";
 import { ActionError, createAction } from "~/server/web/actions";
@@ -11,64 +15,82 @@ import { invalid, ok } from "~/utils/form";
 // and for the policy structure respectively.
 const parseErrorPrefixes = ["parsing HuJSON:", "parsing policy from bytes:"];
 
-export const aclAction = createAction({
-  capability: Capabilities.write_policy,
-  async setup({ request, context }) {
-    const principal = await context.get(authContext).require(request);
-    const { api } = await context.get(requestApiContext)(request);
-    const { capabilities } = context.get(headscaleContext);
-    return { principal, api, capabilities };
-  },
-  intents: {
-    save: {
-      fields: {
-        policy: v.pipe(
-          v.string(),
-          v.check((value) => value.trim().length > 0, "The policy can't be empty."),
-        ),
-      },
-      async handler(input, { api, capabilities }) {
-        const parsed = parsePolicy(input.policy);
-        if (!parsed.ok) {
-          return invalid({ form: `Syntax error: ${parsed.error}` });
-        }
+function createAclAction(locale: Locale) {
+  const t = createTranslator(locale);
+  return createAction({
+    locale,
+    validationMessage: t("validation.required"),
+    capability: Capabilities.write_policy,
+    async setup({ request, context }) {
+      const principal = await context.get(authContext).require(request);
+      const { api } = await context.get(requestApiContext)(request);
+      const { capabilities } = context.get(headscaleContext);
+      return { principal, api, capabilities };
+    },
+    intents: {
+      save: {
+        fields: {
+          policy: v.pipe(
+            v.string(t("acls.validation.policy")),
+            v.check((value) => value.trim().length > 0, t("acls.error.empty")),
+          ),
+        },
+        async handler(input, { api, capabilities }) {
+          const parsed = parsePolicy(input.policy, locale);
+          if (!parsed.ok) {
+            return invalid({ form: t("acls.error.syntax", { error: parsed.error }) });
+          }
 
-        // Older Headscale only says `unknown field "grants"`.
-        const hasGrants = parsed.policy.keyOrder.includes("grants");
-        if (hasGrants && !capabilities.policySupportsGrants) {
-          throw new ActionError(
-            "Grants need Headscale 0.29 or newer. Remove the `grants` section or upgrade Headscale.",
-          );
-        }
+          // Older Headscale only says `unknown field "grants"`.
+          const hasGrants = parsed.policy.keyOrder.includes("grants");
+          if (hasGrants && !capabilities.policySupportsGrants) {
+            throw new ActionError(t("acls.error.grantsVersion"));
+          }
 
-        try {
-          await api.policy.set(input.policy);
-        } catch (error) {
-          if (!isDataWithApiError(error)) {
+          try {
+            await api.policy.set(input.policy);
+          } catch (error) {
+            if (!isDataWithApiError(error)) {
+              throw error;
+            }
+
+            if (error.data.rawData.includes("update is disabled")) {
+              throw new ActionError(t("acls.error.readOnly"), 403);
+            }
+
+            const message = error.data.data?.message;
+            const prefix = parseErrorPrefixes.find(
+              (prefix) => typeof message === "string" && message.includes(prefix),
+            );
+            if (typeof message === "string" && prefix) {
+              const detail = message.slice(message.indexOf(prefix) + prefix.length).trim();
+              return invalid({
+                form:
+                  locale === "en"
+                    ? t("acls.error.syntax", { error: detail })
+                    : t("acls.error.upstreamSyntax", {
+                        status: error.data.statusCode,
+                        error: message,
+                      }),
+              });
+            }
+
             throw error;
           }
 
-          if (error.data.rawData.includes("update is disabled")) {
-            throw new ActionError(
-              "The ACL policy is read-only. Set `policy.mode` to `database` in your Headscale configuration to edit it.",
-              403,
-            );
-          }
-
-          const message = error.data.data?.message;
-          const prefix = parseErrorPrefixes.find(
-            (prefix) => typeof message === "string" && message.includes(prefix),
-          );
-          if (typeof message === "string" && prefix) {
-            const detail = message.slice(message.indexOf(prefix) + prefix.length).trim();
-            return invalid({ form: `Syntax error: ${detail}` });
-          }
-
-          throw error;
-        }
-
-        return ok("Policy updated");
+          return ok(t("acls.success.saved"));
+        },
       },
     },
-  },
-});
+  });
+}
+
+const localizedActions = {
+  en: createAclAction("en"),
+  "zh-CN": createAclAction("zh-CN"),
+};
+
+export const aclAction = Object.assign(
+  async (args: ActionFunctionArgs) => localizedActions[await getLocale(args.request)](args),
+  { intents: localizedActions.en.intents },
+);

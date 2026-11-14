@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
+import type { Locale } from "~/i18n/locale";
 import { aclAction } from "~/routes/acls/acl-action";
 import { aclLoader } from "~/routes/acls/acl-loader";
 
@@ -15,14 +16,18 @@ const ALLOW_ALL = '{"acls":[{"action":"accept","src":["*"],"dst":["*:*"]}]}';
 
 describe("the ACL policy on a real tailnet", () => {
   let tailnet: Tailnet;
-  let save: (policy: string) => Promise<unknown>;
+  let save: (policy: string, locale?: Locale) => Promise<unknown>;
 
   beforeAll(async () => {
     tailnet = await createTailnet({ policy: ALLOW_ALL });
     const app = await tailnet.headplane();
     const { cookie } = await app.signIn("owner");
-    save = (policy) =>
-      app.call(aclAction, "/acls", { as: cookie, form: { intent: "save", policy } });
+    save = (policy, locale = "en") =>
+      app.call(aclAction, "/acls", {
+        as: cookie,
+        headers: { "Accept-Language": locale },
+        form: { intent: "save", policy },
+      });
   });
 
   afterAll(async () => {
@@ -43,7 +48,7 @@ describe("the ACL policy on a real tailnet", () => {
     await waitFor("db to see web", async () => expect(await peers(db)).toContain("web"));
 
     const policy = '{"acls":[{"action":"accept","src":["alice@"],"dst":["alice@:*"]}]}';
-    expect(statusOf(await save(policy))).toBe(200);
+    expect(await save(policy, "zh-CN")).toMatchObject({ ok: true, message: "策略已更新" });
 
     await waitFor("db to lose web", async () => expect(await peers(db)).not.toContain("web"));
     expect(await peers(web)).not.toContain("db");
@@ -59,6 +64,12 @@ describe("the ACL policy on a real tailnet", () => {
       data: { errors: { form: expect.stringMatching(/^Syntax error: .* at line 1, column 11$/) } },
     });
     expect(await tailnet.api.policy.get()).toEqual(before);
+    const chinese = await save('{"acls": [', "zh-CN");
+    expect(statusOf(chinese)).toBe(400);
+    expect(chinese).toMatchObject({
+      data: { errors: { form: "语法错误：第 1 行，第 11 列：缺少右方括号" } },
+    });
+    expect(await tailnet.api.policy.get()).toEqual(before);
   });
 
   test("a policy Headscale rejects comes back with its reason, keeping the old policy", async () => {
@@ -68,6 +79,18 @@ describe("the ACL policy on a real tailnet", () => {
 
     expect(statusOf(result)).toBe(400);
     expect(result).toMatchObject({
+      data: { errors: { form: expect.stringContaining('"group:ops"') } },
+    });
+    expect(await tailnet.api.policy.get()).toEqual(before);
+    const chinese = await save(
+      '{"acls":[{"action":"accept","src":["group:ops"],"dst":["*:*"]}]}',
+      "zh-CN",
+    );
+    expect(statusOf(chinese)).toBe(400);
+    expect(chinese).toMatchObject({
+      data: { errors: { form: expect.stringMatching(/Headscale 拒绝了此.*HTTP \d{3}/) } },
+    });
+    expect(chinese).toMatchObject({
       data: { errors: { form: expect.stringContaining('"group:ops"') } },
     });
     expect(await tailnet.api.policy.get()).toEqual(before);
@@ -83,8 +106,12 @@ describe.for(testedVersions())("where Headscale %s keeps the policy", (version) 
     return {
       tailnet,
       load: () => app.call(aclLoader, "/acls", { as: cookie }),
-      save: (policy: string) =>
-        app.call(aclAction, "/acls", { as: cookie, form: { intent: "save", policy } }),
+      save: (policy: string, locale: Locale = "en") =>
+        app.call(aclAction, "/acls", {
+          as: cookie,
+          headers: { "Accept-Language": locale },
+          form: { intent: "save", policy },
+        }),
     };
   }
 
@@ -107,6 +134,15 @@ describe.for(testedVersions())("where Headscale %s keeps the policy", (version) 
     expect(result).toMatchObject({
       data: { errors: { form: expect.stringContaining("The ACL policy is read-only.") } },
     });
+    const chinese = await save(ALLOW_ALL, "zh-CN");
+    expect(statusOf(chinese)).toBe(403);
+    expect(chinese).toMatchObject({
+      data: {
+        errors: {
+          form: "ACL 策略为只读。请在 Headscale 配置中将 `policy.mode` 设为 `database`，以启用策略编辑。",
+        },
+      },
+    });
 
     const path = join(dirname(tailnet.server.configPath), "policy.json");
     expect(await readFile(path, "utf8")).toBe(file);
@@ -116,14 +152,26 @@ describe.for(testedVersions())("where Headscale %s keeps the policy", (version) 
     const { tailnet, save } = await open({});
     await using _ = tailnet;
 
-    const result = await save('{"grants":[{"src":["*"],"dst":["*"],"ip":["*"]}]}');
+    const policy = '{"grants":[{"src":["*"],"dst":["*"],"ip":["*"]}]}';
+    const result = await save(policy);
+    const chinese = await save(policy, "zh-CN");
 
     if (tailnet.headscale.capabilities.policySupportsGrants) {
       expect(statusOf(result)).toBe(200);
+      expect(chinese).toMatchObject({ ok: true, message: "策略已更新" });
+      expect(JSON.parse((await tailnet.api.policy.get()).policy)).toEqual(JSON.parse(policy));
       return;
     }
 
     expect(statusOf(result)).toBe(400);
+    expect(statusOf(chinese)).toBe(400);
+    expect(chinese).toMatchObject({
+      data: {
+        errors: {
+          form: "授权规则需要 Headscale 0.29 或更新版本。请移除 `grants` 部分或升级 Headscale。",
+        },
+      },
+    });
     expect(result).toMatchObject({
       data: { errors: { form: expect.stringContaining("Grants need Headscale 0.29 or newer.") } },
     });

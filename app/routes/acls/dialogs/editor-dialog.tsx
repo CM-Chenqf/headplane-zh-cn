@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "~/components/dialog";
+import { useI18n } from "~/i18n/provider";
 
 interface EditorDialogProps {
   title: string;
@@ -31,6 +32,7 @@ export default function EditorDialog({
   onSubmit,
   children,
 }: EditorDialogProps) {
+  const { t } = useI18n();
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTitle>{title}</DialogTitle>
@@ -45,7 +47,7 @@ export default function EditorDialog({
       >
         {children}
         <DialogActions>
-          <DialogClose render={<Button>Cancel</Button>} />
+          <DialogClose render={<Button>{t("common.cancel")}</Button>} />
           <Button disabled={isDisabled} type="submit" variant="primary">
             {submitLabel}
           </Button>

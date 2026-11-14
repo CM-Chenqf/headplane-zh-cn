@@ -54,6 +54,53 @@ function parseOrThrow(raw: string) {
 }
 
 describe("parsePolicy", () => {
+  test("Chinese diagnostics keep UTF-16 ranges and CRLF line locations", () => {
+    const raw = '{"note":"😀",\r\n  "acls": [ }';
+    const english = parsePolicy(raw);
+    const chinese = parsePolicy(raw, "zh-CN");
+    if (english.ok || chinese.ok) throw new Error("expected invalid policies");
+    expect(chinese.error).toBe("第 2 行，第 13 列：应填写值");
+    expect(chinese.diagnostics[0]).toEqual({
+      from: raw.indexOf("}"),
+      to: raw.indexOf("}") + 1,
+      message: "应填写值",
+    });
+    expect(chinese.diagnostics.map(({ from, to }) => ({ from, to }))).toEqual(
+      english.diagnostics.map(({ from, to }) => ({ from, to })),
+    );
+  });
+
+  test("Chinese parsing and formatting preserve unknown rules, app data and comments like English", () => {
+    const raw =
+      '{\n// 保留注释\n"acls":[{"action":"custom-deny","src":["用户@"],"dst":["tag:web:443"],"custom":"原文 ,} ,]"}],\n"grants":[{"src":["*"],"dst":["*"],"app":{"example.test/cap":[{"name":"中文"}]}}],\n"nodeAttrs":[{"target":["*"],"attr":["funnel"]}],\n}';
+    const english = parsePolicy(raw);
+    const chinese = parsePolicy(raw, "zh-CN");
+    expect(chinese).toEqual(english);
+    if (!chinese.ok) throw new Error(chinese.error);
+    expect(serializePolicy(chinese.policy)).toContain('"action": "custom-deny"');
+    expect(chinese.policy.grants[0].extra).toEqual({
+      app: { "example.test/cap": [{ name: "中文" }] },
+    });
+    const formatted = formatPolicy(raw, "zh-CN");
+    expect(formatted).toEqual(formatPolicy(raw));
+    if (!formatted.ok) throw new Error(formatted.error);
+    expect(formatted.value).toContain("// 保留注释");
+    expect(parsePolicy(formatted.value, "zh-CN")).toEqual(chinese);
+  });
+
+  test("Chinese validation rejects non-object policies and formatting invalid input", () => {
+    expect(parsePolicy("[]", "zh-CN")).toEqual({
+      ok: false,
+      error: "策略必须是 JSON 对象",
+      diagnostics: [{ from: 0, to: 2, message: "策略必须是 JSON 对象" }],
+    });
+    expect(formatPolicy("   ", "zh-CN")).toEqual({ ok: false, error: "策略为空" });
+    const raw = '{"acls":[';
+    const parsed = parsePolicy(raw, "zh-CN");
+    if (parsed.ok) throw new Error("expected invalid policy");
+    expect(formatPolicy(raw, "zh-CN")).toMatchObject({ ok: false, error: parsed.error });
+  });
+
   test("parses an empty policy into an empty model", () => {
     const result = parseOrThrow("");
     expect(result.policy).toEqual({

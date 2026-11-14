@@ -5,11 +5,13 @@ import {
   format as formatJson,
   getNodeValue,
   parseTree,
-  printParseErrorCode,
+  ParseErrorCode,
   type ParseError,
   SyntaxKind,
 } from "jsonc-parser";
 
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { translate, type MessageKey } from "~/i18n/messages";
 import { scanHuJson } from "~/utils/node-info";
 
 // A structured view over the Headscale ACL policy (HuJSON), which Headscale
@@ -96,12 +98,12 @@ export const EMPTY_POLICY: Policy = {
 
 const KNOWN_KEYS = ["groups", "tagOwners", "hosts", "acls", "ssh", "grants", "autoApprovers"];
 
-export function parsePolicy(raw: string): ParseResult {
+export function parsePolicy(raw: string, locale: Locale = defaultLocale): ParseResult {
   if (raw.trim().length === 0) {
     return { ok: true, policy: structuredClone(EMPTY_POLICY), hasComments: false };
   }
 
-  const result = parseHuJson(raw);
+  const result = parseHuJson(raw, locale);
   if (!result.ok) return result;
 
   const { parsed, hasComments } = result;
@@ -131,12 +133,12 @@ export function parsePolicy(raw: string): ParseResult {
   };
 }
 
-export function formatPolicy(raw: string): FormatResult {
+export function formatPolicy(raw: string, locale: Locale = defaultLocale): FormatResult {
   if (raw.trim().length === 0) {
-    return { ok: false, error: "The policy is empty" };
+    return { ok: false, error: translate(locale, "acls.parse.empty") };
   }
 
-  const result = parseHuJson(raw);
+  const result = parseHuJson(raw, locale);
   if (!result.ok) return result;
 
   // Line breaks are kept: a hand-written policy groups rules with blank lines
@@ -183,24 +185,24 @@ type HuJsonResult =
   | { ok: true; parsed: Record<string, unknown>; hasComments: boolean }
   | ParseFailure;
 
-function parseHuJson(raw: string): HuJsonResult {
+function parseHuJson(raw: string, locale: Locale): HuJsonResult {
   const errors: ParseError[] = [];
   const tree = parseTree(raw, errors, { allowTrailingComma: true });
   if (errors.length > 0) {
     const first = errors[0];
     return {
       ok: false,
-      error: withLocation(raw, humanizeParseError(first), first.offset),
+      error: withLocation(raw, humanizeParseError(first, locale), first.offset, locale),
       diagnostics: errors.map((error) => ({
         from: error.offset,
         to: Math.min(raw.length, error.offset + Math.max(1, error.length)),
-        message: humanizeParseError(error),
+        message: humanizeParseError(error, locale),
       })),
     };
   }
 
   if (tree?.type !== "object") {
-    const message = "The policy must be a JSON object";
+    const message = translate(locale, "acls.parse.object");
     return { ok: false, error: message, diagnostics: [{ from: 0, to: raw.length, message }] };
   }
 
@@ -211,19 +213,35 @@ function parseHuJson(raw: string): HuJsonResult {
   };
 }
 
-function humanizeParseError(error: ParseError): string {
-  return printParseErrorCode(error.error).replace(
-    /([a-z])([A-Z])/g,
-    (_, last, next) => `${last} ${next.toLowerCase()}`,
-  );
+const parseErrorKeys = {
+  [ParseErrorCode.InvalidSymbol]: "acls.parse.invalidSymbol",
+  [ParseErrorCode.InvalidNumberFormat]: "acls.parse.invalidNumber",
+  [ParseErrorCode.PropertyNameExpected]: "acls.parse.property",
+  [ParseErrorCode.ValueExpected]: "acls.parse.value",
+  [ParseErrorCode.ColonExpected]: "acls.parse.colon",
+  [ParseErrorCode.CommaExpected]: "acls.parse.comma",
+  [ParseErrorCode.CloseBraceExpected]: "acls.parse.brace",
+  [ParseErrorCode.CloseBracketExpected]: "acls.parse.bracket",
+  [ParseErrorCode.EndOfFileExpected]: "acls.parse.eof",
+  [ParseErrorCode.InvalidCommentToken]: "acls.parse.commentToken",
+  [ParseErrorCode.UnexpectedEndOfComment]: "acls.parse.commentEnd",
+  [ParseErrorCode.UnexpectedEndOfString]: "acls.parse.stringEnd",
+  [ParseErrorCode.UnexpectedEndOfNumber]: "acls.parse.numberEnd",
+  [ParseErrorCode.InvalidUnicode]: "acls.parse.unicode",
+  [ParseErrorCode.InvalidEscapeCharacter]: "acls.parse.escape",
+  [ParseErrorCode.InvalidCharacter]: "acls.parse.character",
+} as const satisfies Record<ParseErrorCode, MessageKey>;
+
+function humanizeParseError(error: ParseError, locale: Locale): string {
+  return translate(locale, parseErrorKeys[error.error]);
 }
 
-function withLocation(raw: string, message: string, offset: number): string {
+function withLocation(raw: string, message: string, offset: number, locale: Locale): string {
   const before = raw.slice(0, offset);
   const line = before.split(/\r\n|\r|\n/).length;
   const lastLineBreak = Math.max(before.lastIndexOf("\n"), before.lastIndexOf("\r"));
   const column = offset - lastLineBreak;
-  return `${message} at line ${line}, column ${column}`;
+  return translate(locale, "acls.parse.location", { message, line, column });
 }
 
 export function serializePolicy(policy: Policy): string {
