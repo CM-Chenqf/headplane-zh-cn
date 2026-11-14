@@ -2,6 +2,7 @@ import { CircleAlert, Lock, SearchX, ServerOff } from "lucide-react";
 import type React from "react";
 import { useRevalidator } from "react-router";
 
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 import { describeError, type ErrorInfo } from "~/utils/describe-error";
 
@@ -21,22 +22,21 @@ interface Props {
   page?: string;
 }
 
-export default function PageError({ error, page = "this page" }: Props) {
+export default function PageError({ error, page }: Props) {
+  const { locale, t } = useI18n();
+  const pageName = page ?? t("error.thisPage");
   const { revalidate, state } = useRevalidator();
-  const info = describeError(error);
+  const info = describeError(error, locale);
   const Icon = icons[info.kind];
 
   const title =
     info.kind === "connection"
-      ? `Can't load ${page}`
+      ? t("error.loadPage", { page: pageName })
       : info.kind === "forbidden"
-        ? `You don't have access to ${page}`
+        ? t("error.accessPage", { page: pageName })
         : info.title;
 
-  const description =
-    info.kind === "connection"
-      ? "This page needs Headscale to load. Try again once it's back."
-      : info.description;
+  const description = info.kind === "connection" ? t("error.pageConnection") : info.description;
 
   const canRetry = info.kind !== "forbidden" && info.kind !== "not_found";
 
@@ -46,7 +46,7 @@ export default function PageError({ error, page = "this page" }: Props) {
         <div className="mt-6 flex items-center gap-4">
           {canRetry && (
             <Button onClick={() => revalidate()} pending={state === "loading"}>
-              Try again
+              {t("error.tryAgain")}
             </Button>
           )}
           {info.kind === "unknown" && <ReportLink />}
@@ -76,9 +76,12 @@ export function ErrorState({ icon, title, description, children }: ErrorStatePro
 }
 
 export function ErrorDetails({ details, className }: { details: string; className?: string }) {
+  const { t } = useI18n();
   return (
     <details className={cn("mt-6 w-full max-w-lg text-left", className)}>
-      <summary className="text-muted hover:text-fg w-fit cursor-pointer text-sm">Details</summary>
+      <summary className="text-muted hover:text-fg w-fit cursor-pointer text-sm">
+        {t("error.details")}
+      </summary>
       <pre className="bg-subtle mt-2 overflow-x-auto rounded-md p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {details}
       </pre>
@@ -87,9 +90,10 @@ export function ErrorDetails({ details, className }: { details: string; classNam
 }
 
 export function ReportLink() {
+  const { t } = useI18n();
   return (
-    <Link external styled to="https://github.com/tale/headplane/issues/new">
-      Report an issue
+    <Link external styled to="https://github.com/CM-Chenqf/headscale-web/issues/new">
+      {t("error.report")}
     </Link>
   );
 }

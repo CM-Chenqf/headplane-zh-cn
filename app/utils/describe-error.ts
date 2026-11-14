@@ -1,5 +1,7 @@
 import { isRouteErrorResponse } from "react-router";
 
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { createTranslator } from "~/i18n/messages";
 import { isApiError, isConnectionError } from "~/server/headscale/api/error-client";
 
 export interface ErrorInfo {
@@ -9,16 +11,15 @@ export interface ErrorInfo {
   details?: string;
 }
 
-const BUG = "This is probably a bug. Report it on GitHub with the details below.";
-
-export function describeError(error: unknown): ErrorInfo {
+export function describeError(error: unknown, locale: Locale = defaultLocale): ErrorInfo {
+  const t = createTranslator(locale);
   if (isRouteErrorResponse(error)) {
     const { data, status, statusText } = error;
     if (isConnectionError(data)) {
       return {
         kind: "connection",
-        title: "Can't reach Headscale",
-        description: "Check that Headscale is running and that Headplane can connect to it.",
+        title: t("error.connectionTitle"),
+        description: t("error.connectionDescription"),
         details: lines(data.requestUrl, data.errorMessage || data.errorCode),
       };
     }
@@ -32,8 +33,8 @@ export function describeError(error: unknown): ErrorInfo {
       if (data.statusCode >= 500) {
         return {
           kind: "headscale",
-          title: "Headscale returned an error",
-          description: `Headscale responded with ${data.statusCode}. Check its logs, then try again.`,
+          title: t("error.headscaleTitle"),
+          description: t("error.headscaleDescription", { status: data.statusCode }),
           details,
         };
       }
@@ -41,16 +42,16 @@ export function describeError(error: unknown): ErrorInfo {
       if (data.statusCode === 401 || data.statusCode === 403) {
         return {
           kind: "headscale",
-          title: "Headscale rejected the request",
-          description: "Check that the API key in Headplane's config is valid and hasn't expired.",
+          title: t("error.rejectedTitle"),
+          description: t("error.rejectedDescription"),
           details,
         };
       }
 
       return {
         kind: "headscale",
-        title: "Unexpected response from Headscale",
-        description: "Headplane may not support this version of Headscale, or this is a bug.",
+        title: t("error.unexpectedTitle"),
+        description: t("error.unexpectedDescription"),
         details,
       };
     }
@@ -58,8 +59,8 @@ export function describeError(error: unknown): ErrorInfo {
     if (status === 404) {
       return {
         kind: "not_found",
-        title: "Page not found",
-        description: "There's nothing at this address.",
+        title: t("error.notFoundTitle"),
+        description: t("error.notFoundDescription"),
       };
     }
 
@@ -68,16 +69,26 @@ export function describeError(error: unknown): ErrorInfo {
     if (status === 403) {
       return {
         kind: "forbidden",
-        title: "You don't have access",
-        description: message ?? "Ask an administrator for access.",
+        title: t("error.forbiddenTitle"),
+        description:
+          locale === "en"
+            ? (message ?? t("error.forbiddenDescription"))
+            : t("error.forbiddenDescription"),
+        ...(locale !== "en" && message ? { details: message } : {}),
       };
     }
 
     return {
       kind: "unknown",
-      title: "Something went wrong",
+      title: t("error.unknownTitle"),
       description:
-        message ?? `The server responded with ${[status, statusText].filter(Boolean).join(" ")}.`,
+        locale === "en"
+          ? (message ??
+            t("error.serverDescription", {
+              status: [status, statusText].filter(Boolean).join(" "),
+            }))
+          : t("error.serverDescription", { status }),
+      ...(locale !== "en" && message ? { details: message } : {}),
     };
   }
 
@@ -94,13 +105,18 @@ export function describeError(error: unknown): ErrorInfo {
 
     return {
       kind: "unknown",
-      title: "Something went wrong",
-      description: BUG,
+      title: t("error.unknownTitle"),
+      description: t("error.bug"),
       details: `${root.name}: ${message}`,
     };
   }
 
-  return { kind: "unknown", title: "Something went wrong", description: BUG, details: json(error) };
+  return {
+    kind: "unknown",
+    title: t("error.unknownTitle"),
+    description: t("error.bug"),
+    details: json(error),
+  };
 }
 
 function messageOf(data: unknown) {

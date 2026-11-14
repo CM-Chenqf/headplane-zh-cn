@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import ActionDialog from "~/components/action-dialog";
 import Select from "~/components/select";
+import { useI18n } from "~/i18n/provider";
 import type { Machine, User } from "~/types";
 import { getUserDisplayName, sortUsersByDisplayName } from "~/utils/user";
 
@@ -13,18 +14,19 @@ interface MoveProps {
 }
 
 export default function Move({ machine, users, isOpen, setIsOpen }: MoveProps) {
+  const { t } = useI18n();
   const [userId, setUserId] = useState(machine.user?.id ?? null);
 
   return (
     <ActionDialog
-      description="The owner is the user the machine belongs to."
+      description={t("machines.changeOwnerDescription")}
       fields={{ node_id: machine.id }}
       intent="reassign"
       isDisabled={!userId || userId === machine.user?.id}
       onOpenChange={setIsOpen}
       open={isOpen}
-      submitLabel="Change owner"
-      title={`Change owner of ${machine.givenName}`}
+      submitLabel={t("machines.changeOwner")}
+      title={t("machines.changeOwnerTitle", { name: machine.givenName })}
     >
       <Select
         defaultValue={machine.user?.id ?? null}
@@ -32,10 +34,10 @@ export default function Move({ machine, users, isOpen, setIsOpen }: MoveProps) {
           value: user.id,
           label: getUserDisplayName(user),
         }))}
-        label="Owner"
+        label={t("machines.owner")}
         name="user_id"
         onValueChange={setUserId}
-        placeholder="Select a user"
+        placeholder={t("machines.selectUser")}
         required
       />
     </ActionDialog>

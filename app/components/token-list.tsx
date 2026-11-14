@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Button from "~/components/button";
 import Input from "~/components/input";
 import { RemoveButton, Row, RowList } from "~/components/section";
+import { useI18n } from "~/i18n/provider";
 
 interface TokenListProps {
   label: string;
@@ -33,6 +34,7 @@ export default function TokenList({
   validate,
   normalize,
 }: TokenListProps) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState("");
 
   const prepare = useMemo(
@@ -77,7 +79,7 @@ export default function TokenList({
             <Row
               action={
                 <RemoveButton
-                  aria-label={`Remove ${value}`}
+                  aria-label={t("common.removeNamed", { name: value })}
                   disabled={isDisabled}
                   onClick={() => onChange(values.filter((entry) => entry !== value))}
                   type="button"
@@ -92,7 +94,7 @@ export default function TokenList({
       )}
       <div className="flex items-center gap-2">
         <Input
-          aria-label={`Add to ${label}`}
+          aria-label={t("common.addTo", { name: label })}
           className="w-full"
           disabled={isDisabled}
           invalid={draft.length > 0 && draftIsInvalid}
@@ -110,7 +112,7 @@ export default function TokenList({
         />
         <Button disabled={isDisabled || draftIsInvalid} onClick={() => add(draft)} type="button">
           <Plus className="size-4" />
-          Add
+          {t("common.add")}
         </Button>
       </div>
       {available.length > 0 ? (

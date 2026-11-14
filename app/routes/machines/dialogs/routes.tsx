@@ -6,6 +6,7 @@ import { Dialog, DialogActions, DialogClose, DialogTitle } from "~/components/di
 import Link from "~/components/link";
 import { Row, RowList } from "~/components/section";
 import Switch from "~/components/switch";
+import { useI18n } from "~/i18n/provider";
 import type { ActionResult } from "~/utils/form";
 import type { PopulatedNode } from "~/utils/node-info";
 
@@ -16,6 +17,7 @@ interface RoutesProps {
 }
 
 export default function Routes({ node, isOpen, setIsOpen }: RoutesProps) {
+  const { t } = useI18n();
   const fetcher = useFetcher<ActionResult>();
   const subnets = [
     ...node.customRouting.subnetApprovedRoutes,
@@ -36,19 +38,17 @@ export default function Routes({ node, isOpen, setIsOpen }: RoutesProps) {
 
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
-      <DialogTitle>Routes for {node.givenName}</DialogTitle>
+      <DialogTitle>{t("machines.routesTitle", { name: node.givenName })}</DialogTitle>
       <section className="flex flex-col gap-2">
-        <h3 className="font-medium">Subnet routes</h3>
+        <h3 className="font-medium">{t("machines.subnetRoutes")}</h3>
         <p className="text-muted">
-          Reach devices that can&apos;t run Tailscale through IP ranges this machine advertises.{" "}
+          {t("machines.subnetDescription")}{" "}
           <Link external styled to="https://tailscale.com/kb/1019/subnets">
-            Docs
+            {t("common.docs")}
           </Link>
         </p>
         {subnets.length === 0 ? (
-          <p className="text-muted py-2.5 text-sm">
-            This machine doesn&apos;t advertise any routes
-          </p>
+          <p className="text-muted py-2.5 text-sm">{t("machines.noRoutes")}</p>
         ) : (
           <RowList>
             {subnets.map((route) => (
@@ -56,7 +56,7 @@ export default function Routes({ node, isOpen, setIsOpen }: RoutesProps) {
                 action={
                   <Switch
                     defaultChecked={node.approvedRoutes.includes(route)}
-                    label={`Approve ${route}`}
+                    label={t("machines.approveRoute", { route })}
                     onCheckedChange={(checked) => submit([route], checked)}
                   />
                 }
@@ -69,38 +69,36 @@ export default function Routes({ node, isOpen, setIsOpen }: RoutesProps) {
         )}
       </section>
       <section className="flex flex-col gap-2">
-        <h3 className="font-medium">Exit node</h3>
+        <h3 className="font-medium">{t("machines.exitNode")}</h3>
         <p className="text-muted">
-          Let devices send their internet traffic through this machine.{" "}
+          {t("machines.exitDescription")}{" "}
           <Link external styled to="https://tailscale.com/kb/1103/exit-nodes">
-            Docs
+            {t("common.docs")}
           </Link>
         </p>
         {node.customRouting.exitRoutes.length === 0 ? (
-          <p className="text-muted py-2.5 text-sm">
-            This machine isn&apos;t advertised as an exit node
-          </p>
+          <p className="text-muted py-2.5 text-sm">{t("machines.noExitNode")}</p>
         ) : (
           <RowList>
             <Row
               action={
                 <Switch
                   defaultChecked={node.customRouting.exitApproved}
-                  label="Use as exit node"
+                  label={t("machines.useExitNode")}
                   onCheckedChange={(checked) => submit(node.customRouting.exitRoutes, checked)}
                 />
               }
             >
-              Use as exit node
+              {t("machines.useExitNode")}
             </Row>
           </RowList>
         )}
       </section>
       {fetcher.data?.ok === false && (
-        <Callout variant="error">{fetcher.data.errors.form ?? "Couldn't update routes."}</Callout>
+        <Callout variant="error">{fetcher.data.errors.form ?? t("machines.routesFailed")}</Callout>
       )}
       <DialogActions>
-        <DialogClose render={<Button>Done</Button>} />
+        <DialogClose render={<Button>{t("common.done")}</Button>} />
       </DialogActions>
     </Dialog>
   );

@@ -1,9 +1,11 @@
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { translate } from "~/i18n/messages";
 import type { HostInfo } from "~/types";
 
-export function getTSVersion(host: HostInfo) {
+export function getTSVersion(host: HostInfo, locale: Locale = defaultLocale) {
   const { IPNVersion } = host;
   if (!IPNVersion) {
-    return "Unknown";
+    return translate(locale, "common.unknown");
   }
 
   // IPNVersion is <Semver>-<something>-<something>
@@ -27,16 +29,16 @@ export function isUpdateAvailable(host: HostInfo, latest: string) {
   return curMinor < newMinor;
 }
 
-export function getOSInfo(host: HostInfo) {
+export function getOSInfo(host: HostInfo, locale: Locale = defaultLocale) {
   const { OS, OSVersion } = host;
   // OS follows runtime.GOOS but uses iOS and macOS instead of darwin
-  const formattedOS = formatOS(OS);
+  const formattedOS = formatOS(OS, locale);
 
   // Trim in case OSVersion is empty
   return `${formattedOS} ${OSVersion ?? ""}`.trim();
 }
 
-function formatOS(os?: string) {
+function formatOS(os: string | undefined, locale: Locale) {
   switch (os) {
     case "macOS":
     case "iOS":
@@ -46,7 +48,7 @@ function formatOS(os?: string) {
     case "linux":
       return "Linux";
     case undefined:
-      return "Unknown";
+      return translate(locale, "common.unknown");
     default:
       return os;
   }

@@ -1,3 +1,6 @@
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { translate } from "~/i18n/messages";
+
 import type { HeadscaleConnectionError } from "./error";
 
 /**
@@ -74,13 +77,16 @@ export function isDataWithApiError(error: unknown): error is { data: HeadscaleAP
   return error != null && typeof error === "object" && "data" in error && isApiError(error.data);
 }
 
-export function headscaleErrorMessage(error: unknown): string | undefined {
+export function headscaleErrorMessage(
+  error: unknown,
+  locale: Locale = defaultLocale,
+): string | undefined {
   if (error == null || typeof error !== "object" || !("data" in error)) {
     return undefined;
   }
 
   if (isConnectionError(error.data)) {
-    return "Couldn't reach Headscale. Check that it's running and try again.";
+    return translate(locale, "action.connection");
   }
 
   if (!isApiError(error.data)) {
@@ -94,8 +100,10 @@ export function headscaleErrorMessage(error: unknown): string | undefined {
       : rawData;
 
   if (message.length === 0) {
-    return `Headscale rejected the change (${statusCode}).`;
+    return translate(locale, "action.rejected", { status: statusCode });
   }
 
-  return message.charAt(0).toUpperCase() + message.slice(1);
+  return locale === "en"
+    ? message.charAt(0).toUpperCase() + message.slice(1)
+    : translate(locale, "action.rejectedDetail", { status: statusCode, message });
 }

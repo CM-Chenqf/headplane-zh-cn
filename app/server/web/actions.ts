@@ -1,6 +1,8 @@
 import type { ActionFunctionArgs } from "react-router";
 import * as v from "valibot";
 
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { translate } from "~/i18n/messages";
 import { authContext } from "~/server/context";
 import { headscaleErrorMessage } from "~/server/headscale/api/error-client";
 import type { Principal } from "~/server/web/auth";
@@ -26,6 +28,7 @@ interface Intent<E extends v.ObjectEntries, C> {
 }
 
 interface ActionOptions<C, T extends Record<string, v.ObjectEntries>> {
+  locale?: Locale;
   capability?: Capabilities;
   setup: (args: ActionFunctionArgs) => Promise<C>;
   intents: { [K in keyof T]: Intent<T[K], C> };
@@ -35,6 +38,7 @@ export function createAction<
   C extends { principal: Principal },
   T extends Record<string, v.ObjectEntries>,
 >(options: ActionOptions<C, T>) {
+  const locale = options.locale ?? defaultLocale;
   const action = async (args: ActionFunctionArgs) => {
     const auth = args.context.get(authContext);
 
@@ -44,13 +48,13 @@ export function createAction<
       const name = String(values.intent ?? "");
 
       if (!Object.hasOwn(options.intents, name)) {
-        return invalid({ form: "This action isn't supported." });
+        return invalid({ form: translate(locale, "action.unsupported") });
       }
 
       const intent = options.intents[name] as Intent<v.ObjectEntries, C>;
       for (const capability of [options.capability, intent.capability]) {
         if (capability !== undefined && !auth.can(ctx.principal, capability)) {
-          throw new ActionError("You don't have permission to do this.", 403);
+          throw new ActionError(translate(locale, "action.forbidden"), 403);
         }
       }
 
@@ -65,7 +69,7 @@ export function createAction<
         return invalid({ form: error.message }, error.status);
       }
 
-      const message = headscaleErrorMessage(error);
+      const message = headscaleErrorMessage(error, locale);
       if (message) {
         return invalid({ form: message });
       }

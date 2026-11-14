@@ -1,0 +1,94 @@
+---
+title: Machines / 设备管理
+description: Manage machines in English or Simplified Chinese in the bilingual fork.
+---
+
+# Machines / 设备管理
+
+This guide covers the Machines module in `CM-Chenqf/headscale-web` on `main`.
+The remaining modules and the full documentation site are still being translated.
+
+本页介绍 `CM-Chenqf/headscale-web` 的 `main` 分支设备模块。
+其他模块和完整文档站点仍在翻译中，当前阶段尚未发布完整双语镜像。
+
+## 简体中文
+
+### 浏览和筛选设备
+
+1. 在顶部语言按钮选择 **简体中文**，打开 **设备**。
+2. 按设备名称或 IP 搜索，或按用户、标签、状态及路由类型筛选。
+3. 点击设备名称查看路由、所有者、密钥过期时间和网络地址。
+4. 点击地址菜单、详情中的地址或节点密钥进行复制。
+
+在线状态、过期状态和路由徽标均提供中文说明。启用 Headplane Agent 后，
+设备上报的操作系统、Tailscale 版本和网络连接信息按上游方式显示；
+已知有新版本时显示更新提示。缺失的信息显示为“未知”。
+
+### 注册设备
+
+1. 选择 **添加设备 → 注册设备密钥**。
+2. 在目标设备运行弹窗中提供的 `tailscale up --login-server=...` 命令。
+3. 粘贴命令输出的设备注册 URL 或完整的 `hskey-authreq-...` 密钥。
+4. 选择所有者，点击 **注册**。
+
+注册表单接受注册 URL 和完整设备注册密钥，不接受 `tailscale up` 命令本身。
+**创建认证密钥** 会打开独立的认证密钥设置页，该页不属于本阶段的翻译范围。
+
+### 管理设备
+
+在设备行的管理菜单或详情页的 **管理** 菜单中执行操作：
+
+| 操作               | 说明                                                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| 编辑设备名称       | 修改面板、客户端和 MagicDNS 使用的设备名称。只允许英文字母、数字和连字符，长度不超过 63 个字符，首尾必须为字母或数字。 |
+| 编辑路由设置       | 批准或取消设备已通告的子网路由，以及出口节点用途。                                                                     |
+| 编辑 ACL 标签      | 添加或移除 `tag:...` 标签。未在策略的 `tagOwners` 中声明的标签会显示警告。                                             |
+| 禁用或启用密钥过期 | 按当前 Headscale 版本支持的能力显示。禁用密钥过期需要 Headscale 0.29 或更新版本。                                      |
+| 更改所有者         | 仅在当前 Headscale 版本允许更改所有者时显示。                                                                          |
+| 立即使密钥过期     | 断开设备，直到在该设备上重新登录。                                                                                     |
+| 移除               | 从 tailnet 中移除设备；再次加入需要重新登录。                                                                          |
+
+语言选择不会增加权限，也不会改变上游的版本兼容判断。
+没有权限、设备已删除、表单无效或服务不可达时，显示对应中文提示。
+服务器仍会检查权限和版本限制，即使直接提交表单也无法绕过。
+
+Headscale 返回的原始诊断、设备名称、用户名称、标签、IP、命令、配置键和产品名称保留原文。
+外部错误会附中文说明和 HTTP 状态，原始诊断便于检索日志。
+SSH 按钮继续打开上游 Web SSH 功能；SSH 终端界面的翻译将在后续阶段完成。
+
+### 切回英文
+
+使用顶部语言按钮选择 **English**。语言偏好会保存在当前浏览器中，
+刷新后继续生效；账号、筛选参数、设备数据和 Headscale 配置不随语言变化。
+
+## English
+
+### Browse and filter
+
+Select **English** in the header and open **Machines**. Search by name or IP,
+or filter by user, tag, status and route type. Open a machine to inspect its
+routes, owner, expiry and addresses. Click an address or node key to copy it.
+With the Headplane agent enabled, reported OS, Tailscale version, connectivity
+and available-update notices follow upstream behavior.
+
+### Register and manage
+
+Select **Add machine → Register machine key**. Run the displayed
+`tailscale up --login-server=...` command on the device, paste its registration
+URL or full `hskey-authreq-...` key, choose an owner and submit. The command
+itself is not a registration key. **Create auth key** opens a separate settings
+module that is outside this translation stage.
+
+Use the machine menu to rename, approve subnet/exit routes, assign ACL tags,
+manage expiry, change owner where supported, expire or remove a machine.
+Names retain the DNS label rules: 1–63 ASCII letters, numbers or hyphens,
+starting and ending with a letter or number. Undeclared tags show a policy
+warning. Disabling expiry needs Headscale 0.29 or newer; changing owner is
+available only on Headscale versions that support it.
+
+Language selection preserves permission checks, version gates and API behavior.
+Switching language persists per browser and preserves the route and filters.
+Headscale diagnostics, commands, identifiers and user-provided values keep their
+original spelling. Chinese errors add an explanation and HTTP status alongside
+the original diagnostic. Browser SSH and the remaining settings modules will be
+translated separately.

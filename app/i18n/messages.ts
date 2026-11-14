@@ -16,6 +16,10 @@ export type MessageArgs<K extends MessageKey> = [Placeholders<(typeof en)[K]>] e
 
 export const messages = { en, "zh-CN": zhCN } satisfies Record<Locale, Record<MessageKey, string>>;
 
+export function createTranslator(locale: Locale) {
+  return <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => translate(locale, key, ...args);
+}
+
 export function translate<K extends MessageKey>(
   locale: Locale,
   key: K,

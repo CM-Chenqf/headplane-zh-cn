@@ -22,7 +22,10 @@ the browser preference again.
 
 The current stage translates sign-in, sign-out, API key validation, SSO errors,
 the shared navigation, theme choices, relative times, date tooltips, and machine
-key expiry notices. The HTML language and page description follow the selection
+key expiry notices. The Machines list, details, filters, dialogs, validation,
+action results and shared error pages are also translated. See
+[Machines / 设备管理](/features/machines-bilingual) for a bilingual usage guide.
+The HTML language and page description follow the selection
 on the server. The rest of the dashboard and the documentation site are still
 being translated. Documentation links continue to open the upstream English
 site until the bilingual documentation site is ready.
@@ -41,7 +44,9 @@ their original spelling. Changing language does not change the time zone.
 清除 `headplane_locale` Cookie 后恢复跟随浏览器语言。
 
 当前阶段已覆盖登录、退出、API 密钥校验、SSO 错误提示、公共导航、主题选项、
-相对时间、日期提示和设备密钥过期提示。服务端生成的 HTML 语言及页面描述也会同步切换。
+相对时间、日期提示和设备密钥过期提示；设备列表、详情、筛选、弹窗、校验、操作结果及公共错误页也已覆盖。
+设备模块的中英操作说明见[设备管理](/features/machines-bilingual)。
+服务端生成的 HTML 语言及页面描述也会同步切换。
 其他管理页面和完整文档仍在翻译中。双语文档站点上线前，界面中的文档链接仍指向上游英文站点。
 
 配置键、API 字段、命令、产品名称和诊断日志保留原文。切换语言不会更改时区。
@@ -49,7 +54,8 @@ their original spelling. Changing language does not change the time zone.
 ## Maintaining translations / 维护翻译
 
 Add English source messages in `app/i18n/en.ts` and Simplified Chinese in
-`app/i18n/zh-CN.ts`. TypeScript checks message keys; unit tests check matching
+`app/i18n/zh-CN.ts`. Module resources such as `en/machines.ts` and
+`zh-CN/machines.ts` are re-exported there. TypeScript checks message keys; unit tests check matching
 interpolation placeholders. Use `useI18n()` in React and `getLocale(request)`
 with `translate()` in server actions. Use `Message` for sentences containing
 inline code or styled names, so the whole sentence can be reordered safely.
@@ -57,6 +63,7 @@ Pass the selected locale to the time formatters. Keep request languages isolated
 never store the current user's language in a process-wide variable.
 
 英文资源位于 `app/i18n/en.ts`，简体中文位于 `app/i18n/zh-CN.ts`。
+设备等模块的资源分别放在 `en/machines.ts` 和 `zh-CN/machines.ts`，由上述入口汇总。
 两份资源必须一起更新，保留相同占位符。React 使用 `useI18n()`，
 服务端操作使用 `getLocale(request)` 和 `translate()`。
 包含命令或带样式名称的句子使用 `Message`，避免拼接句子片段。

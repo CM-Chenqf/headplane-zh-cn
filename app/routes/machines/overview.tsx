@@ -16,6 +16,7 @@ import {
   type SortDirection,
 } from "~/components/table";
 import Tooltip from "~/components/tooltip";
+import { Message, useI18n } from "~/i18n/provider";
 import {
   agentsContext,
   appConfigContext,
@@ -126,6 +127,7 @@ const ROUTE_MATCH: Record<string, (n: PopulatedNode) => boolean> = {
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -261,29 +263,29 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         }
         description={
           <>
-            Devices connected to your tailnet.{" "}
+            {t("machines.description")}{" "}
             <Link external styled to="https://tailscale.com/kb/1372/manage-devices">
-              Docs
+              {t("common.docs")}
             </Link>
           </>
         }
-        title="Machines"
+        title={t("nav.machines")}
       />
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <div className="relative w-64 max-w-full">
           <Search className="text-faint pointer-events-none absolute top-1/2 left-2.5 z-10 size-3.5 -translate-y-1/2" />
           <Input
             className="[&_input]:pl-8"
-            label="Search machines"
+            label={t("machines.search")}
             labelHidden
             maxLength={100}
             onChange={setSearchQuery}
-            placeholder="Search by name or IP"
+            placeholder={t("machines.searchPlaceholder")}
             value={searchQuery}
           />
           {searchQuery && (
             <button
-              aria-label="Clear search"
+              aria-label={t("machines.clearSearch")}
               className={cn(
                 "absolute right-2 top-1/2 -translate-y-1/2",
                 "p-1 rounded-full",
@@ -300,15 +302,25 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <MachineFilters users={loaderData.users} populatedNodes={loaderData.populatedNodes} />
         <span className="text-muted ml-auto text-xs whitespace-nowrap tabular-nums">
           {searchQuery || hasActiveFilters
-            ? `Showing ${filteredAndSortedNodes.length} of ${loaderData.populatedNodes.length} machines`
-            : `${loaderData.populatedNodes.length} machines`}
+            ? t(
+                loaderData.populatedNodes.length === 1
+                  ? "machines.showing.one"
+                  : "machines.showing.other",
+                { shown: filteredAndSortedNodes.length, total: loaderData.populatedNodes.length },
+              )
+            : t(
+                loaderData.populatedNodes.length === 1
+                  ? "machines.count.one"
+                  : "machines.count.other",
+                { count: loaderData.populatedNodes.length },
+              )}
         </span>
       </div>
       <Table>
         <thead>
           <tr>
             <SortHeader field="name" {...sortProps}>
-              Name
+              {t("machines.name")}
             </SortHeader>
             <SortHeader
               className="w-1/4"
@@ -319,8 +331,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     <Tooltip
                       content={
                         <span className="font-normal">
-                          Since MagicDNS is enabled, you can access devices based on their name and
-                          also at <Code>[name].{loaderData.magic}</Code>
+                          <Message
+                            id="machines.magicHint"
+                            values={{ domain: <Code>[name].{loaderData.magic}</Code> }}
+                          />
                         </span>
                       }
                     >
@@ -331,18 +345,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               }
               {...sortProps}
             >
-              Addresses
+              {t("machines.addresses")}
             </SortHeader>
             {loaderData.agent !== undefined ? (
               <SortHeader field="version" {...sortProps}>
-                Version
+                {t("machines.version")}
               </SortHeader>
             ) : undefined}
             <SortHeader field="lastSeen" {...sortProps}>
-              Last seen
+              {t("machines.lastSeen")}
             </SortHeader>
             <TableHeader className="w-12">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t("common.actions")}</span>
             </TableHeader>
           </tr>
         </thead>
@@ -353,7 +367,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 className="text-muted py-8 text-center"
                 colSpan={loaderData.agent !== undefined ? 5 : 4}
               >
-                No machines match the current filters
+                {t("machines.empty")}
               </TableCell>
             </tr>
           ) : (
@@ -388,5 +402,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  return <PageError error={error} page="machines" />;
+  const { t } = useI18n();
+  return <PageError error={error} page={t("nav.machines")} />;
 }
