@@ -1,9 +1,13 @@
 import type { MessageKey } from "./messages";
+import acls from "./zh-CN/acls";
+import editor from "./zh-CN/editor";
 import errors from "./zh-CN/errors";
 import machines from "./zh-CN/machines";
 import users from "./zh-CN/users";
 
 export default {
+  ...acls,
+  ...editor,
   ...machines,
   ...errors,
   ...users,

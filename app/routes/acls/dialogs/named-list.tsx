@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import Input from "~/components/input";
 import TokenList from "~/components/token-list";
+import { useI18n } from "~/i18n/provider";
 import { isValidGroupName, isValidTagName } from "~/utils/acl-policy";
 
 import EditorDialog from "./editor-dialog";
@@ -22,24 +23,14 @@ interface NamedListDialogProps {
 
 const COPY = {
   group: {
-    title: "group",
     prefix: "group:",
-    field: "Members",
-    fieldDescription: "Headscale users that belong to this group.",
-    empty: "No members yet",
     placeholder: "alice@",
     validate: isValidGroupName,
-    hint: "Group names must start with group: and may only contain lowercase letters, numbers and dashes.",
   },
   tag: {
-    title: "tag",
     prefix: "tag:",
-    field: "Tag owners",
-    fieldDescription: "Users and groups allowed to assign this tag to a node.",
-    empty: "No owners yet",
     placeholder: "group:ops",
     validate: isValidTagName,
-    hint: "Tag names must start with tag: and may only contain lowercase letters, numbers and dashes.",
   },
 } as const;
 
@@ -53,6 +44,7 @@ export default function NamedListDialog({
   suggestions,
   onSave,
 }: NamedListDialogProps) {
+  const { t } = useI18n();
   const copy = COPY[kind];
   const [draftName, setDraftName] = useState(name ?? copy.prefix);
   const [draftMembers, setDraftMembers] = useState<string[]>(() => [...(members ?? [])]);
@@ -67,26 +59,26 @@ export default function NamedListDialog({
 
   return (
     <EditorDialog
-      description={copy.hint}
+      description={t(`acls.${kind}.hint`)}
       isDisabled={nameIsInvalid}
       isOpen={isOpen}
       onSubmit={() => onSave(trimmedName, draftMembers)}
       setIsOpen={setIsOpen}
-      submitLabel={name ? `Update ${copy.title}` : `Add ${copy.title}`}
-      title={name ? `Edit ${copy.title} ${name}` : `New ${copy.title}`}
+      submitLabel={t(name ? `acls.${kind}.update` : `acls.${kind}.add`)}
+      title={name ? t(`acls.${kind}.edit`, { name }) : t(`acls.${kind}.new`)}
     >
       <Input
-        errorMessage={isDuplicate ? `A ${copy.title} with this name already exists.` : copy.hint}
+        errorMessage={t(isDuplicate ? `acls.${kind}.duplicate` : `acls.${kind}.hint`)}
         invalid={showNameError}
-        label="Name"
+        label={t("acls.name")}
         onChange={setDraftName}
         placeholder={`${copy.prefix}example`}
         value={draftName}
       />
       <TokenList
-        description={copy.fieldDescription}
-        emptyText={copy.empty}
-        label={copy.field}
+        description={t(`acls.${kind}.membersDescription`)}
+        emptyText={t(`acls.${kind}.empty`)}
+        label={t(`acls.${kind}.members`)}
         onChange={setDraftMembers}
         placeholder={copy.placeholder}
         suggestions={suggestions}

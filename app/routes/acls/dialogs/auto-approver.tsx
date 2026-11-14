@@ -3,6 +3,7 @@ import { useState } from "react";
 import Input from "~/components/input";
 import Select from "~/components/select";
 import TokenList from "~/components/token-list";
+import { useI18n } from "~/i18n/provider";
 import { isValidRoute } from "~/utils/acl-policy";
 
 import EditorDialog from "./editor-dialog";
@@ -32,6 +33,7 @@ export default function AutoApproverDialog({
   suggestions,
   onSave,
 }: AutoApproverDialogProps) {
+  const { t } = useI18n();
   const isNew = target === undefined;
   const [isExitNode, setIsExitNode] = useState(target === null);
   const [route, setRoute] = useState(target ?? "");
@@ -44,21 +46,21 @@ export default function AutoApproverDialog({
 
   return (
     <EditorDialog
-      description="Routes and exit nodes advertised by these users, groups or tags are approved without manual review."
+      description={t("acls.approverDescription")}
       isDisabled={isInvalid}
       isOpen={isOpen}
       onSubmit={() => onSave(isExitNode ? null : trimmedRoute, draft)}
       setIsOpen={setIsOpen}
-      submitLabel={isNew ? "Add approvers" : "Update approvers"}
-      title={isNew ? "New auto approver" : "Edit auto approver"}
+      submitLabel={t(isNew ? "acls.addApprovers" : "acls.updateApprovers")}
+      title={t(isNew ? "acls.newApprover" : "acls.editApprover")}
     >
       {isNew ? (
         <Select
           items={[
-            { value: "route", label: "Subnet route" },
-            { value: "exit", label: "Exit node" },
+            { value: "route", label: t("acls.subnetRoute") },
+            { value: "exit", label: t("acls.exitNode") },
           ]}
-          label="Approve"
+          label={t("acls.approve")}
           onValueChange={(value) => {
             const exit = value === "exit";
             setIsExitNode(exit);
@@ -70,22 +72,18 @@ export default function AutoApproverDialog({
       ) : null}
       {isExitNode ? null : (
         <Input
-          errorMessage={
-            isDuplicate
-              ? "This route already has approvers."
-              : "Enter an IPv4 or IPv6 prefix, for example 10.0.0.0/8."
-          }
+          errorMessage={isDuplicate ? t("acls.duplicateRoute") : t("acls.invalidRoute")}
           invalid={trimmedRoute.length > 0 && routeIsInvalid}
-          label="Route"
+          label={t("acls.route")}
           onChange={setRoute}
           placeholder="10.0.0.0/8"
           value={route}
         />
       )}
       <TokenList
-        description="Users, groups or tags whose machines are approved."
-        emptyText="No approvers yet"
-        label="Approvers"
+        description={t("acls.approversDescription")}
+        emptyText={t("acls.noApprovers")}
+        label={t("acls.approvers")}
         onChange={setDraft}
         placeholder="tag:router"
         suggestions={suggestions}

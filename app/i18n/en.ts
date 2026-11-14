@@ -1,8 +1,12 @@
+import acls from "./en/acls";
+import editor from "./en/editor";
 import errors from "./en/errors";
 import machines from "./en/machines";
 import users from "./en/users";
 
 export default {
+  ...acls,
+  ...editor,
   ...machines,
   ...errors,
   ...users,

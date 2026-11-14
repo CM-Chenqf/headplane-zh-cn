@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import Chip from "~/components/chip";
 import List from "~/components/list";
+import { useI18n } from "~/i18n/provider";
 import type { AclRule, Grant, Policy, SshRule } from "~/utils/acl-policy";
 
 import AclRuleDialog from "../dialogs/acl-rule";
@@ -37,6 +38,7 @@ export default function RulesEditor({
   sources,
   destinations,
 }: RulesEditorProps) {
+  const { t } = useI18n();
   const [editing, setEditing] = useState<Editing>(null);
 
   const aclRule =
@@ -192,13 +194,13 @@ export default function RulesEditor({
       ) : null}
 
       <Section
-        description="Rules are evaluated top to bottom. Traffic is denied unless a rule allows it."
+        description={t("acls.accessRulesDescription")}
         isDisabled={isDisabled}
         onAdd={() => setEditing({ kind: "acl", index: null })}
-        title="Access rules"
+        title={t("acls.accessRules")}
       >
         {policy.acls.length === 0 ? (
-          <Empty text="No access rules are defined yet." />
+          <Empty text={t("acls.noAccessRules")} />
         ) : (
           policy.acls.map((rule, index) => (
             <List.Item
@@ -208,7 +210,7 @@ export default function RulesEditor({
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 {/* An unknown action is shown verbatim, never relabelled. */}
                 <span className="text-xs font-semibold uppercase opacity-60">
-                  {rule.action === "accept" ? "Allow" : rule.action}
+                  {rule.action === "accept" ? t("acls.allow") : rule.action}
                 </span>
                 <ChipRow values={rule.src} />
                 <ArrowRight className="h-4 w-4 shrink-0 opacity-60" />
@@ -229,13 +231,13 @@ export default function RulesEditor({
 
       {canEditGrants ? (
         <Section
-          description="Grants allow traffic like access rules, with ports and protocols set separately. Headscale combines them with the access rules."
+          description={t("acls.grantsDescription")}
           isDisabled={isDisabled}
           onAdd={() => setEditing({ kind: "grant", index: null })}
-          title="Grants"
+          title={t("acls.grants")}
         >
           {policy.grants.length === 0 ? (
-            <Empty text="No grants are defined yet." />
+            <Empty text={t("acls.noGrants")} />
           ) : (
             policy.grants.map((entry, index) => (
               <List.Item
@@ -249,17 +251,17 @@ export default function RulesEditor({
                   <ChipRow values={entry.dst} />
                   {entry.ip.length > 0 ? (
                     <>
-                      <span className="text-xs opacity-60">on</span>
+                      <span className="text-xs opacity-60">{t("acls.on")}</span>
                       <ChipRow values={entry.ip} />
                     </>
                   ) : null}
                   {entry.via.length > 0 ? (
                     <>
-                      <span className="text-xs opacity-60">via</span>
+                      <span className="text-xs opacity-60">{t("acls.via")}</span>
                       <ChipRow values={entry.via} />
                     </>
                   ) : null}
-                  {"app" in entry.extra ? <Chip text="app capabilities" /> : null}
+                  {"app" in entry.extra ? <Chip text={t("acls.appCapabilities")} /> : null}
                 </div>
                 <RowActions
                   isDisabled={isDisabled}
@@ -275,13 +277,13 @@ export default function RulesEditor({
       ) : null}
 
       <Section
-        description="Control which nodes can be reached over Tailscale SSH and as which local user."
+        description={t("acls.sshRulesDescription")}
         isDisabled={isDisabled}
         onAdd={() => setEditing({ kind: "ssh", index: null })}
-        title="SSH rules"
+        title={t("acls.sshRules")}
       >
         {policy.ssh.length === 0 ? (
-          <Empty text="No SSH rules are defined yet." />
+          <Empty text={t("acls.noSshRules")} />
         ) : (
           policy.ssh.map((rule, index) => (
             <List.Item
@@ -290,11 +292,17 @@ export default function RulesEditor({
             >
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <Terminal className="h-4 w-4 shrink-0 opacity-60" />
-                <span className="text-xs font-semibold uppercase opacity-60">{rule.action}</span>
+                <span className="text-xs font-semibold uppercase opacity-60">
+                  {rule.action === "accept"
+                    ? t("acls.sshAccept")
+                    : rule.action === "check"
+                      ? t("acls.sshCheck")
+                      : rule.action}
+                </span>
                 <ChipRow values={rule.src} />
                 <ArrowRight className="h-4 w-4 shrink-0 opacity-60" />
                 <ChipRow values={rule.dst} />
-                <span className="text-xs opacity-60">as</span>
+                <span className="text-xs opacity-60">{t("acls.as")}</span>
                 <ChipRow values={rule.users} />
               </div>
               <RowActions
@@ -310,13 +318,13 @@ export default function RulesEditor({
       </Section>
 
       <Section
-        description="Named IP addresses and CIDR ranges that can be referenced from rules."
+        description={t("acls.hostsDescription")}
         isDisabled={isDisabled}
         onAdd={() => setEditing({ kind: "host", name: null })}
-        title="Hosts"
+        title={t("acls.hosts")}
       >
         {hostEntries.length === 0 ? (
-          <Empty text="No hosts are defined yet." />
+          <Empty text={t("acls.noHosts")} />
         ) : (
           hostEntries.map(([name, value]) => (
             <List.Item key={name}>
@@ -339,20 +347,20 @@ export default function RulesEditor({
       </Section>
 
       <Section
-        description="Subnet routes and exit nodes advertised by these users, groups or tags are approved automatically."
+        description={t("acls.autoApproversDescription")}
         isDisabled={isDisabled}
         onAdd={() => setEditing({ kind: "approver" })}
-        title="Auto approvers"
+        title={t("acls.autoApprovers")}
       >
         {approverEntries.length === 0 ? (
-          <Empty text="No auto approvers are defined yet." />
+          <Empty text={t("acls.noAutoApprovers")} />
         ) : (
           approverEntries.map(([target, approvers]) => (
             <List.Item key={target ?? "exit-node"}>
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <Route className="h-4 w-4 shrink-0 opacity-60" />
                 <span className={target === null ? "text-sm" : "font-mono text-sm"}>
-                  {target ?? "Exit nodes"}
+                  {target ?? t("acls.exitNodes")}
                 </span>
                 <ArrowRight className="h-4 w-4 shrink-0 opacity-60" />
                 <ChipRow values={approvers} />
