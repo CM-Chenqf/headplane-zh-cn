@@ -1,9 +1,10 @@
 import Avatar from "~/components/avatar";
 import Chip from "~/components/chip";
 import { TableCell } from "~/components/table";
+import { useI18n } from "~/i18n/provider";
 import type { Role } from "~/server/web/roles";
 import cn from "~/utils/cn";
-import { formatTimeDelta } from "~/utils/time";
+import { formatDateTime, formatTimeDelta } from "~/utils/time";
 
 import type { HeadplaneUserData } from "../overview";
 import MachinesSeen from "./machines-seen";
@@ -28,6 +29,7 @@ export default function HeadplaneUserRow({
   policyGroups,
   policyHasComments,
 }: HeadplaneUserRowProps) {
+  const { locale } = useI18n();
   const displayName = user.linkedHeadscaleUser?.displayName || user.name || user.email || user.sub;
   const displayUsername =
     user.linkedHeadscaleUser?.displayName &&
@@ -61,8 +63,8 @@ export default function HeadplaneUserRow({
       </TableCell>
       <TableCell className="text-muted whitespace-nowrap">
         {user.lastLoginAt ? (
-          <span suppressHydrationWarning title={new Date(user.lastLoginAt).toLocaleString()}>
-            {formatTimeDelta(new Date(user.lastLoginAt))}
+          <span suppressHydrationWarning title={formatDateTime(new Date(user.lastLoginAt), locale)}>
+            {formatTimeDelta(new Date(user.lastLoginAt), locale)}
           </span>
         ) : (
           "Never"

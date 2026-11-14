@@ -11,11 +11,12 @@ import { HeadplaneAgentTag } from "~/components/tags/HeadplaneAgent";
 import { SubnetTag } from "~/components/tags/Subnet";
 import { TailscaleSSHTag } from "~/components/tags/TailscaleSSH";
 import Tooltip from "~/components/tooltip";
+import { useI18n } from "~/i18n/provider";
 import type { User } from "~/types";
 import { copyToClipboard } from "~/utils/copy";
 import * as hinfo from "~/utils/host-info";
 import { isNoExpiry, type PopulatedNode } from "~/utils/node-info";
-import { formatTimeDelta } from "~/utils/time";
+import { formatDateTime, formatTimeDelta } from "~/utils/time";
 import toast from "~/utils/toast";
 import { getUserDisplayName, isTaggedDevicesUser } from "~/utils/user";
 
@@ -46,6 +47,7 @@ export default function MachineRow({
   supportsNodeOwnerChange,
   supportsDisablingKeyExpiry,
 }: Props) {
+  const { locale } = useI18n();
   const uiTags = useMemo(() => uiTagsForNode(node, isAgent), [node, isAgent]);
 
   const addresses = useMemo(() => {
@@ -154,9 +156,9 @@ export default function MachineRow({
           <span
             className="text-muted"
             suppressHydrationWarning
-            title={new Date(node.lastSeen).toLocaleString()}
+            title={formatDateTime(new Date(node.lastSeen), locale)}
           >
-            {formatTimeDelta(new Date(node.lastSeen))}
+            {formatTimeDelta(new Date(node.lastSeen), locale)}
           </span>
         )}
       </TableCell>

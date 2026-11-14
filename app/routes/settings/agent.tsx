@@ -7,6 +7,7 @@ import PageError from "~/components/page-error";
 import PageHeader from "~/components/page-header";
 import Section, { Row, RowList, SettingList, SettingRow } from "~/components/section";
 import StatusCircle from "~/components/status-circle";
+import { useI18n } from "~/i18n/provider";
 import {
   agentsContext,
   authContext,
@@ -17,7 +18,7 @@ import {
 import { nodesResource } from "~/server/headscale/live-store";
 import { Capabilities } from "~/server/web/roles";
 import { getTSVersion } from "~/utils/host-info";
-import { formatTimeDelta } from "~/utils/time";
+import { formatDateTime, formatTimeDelta } from "~/utils/time";
 
 import type { Route } from "./+types/agent";
 
@@ -110,6 +111,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
+  const { locale, t } = useI18n();
   const fetcher = useFetcher<typeof action>();
   const description = (
     <>
@@ -178,8 +180,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </SettingRow>
           <SettingRow label="Last synced">
             {loaderData.syncedAt ? (
-              <span suppressHydrationWarning title={new Date(loaderData.syncedAt).toLocaleString()}>
-                {formatTimeDelta(new Date(loaderData.syncedAt))}
+              <span
+                suppressHydrationWarning
+                title={formatDateTime(new Date(loaderData.syncedAt), locale)}
+              >
+                {formatTimeDelta(new Date(loaderData.syncedAt), locale)}
               </span>
             ) : (
               <span className="text-muted">Never</span>
@@ -193,9 +198,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             {loaderData.startedAt ? (
               <span
                 suppressHydrationWarning
-                title={new Date(loaderData.startedAt).toLocaleString()}
+                title={formatDateTime(new Date(loaderData.startedAt), locale)}
               >
-                Started {formatTimeDelta(new Date(loaderData.startedAt))}
+                {t("time.started", {
+                  time: formatTimeDelta(new Date(loaderData.startedAt), locale),
+                })}
               </span>
             ) : (
               <span className="text-muted">Not running</span>
@@ -249,7 +256,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 action={
                   <span className="text-muted text-sm whitespace-nowrap" suppressHydrationWarning>
                     {node.updatedAt
-                      ? `Details from ${formatTimeDelta(new Date(node.updatedAt))}`
+                      ? t("time.detailsFrom", {
+                          time: formatTimeDelta(new Date(node.updatedAt), locale),
+                        })
                       : "No details yet"}
                   </span>
                 }

@@ -6,6 +6,7 @@ import Callout from "~/components/callout";
 import Code from "~/components/code";
 import Input from "~/components/input";
 import Link from "~/components/link";
+import { Message, useI18n } from "~/i18n/provider";
 import { appConfigContext, authContext, oidcContext } from "~/server/context";
 import type { OidcError, OidcService } from "~/server/oidc/provider";
 import { useLiveData } from "~/utils/live-data";
@@ -77,6 +78,7 @@ function logLoginOidcError(context: string, error: OidcError): void {
 }
 
 export default function Page({ loaderData, actionData }: Route.ComponentProps) {
+  const { t } = useI18n();
   const { isCookieSecureEnabled, isOidcConnectorEnabled, oidcErrorCodes, urlState } = loaderData;
 
   const [showCookieWarning, setShowCookieWarning] = useState(false);
@@ -126,16 +128,16 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
   ) : oidcErrorCodes.length > 0 ? (
     <OidcConfigErrorNotice errors={oidcErrorCodes} />
   ) : showCookieWarning ? (
-    <Callout className="mb-6" title="Sign-in won't work over HTTP" variant="error">
-      Headplane is set to use secure cookies, but this page was loaded over an insecure connection.{" "}
+    <Callout className="mb-6" title={t("login.httpTitle")} variant="error">
+      {t("login.httpDescription")}{" "}
       <Link external styled to="https://headplane.net/troubleshooting#signing-in-does-nothing">
-        Docs
+        {t("common.docs")}
       </Link>
     </Callout>
   ) : undefined;
 
   return (
-    <Shell title="Sign in to Headplane">
+    <Shell title={t("login.title")}>
       {notice}
       {isOidcConnectorEnabled && (
         <>
@@ -145,11 +147,11 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
             render={<RouterLink prefetch="none" reloadDocument to="/oidc/start" />}
             variant="primary"
           >
-            Continue with SSO
+            {t("login.sso")}
           </Button>
           <div className="text-muted my-6 flex items-center gap-3 text-xs">
             <span className="bg-line h-px flex-1" />
-            or
+            {t("login.or")}
             <span className="bg-line h-px flex-1" />
           </div>
         </>
@@ -157,15 +159,16 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
       <Form className="flex flex-col gap-3" method="POST">
         <Input
           autoComplete="current-password"
-          errorMessage={actionData?.success === false ? actionData.message : undefined}
+          errorMessage={actionData?.success === false ? t(actionData.messageKey) : undefined}
           invalid={actionData?.success === false}
-          label="API key"
+          label={t("common.apiKey")}
           labelTooltip={
-            <>
-              Create one by running{" "}
-              <Code className="whitespace-nowrap">headscale apikeys create</Code> on your Headscale
-              server.
-            </>
+            <Message
+              id="login.keyHint"
+              values={{
+                command: <Code className="whitespace-nowrap">headscale apikeys create</Code>,
+              }}
+            />
           }
           name="api_key"
           placeholder="hskey-api-…"
@@ -178,7 +181,7 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
           type="submit"
           variant={isOidcConnectorEnabled ? "secondary" : "primary"}
         >
-          Sign in with API key
+          {t("login.apiKey")}
         </Button>
       </Form>
     </Shell>

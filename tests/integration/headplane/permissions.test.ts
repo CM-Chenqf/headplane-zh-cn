@@ -20,6 +20,8 @@ const PUBLIC = new Set([
   "routes/util/healthz.ts",
   "routes/util/info.ts",
   "routes/util/color-scheme.ts",
+  // A public preference action: no tailnet data, identity or permissions change.
+  "routes/util/locale.ts",
   "routes/util/redirect.ts",
   "routes/auth/login/page.tsx",
   "routes/auth/logout.ts",
