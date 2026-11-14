@@ -1,4 +1,5 @@
 import ActionDialog from "~/components/action-dialog";
+import { useI18n } from "~/i18n/provider";
 
 interface TransferOwnershipProps {
   targetHeadplaneUserId: string;
@@ -13,16 +14,17 @@ export default function TransferOwnership({
   isOpen,
   setIsOpen,
 }: TransferOwnershipProps) {
+  const { t } = useI18n();
   return (
     <ActionDialog
-      description={`${targetDisplayName} becomes the owner of this Headplane instance and you become an Admin. Only the new owner can transfer it back.`}
+      description={t("users.transferDescription", { name: targetDisplayName })}
       fields={{ headplane_user_id: targetHeadplaneUserId }}
       intent="transfer"
       isDestructive
       onOpenChange={setIsOpen}
       open={isOpen}
-      submitLabel="Transfer ownership"
-      title={`Transfer ownership to ${targetDisplayName}?`}
+      submitLabel={t("users.transfer")}
+      title={t("users.transferTitle", { name: targetDisplayName })}
     />
   );
 }

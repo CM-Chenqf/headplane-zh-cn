@@ -1,3 +1,5 @@
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { translate } from "~/i18n/messages";
 import type { User } from "~/types/User";
 
 // Headscale 0.28+ assigns tagged nodes to this placeholder user.
@@ -5,9 +7,9 @@ export function isTaggedDevicesUser(user: User): boolean {
   return user.name === "tagged-devices";
 }
 
-export function getUserDisplayName(user: User): string {
+export function getUserDisplayName(user: User, locale: Locale = defaultLocale): string {
   if (isTaggedDevicesUser(user)) {
-    return "Tag-owned";
+    return translate(locale, "users.tagOwned");
   }
 
   return user.name || user.displayName || user.email || user.id;

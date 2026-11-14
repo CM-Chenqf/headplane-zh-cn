@@ -9,6 +9,7 @@ import windowsSvg from "~/assets/windows.svg";
 import Button from "~/components/button";
 import CodeBlock from "~/components/code-block";
 import Link from "~/components/link";
+import { Message, useI18n } from "~/i18n/provider";
 import {
   appConfigContext,
   authContext,
@@ -96,16 +97,13 @@ const downloads = [
 ];
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const { t } = useI18n();
   const { email, server } = loaderData;
 
   return (
-    <Shell
-      description="You don't have access to the dashboard, but your devices can still join the network."
-      isWide
-      title="Connect your devices"
-    >
+    <Shell description={t("users.home.description")} isWide title={t("users.home.title")}>
       <ol className="flex flex-col gap-6">
-        <Step number={1} title="Install Tailscale">
+        <Step number={1} title={t("users.home.install")}>
           <div className="flex flex-wrap gap-2">
             {downloads.map((d) => (
               <Button
@@ -120,23 +118,30 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             ))}
           </div>
           <p className="text-muted mt-4 mb-2 text-sm">
-            On Linux, use the install script (
-            <Link
-              external
-              styled
-              to="https://github.com/tailscale/tailscale/blob/main/scripts/installer.sh"
-            >
-              source
-            </Link>
-            ):
+            <Message
+              id="users.home.linux"
+              values={{
+                source: (
+                  <Link
+                    external
+                    styled
+                    to="https://github.com/tailscale/tailscale/blob/main/scripts/installer.sh"
+                  >
+                    {t("users.home.source")}
+                  </Link>
+                ),
+              }}
+            />
           </p>
           <CodeBlock>curl -fsSL https://tailscale.com/install.sh | sh</CodeBlock>
         </Step>
-        <Step number={2} title="Sign in to this network">
+        <Step number={2} title={t("users.home.signIn")}>
           <CodeBlock>{`tailscale up --login-server=${server}`}</CodeBlock>
           <p className="text-muted mt-2 text-sm">
-            Then open the link it prints. In the desktop and mobile apps, set a custom coordination
-            server to <span className="text-fg break-all">{server}</span> instead.
+            <Message
+              id="users.home.signInHint"
+              values={{ server: <span className="text-fg break-all">{server}</span> }}
+            />
           </p>
         </Step>
       </ol>
@@ -173,17 +178,19 @@ interface LinkStatusProps {
 }
 
 function LinkStatus({ hasHeadscaleSso, isLinked, linkedName }: LinkStatusProps) {
+  const { t } = useI18n();
   if (isLinked) {
     return (
       <Status icon={<Check className="text-ok size-4" />}>
         {linkedName ? (
-          <>
-            Linked as <span className="font-medium">{linkedName}</span>
-          </>
+          <Message
+            id="users.home.linkedAs"
+            values={{ name: <span className="font-medium">{linkedName}</span> }}
+          />
         ) : (
-          "Your account is linked"
+          t("users.home.linked")
         )}
-        {hasHeadscaleSso === false && <Detail>An administrator approves each new device.</Detail>}
+        {hasHeadscaleSso === false && <Detail>{t("users.home.approval")}</Detail>}
       </Status>
     );
   }
@@ -198,19 +205,16 @@ function LinkStatus({ hasHeadscaleSso, isLinked, linkedName }: LinkStatusProps) 
           </span>
         }
       >
-        Waiting for your first device…
-        <Detail>
-          Your account links once a device signs in with single sign-on. Not linking? Ask an
-          administrator.
-        </Detail>
+        {t("users.home.waiting")}
+        <Detail>{t("users.home.waitingHint")}</Detail>
       </Status>
     );
   }
 
   return (
     <Status icon={<TriangleAlert className="text-warn size-4" />}>
-      Ask an administrator to link your account
-      {hasHeadscaleSso === false && <Detail>They'll also approve each new device.</Detail>}
+      {t("users.home.askAdmin")}
+      {hasHeadscaleSso === false && <Detail>{t("users.home.alsoApprove")}</Detail>}
     </Status>
   );
 }

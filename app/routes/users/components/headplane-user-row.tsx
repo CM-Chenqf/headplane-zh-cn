@@ -2,7 +2,6 @@ import Avatar from "~/components/avatar";
 import Chip from "~/components/chip";
 import { TableCell } from "~/components/table";
 import { useI18n } from "~/i18n/provider";
-import type { Role } from "~/server/web/roles";
 import cn from "~/utils/cn";
 import { formatDateTime, formatTimeDelta } from "~/utils/time";
 
@@ -29,7 +28,7 @@ export default function HeadplaneUserRow({
   policyGroups,
   policyHasComments,
 }: HeadplaneUserRowProps) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const displayName = user.linkedHeadscaleUser?.displayName || user.name || user.email || user.sub;
   const displayUsername =
     user.linkedHeadscaleUser?.displayName &&
@@ -53,13 +52,13 @@ export default function HeadplaneUserRow({
                   {group}
                 </span>
               ))}
-              {!user.headscaleUserId && <Chip text="Not linked" variant="warn" />}
+              {!user.headscaleUserId && <Chip text={t("users.notLinked")} variant="warn" />}
             </div>
           </div>
         </div>
       </TableCell>
       <TableCell className={cn(user.role === "member" && "text-muted")}>
-        {mapRoleToName(user.role)}
+        {t(`users.role.${user.role}`)}
       </TableCell>
       <TableCell className="text-muted whitespace-nowrap">
         {user.lastLoginAt ? (
@@ -67,7 +66,7 @@ export default function HeadplaneUserRow({
             {formatTimeDelta(new Date(user.lastLoginAt), locale)}
           </span>
         ) : (
-          "Never"
+          t("common.never")
         )}
       </TableCell>
       <TableCell className="whitespace-nowrap">
@@ -87,25 +86,4 @@ export default function HeadplaneUserRow({
       </TableCell>
     </tr>
   );
-}
-
-function mapRoleToName(role: Role) {
-  switch (role) {
-    case "owner":
-      return "Owner";
-    case "admin":
-      return "Admin";
-    case "network_admin":
-      return "Network Admin";
-    case "it_admin":
-      return "IT Admin";
-    case "auditor":
-      return "Auditor";
-    case "viewer":
-      return "Viewer";
-    case "member":
-      return "Member";
-    default:
-      return "Unknown";
-  }
 }

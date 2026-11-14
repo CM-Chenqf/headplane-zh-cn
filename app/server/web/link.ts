@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
 import { usersResource } from "~/server/headscale/live-store";
 import type { UserPrincipal } from "~/server/web/auth";
@@ -44,5 +45,9 @@ export async function autoLink(args: Args, principal: UserPrincipal) {
 
 export async function listPickableUsers(args: Args) {
   const users = await listUnclaimed(args);
-  return sortUsersByDisplayName(users).map((u) => ({ id: u.id, name: getUserDisplayName(u) }));
+  const locale = await getLocale(args.request);
+  return sortUsersByDisplayName(users).map((u) => ({
+    id: u.id,
+    name: getUserDisplayName(u, locale),
+  }));
 }

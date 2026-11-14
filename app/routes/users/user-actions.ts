@@ -1,5 +1,9 @@
+import type { ActionFunctionArgs } from "react-router";
 import * as v from "valibot";
 
+import type { Locale } from "~/i18n/locale";
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
 import type { HeadscaleClient } from "~/server/headscale/api";
 import { isDataWithApiError } from "~/server/headscale/api/error-client";
@@ -10,185 +14,209 @@ import { Capabilities, Roles, type Role } from "~/server/web/roles";
 import { isValidGroupName, parsePolicy, serializePolicy, setUserGroups } from "~/utils/acl-policy";
 import { invalid, list, ok } from "~/utils/form";
 
-import { username } from "./schemas";
+import { usernameSchema } from "./schemas";
 
-const id = v.pipe(v.string(), v.minLength(1));
-const optionalText = v.pipe(
-  v.optional(v.string(), ""),
-  v.trim(),
-  v.transform((value) => value || undefined),
-);
+function createUserAction(locale: Locale) {
+  const t = createTranslator(locale);
+  const id = v.pipe(v.string(t("users.validation.id")), v.minLength(1, t("users.validation.id")));
+  const username = usernameSchema(locale);
+  const optionalText = v.pipe(
+    v.optional(v.string(t("users.validation.text")), ""),
+    v.trim(),
+    v.transform((value) => value || undefined),
+  );
 
-const assignableRoles = Object.keys(Roles).filter((role) => role !== "owner") as Exclude<
-  Role,
-  "owner"
->[];
+  const assignableRoles = Object.keys(Roles).filter((role) => role !== "owner") as Exclude<
+    Role,
+    "owner"
+  >[];
 
-export const userAction = createAction({
-  capability: Capabilities.write_users,
-  async setup({ request, context }) {
-    const { principal, api } = await context.get(requestApiContext)(request);
-    const liveStore = context.get(headscaleLiveStoreContext);
+  return createAction({
+    locale,
+    validationMessage: t("validation.required"),
+    capability: Capabilities.write_users,
+    async setup({ request, context }) {
+      const { principal, api } = await context.get(requestApiContext)(request);
+      const liveStore = context.get(headscaleLiveStoreContext);
 
-    return {
-      principal,
-      api,
-      auth: context.get(authContext),
-      refresh: () => liveStore.refresh(usersResource, api),
-    };
-  },
-  intents: {
-    create: {
-      fields: { name: username, display_name: optionalText, email: optionalText },
-      async handler(input, { api, refresh }) {
-        await requireFreeName(api, input.name);
-        await api.users.create({
-          name: input.name,
-          displayName: input.display_name,
-          email: input.email,
-        });
-        await refresh();
-        return ok("User created");
-      },
+      return {
+        principal,
+        api,
+        auth: context.get(authContext),
+        refresh: () => liveStore.refresh(usersResource, api),
+      };
     },
-    delete: {
-      fields: { headscale_user_id: id },
-      async handler(input, { api, auth, refresh }) {
-        await api.users.delete(input.headscale_user_id);
-        for (const user of await auth.listUsers()) {
-          if (user.headscale_user_id === input.headscale_user_id) {
-            await auth.unlinkHeadscaleUser(user.id);
+    intents: {
+      create: {
+        fields: { name: username, display_name: optionalText, email: optionalText },
+        async handler(input, { api, refresh }) {
+          await requireFreeName(api, input.name);
+          await api.users.create({
+            name: input.name,
+            displayName: input.display_name,
+            email: input.email,
+          });
+          await refresh();
+          return ok(t("users.success.created"));
+        },
+      },
+      delete: {
+        fields: { headscale_user_id: id },
+        async handler(input, { api, auth, refresh }) {
+          await api.users.delete(input.headscale_user_id);
+          for (const user of await auth.listUsers()) {
+            if (user.headscale_user_id === input.headscale_user_id) {
+              await auth.unlinkHeadscaleUser(user.id);
+            }
           }
-        }
 
-        await refresh();
-        return ok("User deleted");
+          await refresh();
+          return ok(t("users.success.deleted"));
+        },
       },
-    },
-    rename: {
-      fields: { headscale_user_id: id, name: username },
-      async handler(input, { api, refresh }) {
-        const users = await api.users.list({ id: input.headscale_user_id });
-        const user = users.find((user) => user.id === input.headscale_user_id);
-        if (!user) {
-          throw new ActionError("This user no longer exists.", 404);
-        }
+      rename: {
+        fields: { headscale_user_id: id, name: username },
+        async handler(input, { api, refresh }) {
+          const users = await api.users.list({ id: input.headscale_user_id });
+          const user = users.find((user) => user.id === input.headscale_user_id);
+          if (!user) {
+            throw new ActionError(t("users.error.notFound"), 404);
+          }
 
-        if (user.provider === "oidc") {
-          throw new ActionError("Users managed by OIDC can't be renamed.", 403);
-        }
+          if (user.provider === "oidc") {
+            throw new ActionError(t("users.error.oidcRename"), 403);
+          }
 
-        await requireFreeName(api, input.name);
-        await api.users.rename(user.id, input.name);
-        await refresh();
-        return ok("User renamed");
+          await requireFreeName(api, input.name);
+          await api.users.rename(user.id, input.name);
+          await refresh();
+          return ok(t("users.success.renamed"));
+        },
       },
-    },
-    reassign: {
-      fields: { headplane_user_id: id, role: v.picklist(assignableRoles, "Choose a role.") },
-      async handler(input, { auth }) {
-        const user = await requireHeadplaneUser(auth, input.headplane_user_id);
-        if (user.role === "owner") {
-          throw new ActionError("Transfer ownership to change the owner's role.", 403);
-        }
+      reassign: {
+        fields: {
+          headplane_user_id: id,
+          role: v.picklist(assignableRoles, t("users.validation.role")),
+        },
+        async handler(input, { auth }) {
+          const user = await requireHeadplaneUser(auth, input.headplane_user_id);
+          if (user.role === "owner") {
+            throw new ActionError(t("users.error.ownerRole"), 403);
+          }
 
-        if (!(await auth.reassignUser(user.id, input.role))) {
-          throw new ActionError("Couldn't change the role. Try again.", 500);
-        }
+          if (!(await auth.reassignUser(user.id, input.role))) {
+            throw new ActionError(t("users.error.reassign"), 500);
+          }
 
-        return ok("Role changed");
+          return ok(t("users.success.roleChanged"));
+        },
       },
-    },
-    transfer: {
-      fields: { headplane_user_id: id },
-      async handler(input, { auth, principal }) {
-        if (!isUserPrincipal(principal) || principal.user.role !== "owner") {
-          throw new ActionError("Only the owner can transfer ownership.", 403);
-        }
+      transfer: {
+        fields: { headplane_user_id: id },
+        async handler(input, { auth, principal }) {
+          if (!isUserPrincipal(principal) || principal.user.role !== "owner") {
+            throw new ActionError(t("users.error.ownerOnly"), 403);
+          }
 
-        const target = await requireHeadplaneUser(auth, input.headplane_user_id);
-        if (target.id === principal.user.id) {
-          throw new ActionError("You already own Headplane.");
-        }
+          const target = await requireHeadplaneUser(auth, input.headplane_user_id);
+          if (target.id === principal.user.id) {
+            throw new ActionError(t("users.error.alreadyOwner"));
+          }
 
-        if (!(await auth.transferOwnership(principal.user.id, input.headplane_user_id))) {
-          throw new ActionError("Couldn't transfer ownership. Try again.", 500);
-        }
+          if (!(await auth.transferOwnership(principal.user.id, input.headplane_user_id))) {
+            throw new ActionError(t("users.error.transfer"), 500);
+          }
 
-        return ok("Ownership transferred");
+          return ok(t("users.success.transferred"));
+        },
       },
-    },
-    link: {
-      fields: {
-        headplane_user_id: id,
-        headscale_user_id: v.pipe(v.string(), v.minLength(1, "Choose a Headscale user.")),
+      link: {
+        fields: {
+          headplane_user_id: id,
+          headscale_user_id: v.pipe(
+            v.string(t("users.validation.headscaleUser")),
+            v.minLength(1, t("users.validation.headscaleUser")),
+          ),
+        },
+        async handler(input, { api, auth }) {
+          const user = await requireHeadplaneUser(auth, input.headplane_user_id);
+          const [headscaleUser] = await api.users.list({ id: input.headscale_user_id });
+          if (headscaleUser?.id !== input.headscale_user_id) {
+            throw new ActionError(t("users.error.headscaleNotFound"), 404);
+          }
+
+          if (!(await auth.linkHeadscaleUser(user.id, headscaleUser.id))) {
+            throw new ActionError(t("users.error.claimed"), 409);
+          }
+
+          return ok(t("users.success.linked"));
+        },
       },
-      async handler(input, { api, auth }) {
-        const user = await requireHeadplaneUser(auth, input.headplane_user_id);
-        const [headscaleUser] = await api.users.list({ id: input.headscale_user_id });
-        if (headscaleUser?.id !== input.headscale_user_id) {
-          throw new ActionError("That Headscale user no longer exists.", 404);
-        }
+      update_groups: {
+        // Group membership lives in the policy, so `write_policy` is needed too.
+        capability: Capabilities.write_policy,
+        fields: {
+          user_name: id,
+          groups: list(v.string(t("users.validation.text")), t("users.validation.text")),
+        },
+        async handler(input, { api }) {
+          const groups = input.groups.map((group) => group.trim()).filter((group) => group !== "");
+          const invalidGroups = groups.filter((group) => !isValidGroupName(group));
+          if (invalidGroups.length > 0) {
+            return invalid({
+              form: t("users.error.invalidGroups", { groups: invalidGroups.join(", ") }),
+            });
+          }
 
-        if (!(await auth.linkHeadscaleUser(user.id, headscaleUser.id))) {
-          throw new ActionError("That Headscale user is already linked to another account.", 409);
-        }
+          const { policy } = await api.policy.get();
+          const parsed = parsePolicy(policy);
+          if (!parsed.ok) {
+            throw new ActionError(t("users.error.policyParse", { error: parsed.error }));
+          }
 
-        return ok("Headscale user linked");
-      },
-    },
-    update_groups: {
-      // Group membership lives in the policy, so `write_policy` is needed too.
-      capability: Capabilities.write_policy,
-      fields: { user_name: id, groups: list() },
-      async handler(input, { api }) {
-        const groups = input.groups.map((group) => group.trim()).filter((group) => group !== "");
-        const invalidGroups = groups.filter((group) => !isValidGroupName(group));
-        if (invalidGroups.length > 0) {
-          return invalid({ form: `Invalid group name: ${invalidGroups.join(", ")}` });
-        }
-
-        const { policy } = await api.policy.get();
-        const parsed = parsePolicy(policy);
-        if (!parsed.ok) {
-          throw new ActionError(`The ACL policy couldn't be parsed: ${parsed.error}`);
-        }
-
-        try {
-          await api.policy.set(
-            serializePolicy(setUserGroups(parsed.policy, input.user_name, groups)),
-          );
-        } catch (error) {
-          // Headscale refuses policy writes in `file` mode. The UI hides group
-          // editing then, but a stale page can still get here.
-          if (isDataWithApiError(error) && error.data.rawData.includes("update is disabled")) {
-            throw new ActionError(
-              "The ACL policy is read-only. Set `policy.mode` to `database` in your Headscale configuration to edit groups.",
-              403,
+          try {
+            await api.policy.set(
+              serializePolicy(setUserGroups(parsed.policy, input.user_name, groups)),
             );
+          } catch (error) {
+            // Headscale refuses policy writes in `file` mode. The UI hides group
+            // editing then, but a stale page can still get here.
+            if (isDataWithApiError(error) && error.data.rawData.includes("update is disabled")) {
+              throw new ActionError(t("users.error.policyReadOnly"), 403);
+            }
+
+            throw error;
           }
 
-          throw error;
-        }
-
-        return ok("Groups updated");
+          return ok(t("users.success.groupsUpdated"));
+        },
       },
     },
-  },
-});
+  });
 
-async function requireFreeName(api: HeadscaleClient, name: string) {
-  const [existing] = await api.users.list({ name });
-  if (existing?.name === name) {
-    throw new ActionError(`A user named ${name} already exists.`, 409);
+  async function requireFreeName(api: HeadscaleClient, name: string) {
+    const [existing] = await api.users.list({ name });
+    if (existing?.name === name) {
+      throw new ActionError(t("users.error.duplicateName", { name }), 409);
+    }
+  }
+
+  async function requireHeadplaneUser(auth: AuthService, id: string) {
+    const user = (await auth.listUsers()).find((user) => user.id === id);
+    if (!user) {
+      throw new ActionError(t("users.error.notFound"), 404);
+    }
+
+    return user;
   }
 }
 
-async function requireHeadplaneUser(auth: AuthService, id: string) {
-  const user = (await auth.listUsers()).find((user) => user.id === id);
-  if (!user) {
-    throw new ActionError("This user no longer exists.", 404);
-  }
+const localizedActions = {
+  en: createUserAction("en"),
+  "zh-CN": createUserAction("zh-CN"),
+};
 
-  return user;
-}
+export const userAction = Object.assign(
+  async (args: ActionFunctionArgs) => localizedActions[await getLocale(args.request)](args),
+  { intents: localizedActions.en.intents },
+);

@@ -62,6 +62,19 @@ describe("linking an account to a Headscale user", () => {
       data: { message: "That user can't be linked anymore. Pick another." },
     });
     expect(await linkedTo(admin.userId)).toBeFalsy();
+    const chinese = await app.call(action, "/link", {
+      as: admin.cookie,
+      headers: { "Accept-Language": "zh-CN" },
+      form: { headscale_user_id: users["frank@"].id },
+    });
+    expect(statusOf(chinese)).toBe(400);
+    expect(chinese).toMatchObject({
+      data: {
+        message: "该用户已无法关联，请选择其他用户。",
+        messageKey: "users.selfLink.conflict",
+      },
+    });
+    expect(await linkedTo(admin.userId)).toBeFalsy();
   });
 
   test("an account with a matching email is linked without asking", async () => {

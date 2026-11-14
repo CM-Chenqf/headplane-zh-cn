@@ -1,10 +1,12 @@
 import type { MessageKey } from "./messages";
 import errors from "./zh-CN/errors";
 import machines from "./zh-CN/machines";
+import users from "./zh-CN/users";
 
 export default {
   ...machines,
   ...errors,
+  ...users,
   "common.close": "关闭",
   "common.actions": "操作",
   "common.cancel": "取消",

@@ -7,6 +7,7 @@
     "agent",
     "ssh",
     "language",
-    "machines-bilingual"
+    "machines-bilingual",
+    "users-bilingual"
   ]
 }

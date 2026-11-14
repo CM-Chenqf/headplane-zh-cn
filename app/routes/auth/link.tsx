@@ -2,6 +2,9 @@ import { data, Form, Link as RouterLink, redirect, useNavigation } from "react-r
 
 import Button from "~/components/button";
 import Select from "~/components/select";
+import { getLocale } from "~/i18n/locale.server";
+import { translate } from "~/i18n/messages";
+import { useI18n } from "~/i18n/provider";
 import { authContext } from "~/server/context";
 import { isUserPrincipal } from "~/server/web/auth";
 import { autoLink, listPickableUsers } from "~/server/web/link";
@@ -57,28 +60,30 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   const isPickable = users.some((u) => u.id === headscaleUserId);
   if (!isPickable || !(await auth.linkHeadscaleUser(principal.user.id, headscaleUserId!))) {
-    return data({ message: "That user can't be linked anymore. Pick another." }, { status: 400 });
+    const messageKey = "users.selfLink.conflict" as const;
+    return data(
+      { message: translate(await getLocale(request), messageKey), messageKey },
+      { status: 400 },
+    );
   }
 
   return redirect("/");
 }
 
 export default function Page({ loaderData, actionData }: Route.ComponentProps) {
+  const { t } = useI18n();
   const navigation = useNavigation();
 
   return (
-    <Shell
-      description="Headplane couldn't match your sign-in to a Headscale user. Pick the one that's yours."
-      title="Link your account"
-    >
+    <Shell description={t("users.selfLink.description")} title={t("users.selfLink.title")}>
       <Form className="flex flex-col gap-3" method="POST">
         <Select
-          errorMessage={actionData?.message}
+          errorMessage={actionData && t(actionData.messageKey)}
           invalid={actionData !== undefined}
           items={loaderData.users.map((u) => ({ value: u.id, label: u.name }))}
-          label="Headscale user"
+          label={t("users.headscaleUser")}
           name="headscale_user_id"
-          placeholder="Select a user"
+          placeholder={t("users.selfLink.select")}
           required
         />
         <Button
@@ -87,16 +92,13 @@ export default function Page({ loaderData, actionData }: Route.ComponentProps) {
           type="submit"
           variant="primary"
         >
-          Link account
+          {t("users.selfLink.submit")}
         </Button>
         <Button className="w-full" nativeButton={false} render={<RouterLink to="/" />}>
-          Skip for now
+          {t("users.selfLink.skip")}
         </Button>
       </Form>
-      <p className="text-muted mt-6 text-sm">
-        You'll add machines and create auth keys as this user. You can change it later from the
-        Users page.
-      </p>
+      <p className="text-muted mt-6 text-sm">{t("users.selfLink.hint")}</p>
       <SignedIn name={loaderData.email} />
     </Shell>
   );

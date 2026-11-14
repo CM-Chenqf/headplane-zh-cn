@@ -1,10 +1,10 @@
 import ActionDialog from "~/components/action-dialog";
 import Input from "~/components/input";
+import { useI18n } from "~/i18n/provider";
 import type { User } from "~/types";
 import { fieldValidator } from "~/utils/form";
-import { USERNAME_RULE } from "~/utils/user";
 
-import { username } from "../schemas";
+import { usernameSchema } from "../schemas";
 
 interface RenameProps {
   user: User;
@@ -12,23 +12,23 @@ interface RenameProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const validateUsername = fieldValidator(username);
-
 export default function RenameUser({ user, isOpen, setIsOpen }: RenameProps) {
+  const { locale, t } = useI18n();
+  const validateUsername = fieldValidator(usernameSchema(locale));
   return (
     <ActionDialog
-      description="ACL policies that refer to the old username aren't updated."
+      description={t("users.renameDescription")}
       fields={{ headscale_user_id: user.id }}
       intent="rename"
       onOpenChange={setIsOpen}
       open={isOpen}
-      submitLabel="Rename"
-      title={`Rename ${user.name || user.displayName}`}
+      submitLabel={t("users.rename")}
+      title={t("users.renameTitle", { name: user.name || user.displayName || user.id })}
     >
       <Input
         defaultValue={user.name}
-        description={USERNAME_RULE}
-        label="Username"
+        description={t("users.validation.usernameRule")}
+        label={t("users.username")}
         name="name"
         required
         validate={validateUsername}
