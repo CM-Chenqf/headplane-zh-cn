@@ -47,7 +47,7 @@ export default function MachineRow({
   supportsNodeOwnerChange,
   supportsDisablingKeyExpiry,
 }: Props) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const uiTags = useMemo(() => uiTagsForNode(node, isAgent), [node, isAgent]);
 
   const addresses = useMemo(() => {
@@ -108,7 +108,9 @@ export default function MachineRow({
                 key={value}
                 onClick={async () => {
                   const isCopied = await copyToClipboard(value);
-                  toast(isCopied ? `Copied ${value}` : "Copy failed. Copy the address manually.");
+                  toast(
+                    isCopied ? t("common.copied", { name: value }) : t("common.copyAddressFailed"),
+                  );
                 }}
               >
                 <div className="flex w-full items-center justify-between gap-x-6">
@@ -129,12 +131,12 @@ export default function MachineRow({
           {node.hostInfo !== undefined ? (
             <>
               <p className="flex items-center gap-x-1 font-mono">
-                {hinfo.getTSVersion(node.hostInfo)}
+                {hinfo.getTSVersion(node.hostInfo, locale)}
                 {latestVersion && hinfo.isUpdateAvailable(node.hostInfo, latestVersion) ? (
-                  <Tooltip content={`Tailscale ${latestVersion} is available.`}>
+                  <Tooltip content={t("machines.updateHint", { version: latestVersion })}>
                     <span className="bg-warn-subtle text-warn inline-flex size-4 items-center justify-center rounded-full">
                       <ArrowUp
-                        aria-label="Update available"
+                        aria-label={t("machines.updateAvailable")}
                         className="size-3"
                         strokeWidth={2.75}
                       />
@@ -142,16 +144,18 @@ export default function MachineRow({
                   </Tooltip>
                 ) : undefined}
               </p>
-              <p className="text-muted max-w-48 truncate">{hinfo.getOSInfo(node.hostInfo)}</p>
+              <p className="text-muted max-w-48 truncate">
+                {hinfo.getOSInfo(node.hostInfo, locale)}
+              </p>
             </>
           ) : (
-            <p className="text-muted">Unknown</p>
+            <p className="text-muted">{t("common.unknown")}</p>
           )}
         </TableCell>
       ) : undefined}
       <TableCell className="whitespace-nowrap">
         {isConnected ? (
-          <span className="text-ok">Connected</span>
+          <span className="text-ok">{t("common.connected")}</span>
         ) : (
           <span
             className="text-muted"

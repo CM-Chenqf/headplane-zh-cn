@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
+import type { Locale } from "~/i18n/locale";
+import { setLocale } from "~/i18n/locale.server";
 import { loader as machineLoader } from "~/routes/machines/machine";
 import { machineAction } from "~/routes/machines/machine-actions";
 import { loader as machinesLoader } from "~/routes/machines/overview";
@@ -29,8 +31,11 @@ describe("machines on a real tailnet", () => {
     await tailnet?.dispose();
   });
 
-  function machine(form: Record<string, string | string[]>) {
-    return app.call(machineAction, "/machines", { as: owner, form });
+  async function machine(form: Record<string, string | string[]>, locale: Locale = "en") {
+    return app.call(machineAction, "/machines", {
+      as: `${owner}; ${(await setLocale(locale)).split(";")[0]}`,
+      form,
+    });
   }
 
   test("a waiting machine registered from its URL comes online for that user", async () => {
@@ -54,9 +59,22 @@ describe("machines on a real tailnet", () => {
       200,
     );
 
-    await waitFor("db to see web as frontend", async () => {
+    expect(
+      await machine({ intent: "rename", node_id: web.id, name: "frontend-cn" }, "zh-CN"),
+    ).toMatchObject({ ok: true, message: "设备已重命名" });
+
+    const viewer = (await app.signIn("viewer")).cookie;
+    const denied = await app.call(machineAction, "/machines", {
+      as: viewer,
+      headers: { "Accept-Language": "zh-CN" },
+      form: { intent: "rename", node_id: web.id, name: "unauthorized" },
+    });
+    expect(statusOf(denied)).toBe(403);
+    expect(formError(denied)).toBe("没有管理此设备的权限。");
+
+    await waitFor("db to see web as frontend-cn", async () => {
       const peers = Object.values((await db.status()).Peer as Record<string, { DNSName: string }>);
-      expect(peers.map((peer) => peer.DNSName)).toContain("frontend.tailnet.test.");
+      expect(peers.map((peer) => peer.DNSName)).toContain("frontend-cn.tailnet.test.");
     });
   });
 
@@ -138,6 +156,9 @@ describe("machines on a real tailnet", () => {
     const result = await machine({ intent: "rename", node_id: node.id, name: "boo" });
     expect(statusOf(result)).toBe(404);
     expect(formError(result)).toBe("This machine no longer exists.");
+    const chinese = await machine({ intent: "rename", node_id: node.id, name: "boo" }, "zh-CN");
+    expect(statusOf(chinese)).toBe(404);
+    expect(formError(chinese)).toBe("此设备已不存在。");
   });
 });
 
@@ -190,6 +211,16 @@ describe("machine tags on a real tailnet", () => {
 
     expect(statusOf(result)).toBe(400);
     expect(formError(result)).toBe("Tag must start with the string 'tag:'");
+    const chinese = await app.call(machineAction, "/machines", {
+      as: owner,
+      headers: { "Accept-Language": "zh-CN" },
+      form: { intent: "update_tags", node_id: node.id, tags: "server" },
+    });
+    expect(statusOf(chinese)).toBe(400);
+    // Headscale reports this validation failure as 500. Keep that upstream
+    // status in the diagnostic, even though Headplane returns a 400 form error.
+    expect(formError(chinese)).toContain("Headscale 拒绝了此操作（HTTP 500）。原始诊断信息：");
+    expect(formError(chinese)).toContain("tag must start with the string 'tag:'");
     expect((await node.machine()).tags).toEqual([]);
   });
 });
@@ -211,46 +242,70 @@ describe.for(testedVersions())("machine owners and expiry on Headscale %s", (ver
     await tailnet?.dispose();
   });
 
-  function machine(form: Record<string, string>) {
-    return app.call(machineAction, "/machines", { as: owner, form });
+  async function machine(form: Record<string, string>, locale: Locale = "en") {
+    return app.call(machineAction, "/machines", {
+      as: `${owner}; ${(await setLocale(locale)).split(";")[0]}`,
+      form,
+    });
   }
 
-  test(`moving a machine to another user ${ownersAreImmutable ? "is refused" : "changes its owner"}`, async () => {
-    const node = await tailnet.node({ name: "handed-down", user: "alice@" });
-    const bob = await tailnet.user("bob@");
+  test.for(["en", "zh-CN"] as const)(
+    `moving a machine to another user ${ownersAreImmutable ? "is refused" : "changes its owner"} (%s)`,
+    async (locale) => {
+      const node = await tailnet.node({
+        name: `handed-down-${locale.toLowerCase()}`,
+        user: "alice@",
+      });
+      const bob = await tailnet.user("bob@");
 
-    const result = await machine({ intent: "reassign", node_id: node.id, user_id: bob.id });
-
-    if (ownersAreImmutable) {
-      expect(formError(result)).toBe(
-        "Changing a machine's owner isn't supported on this Headscale version.",
+      const result = await machine(
+        { intent: "reassign", node_id: node.id, user_id: bob.id },
+        locale,
       );
-      expect((await node.machine()).user?.name).toBe("alice@");
-      return;
-    }
 
-    expect(statusOf(result)).toBe(200);
-    expect((await node.machine()).user?.name).toBe("bob@");
-  });
+      if (ownersAreImmutable) {
+        expect(formError(result)).toBe(
+          locale === "en"
+            ? "Changing a machine's owner isn't supported on this Headscale version."
+            : "当前 Headscale 版本不支持更改设备所有者。",
+        );
+        expect((await node.machine()).user?.name).toBe("alice@");
+        return;
+      }
 
-  test(`turning key expiry off ${canDisableExpiry ? "keeps the machine signed in" : "is refused"}`, async () => {
-    const node = await tailnet.node({ name: "forever", user: "alice@" });
-
-    const result = await machine({
-      intent: "toggle_expiry",
-      node_id: node.id,
-      disable_expiry: "true",
-    });
-
-    if (canDisableExpiry) {
       expect(statusOf(result)).toBe(200);
-      expect((await node.machine()).expiry).toBeNull();
-    } else {
-      expect(formError(result)).toBe("Turning off key expiry needs Headscale 0.29 or newer.");
-    }
+      expect((await node.machine()).user?.name).toBe("bob@");
+    },
+  );
 
-    expect((await node.status()).BackendState).toBe("Running");
-  });
+  test.for(["en", "zh-CN"] as const)(
+    `turning key expiry off ${canDisableExpiry ? "keeps the machine signed in" : "is refused"} (%s)`,
+    async (locale) => {
+      const node = await tailnet.node({ name: `forever-${locale.toLowerCase()}`, user: "alice@" });
+
+      const result = await machine(
+        {
+          intent: "toggle_expiry",
+          node_id: node.id,
+          disable_expiry: "true",
+        },
+        locale,
+      );
+
+      if (canDisableExpiry) {
+        expect(statusOf(result)).toBe(200);
+        expect((await node.machine()).expiry).toBeNull();
+      } else {
+        expect(formError(result)).toBe(
+          locale === "en"
+            ? "Turning off key expiry needs Headscale 0.29 or newer."
+            : "禁用密钥过期需要 Headscale 0.29 或更新版本。",
+        );
+      }
+
+      expect((await node.status()).BackendState).toBe("Running");
+    },
+  );
 
   test("the list and the machine page agree on who owns a tagged machine", async () => {
     const node = await tailnet.node({ name: "tagged", user: "alice@", tags: ["tag:db"] });

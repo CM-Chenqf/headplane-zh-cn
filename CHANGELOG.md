@@ -10,6 +10,7 @@
 
 ## Changes
 
+- The bilingual fork now translates the Machines list, details, filters, dialogs, validation and action results into Simplified Chinese. Headscale diagnostics keep their original text alongside a translated explanation.
 - The bilingual fork can switch between English and Simplified Chinese on the sign-in page and dashboard. The choice is saved per browser. Sign-in and SSO notices, shared navigation, dates and relative times are translated; the remaining pages and documentation are still in progress.
 - Fork maintainers can check for upstream updates and translation work in GitHub pull requests, publish images under their own GHCR namespace, and configure separate Cloudflare Pages documentation sites.
 - Headplane can be served under a path other than `/admin` by setting `server.base_path`, without building it from source (closes [#637](https://github.com/tale/headplane/issues/637)).

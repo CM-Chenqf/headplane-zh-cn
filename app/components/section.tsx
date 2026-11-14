@@ -3,6 +3,7 @@ import type React from "react";
 
 import Button, { type ButtonProps } from "~/components/button";
 import Tooltip from "~/components/tooltip";
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 
 interface Props {
@@ -38,6 +39,7 @@ export default function Section({ title, description, action, children }: Props)
 
 // Quiet until hovered, since it repeats on every row.
 export function RemoveButton({ className, children, ...props }: ButtonProps) {
+  const { t } = useI18n();
   return (
     <Button
       {...props}
@@ -45,7 +47,7 @@ export function RemoveButton({ className, children, ...props }: ButtonProps) {
       size="sm"
       variant="ghost"
     >
-      {children ?? "Remove"}
+      {children ?? t("common.remove")}
     </Button>
   );
 }

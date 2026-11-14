@@ -1,3 +1,5 @@
+import { useI18n } from "~/i18n/provider";
+
 import Chip from "../chip";
 import Tooltip from "../tooltip";
 
@@ -7,21 +9,11 @@ export interface SubnetTagProps {
 }
 
 export function SubnetTag({ isEnabled, count }: SubnetTagProps) {
+  const { t } = useI18n();
   return (
-    <Tooltip
-      content={
-        isEnabled ? (
-          <>This machine advertises subnet routes.</>
-        ) : (
-          <>
-            This machine has subnet routes waiting for approval. Review them from "Edit route
-            settings" in the machine's menu.
-          </>
-        )
-      }
-    >
+    <Tooltip content={t(isEnabled ? "machines.subnetApprovedHint" : "machines.subnetWaitingHint")}>
       <Chip
-        text={`${count} ${count === 1 ? "subnet" : "subnets"}`}
+        text={t(count === 1 ? "machines.subnetCount.one" : "machines.subnetCount.other", { count })}
         variant={isEnabled ? "neutral" : "warn"}
       />
     </Tooltip>

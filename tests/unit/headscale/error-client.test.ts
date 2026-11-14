@@ -20,6 +20,9 @@ describe("headscaleErrorMessage", () => {
     expect(headscaleErrorMessage(error)).toBe(
       "Couldn't reach Headscale. Check that it's running and try again.",
     );
+    expect(headscaleErrorMessage(error, "zh-CN")).toBe(
+      "无法连接到 Headscale，请确认服务正在运行后重试。",
+    );
   });
 
   test("prefers the JSON message from Headscale", () => {
@@ -41,5 +44,17 @@ describe("headscaleErrorMessage", () => {
     expect(headscaleErrorMessage(new Error("boom"))).toBeUndefined();
     expect(headscaleErrorMessage({ data: "nope" })).toBeUndefined();
     expect(headscaleErrorMessage(undefined)).toBeUndefined();
+  });
+
+  test("Chinese errors preserve the status and original server diagnostics", () => {
+    expect(
+      headscaleErrorMessage(apiError(400, "{}", { message: "tag:db is not allowed" }), "zh-CN"),
+    ).toBe("Headscale 拒绝了此操作（HTTP 400）。原始诊断信息：tag:db is not allowed");
+    expect(headscaleErrorMessage(apiError(502, "proxy unavailable", null), "zh-CN")).toBe(
+      "Headscale 拒绝了此操作（HTTP 502）。原始诊断信息：proxy unavailable",
+    );
+    expect(headscaleErrorMessage(apiError(502, "", null), "zh-CN")).toBe(
+      "Headscale 拒绝了此操作（HTTP 502）。",
+    );
   });
 });

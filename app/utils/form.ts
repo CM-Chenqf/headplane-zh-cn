@@ -37,10 +37,10 @@ export function fieldValidator<S extends v.GenericSchema>(schema: S) {
   };
 }
 
-export function list(item: v.GenericSchema<string> = v.string()) {
+export function list(item: v.GenericSchema<string> = v.string(), message?: string) {
   return v.optional(
     v.pipe(
-      v.union([item, v.array(item)]),
+      v.union([item, v.array(item, message)], message),
       v.transform((value) => (Array.isArray(value) ? value : [value])),
     ),
     (): string[] => [],

@@ -2,6 +2,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 import Link from "~/components/link";
+import { Message, useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 
 export interface FooterProps {
@@ -10,24 +11,30 @@ export interface FooterProps {
 }
 
 export default function Footer({ isDebug, baseUrl }: FooterProps) {
+  const { t } = useI18n();
   const [urlVisible, setUrlVisible] = useState(false);
 
   return (
     <footer className={cn("fixed w-full bottom-0 left-0 z-20", "bg-surface border-t border-line")}>
       <div className="container flex flex-col gap-1 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p className="min-w-0 text-xs">
-          Headplane is free and open-source. Please consider{" "}
-          <Link external styled to="https://tale.me/sponsor">
-            sponsoring
-          </Link>{" "}
-          to support development.
+          <Message
+            id="footer.sponsor"
+            values={{
+              link: (
+                <Link external styled to="https://tale.me/sponsor">
+                  {t("footer.sponsorLink")}
+                </Link>
+              ),
+            }}
+          />
         </p>
         <div className="flex min-w-0 items-center gap-2 text-xs">
           {isDebug && (
             <span
               className={cn("rounded-full px-2 py-0.5 font-medium", "bg-warn-subtle text-warn")}
             >
-              Debug
+              {t("footer.debug")}
             </span>
           )}
           <p className="text-muted">
@@ -39,7 +46,7 @@ export default function Footer({ isDebug, baseUrl }: FooterProps) {
             )}
             <button
               type="button"
-              aria-label={urlVisible ? "Hide server URL" : "Show server URL"}
+              aria-label={t(urlVisible ? "footer.hideUrl" : "footer.showUrl")}
               className={cn(
                 "ml-1 inline-flex align-middle rounded-xs p-0.5",
                 "text-muted hover:text-muted",
