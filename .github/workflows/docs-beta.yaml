@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - "main"
+  workflow_dispatch:
+
+env:
+  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headscale-web-docs') }}
+  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headscale-web-docs-beta') }}
 
 concurrency:
   group: docs-beta
@@ -47,8 +52,17 @@ jobs:
           HEADPLANE_DOCS_DATE: ${{ steps.commit.outputs.date }}
 
       - name: Deploy to Cloudflare Pages
+        if: vars.CF_PAGES_DEPLOY_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy docs/build/client --project-name=headplane-docs-beta
+          command: pages deploy docs/build/client --project-name=${{ vars.CF_PAGES_BETA_PROJECT || 'headscale-web-docs-beta' }}
+
+      - name: Save docs when deployment is not configured
+        if: vars.CF_PAGES_DEPLOY_ENABLED != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-docs-site
+          path: docs/build/client
+          include-hidden-files: true

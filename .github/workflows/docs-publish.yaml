@@ -69,7 +69,7 @@ jobs:
           cat site/versions.json
 
       - name: Upload the site
-        if: inputs.dry-run
+        if: inputs.dry-run || vars.CF_PAGES_DEPLOY_ENABLED != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: docs-site
@@ -77,9 +77,9 @@ jobs:
           include-hidden-files: true
 
       - name: Deploy to Cloudflare Pages
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry-run && vars.CF_PAGES_DEPLOY_ENABLED == 'true' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy site --project-name=headplane-docs --branch=main
+          command: pages deploy site --project-name=${{ vars.CF_PAGES_PROJECT || 'headscale-web-docs' }} --branch=main

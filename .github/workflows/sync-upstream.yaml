@@ -1,0 +1,35 @@
+name: Upstream sync
+
+on:
+  schedule:
+    # 09:27 Asia/Shanghai. GitHub schedules may run later when runners are busy.
+    - cron: "27 1 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync:
+    if: github.repository == 'CM-Chenqf/headscale-web'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the maintained branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+
+      - name: Open upstream pull requests and translation reminders
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+          script: |
+            const sync = require('./.github/scripts/sync-upstream.cjs');
+            await sync({ github, context, core });

@@ -25,6 +25,9 @@ const admonitionTypes = {
 const docsBuild = {
   channel: process.env.HEADPLANE_DOCS_CHANNEL ?? "",
   version: process.env.HEADPLANE_DOCS_VERSION ?? "",
+  stableOrigin: process.env.HEADPLANE_DOCS_ORIGIN ?? "https://headplane.net",
+  betaOrigin: process.env.HEADPLANE_DOCS_BETA_ORIGIN ?? "https://beta.headplane.net",
+  repository: process.env.GITHUB_REPOSITORY ?? "tale/headplane",
   date: process.env.HEADPLANE_DOCS_DATE
     ? new Date(process.env.HEADPLANE_DOCS_DATE).toLocaleDateString("en-US", {
         month: "short",
