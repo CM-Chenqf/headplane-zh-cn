@@ -4,6 +4,7 @@ import Callout from "~/components/callout";
 import Link from "~/components/link";
 import PageError from "~/components/page-error";
 import PageHeader from "~/components/page-header";
+import { Message, useI18n } from "~/i18n/provider";
 import { authContext, headscaleConfigContext, integrationContext } from "~/server/context";
 import { Capabilities } from "~/server/web/roles";
 import { toastClientAction } from "~/utils/toast";
@@ -46,6 +47,7 @@ export const action = dnsAction;
 export const clientAction = toastClientAction;
 
 export default function Page() {
+  const { t } = useI18n();
   const data = useLoaderData<typeof loader>();
   const isDisabled = data.access === false || data.writable === false;
 
@@ -53,31 +55,37 @@ export default function Page() {
     <>
       <PageHeader
         description={
-          <>
-            Control how devices on your tailnet resolve names.{" "}
-            <Link external styled to="https://headscale.net/stable/ref/dns">
-              Docs
-            </Link>
-          </>
+          <Message
+            id="dns.description"
+            values={{
+              docs: (
+                <Link external styled to="https://headscale.net/stable/ref/dns">
+                  {t("dns.docs")}
+                </Link>
+              ),
+            }}
+          />
         }
-        title="DNS"
+        title={t("dns.title")}
       />
       <div className="max-w-5xl">
         {isDisabled && (
           <Callout className="mb-6">
-            {data.writable
-              ? "Your permissions don't allow changes to DNS settings."
-              : "The Headscale configuration is read-only, so DNS settings can't be changed here."}
+            {data.writable ? t("dns.noPermission") : t("dns.readOnly")}
           </Callout>
         )}
         {!isDisabled && !data.isAutoApplied && (
           <Callout className="mb-6" variant="warning">
-            Changes are saved to the Headscale configuration but only take effect once Headscale
-            restarts. Set up an{" "}
-            <Link external styled to="https://headplane.net/configuration/integrations">
-              integration
-            </Link>{" "}
-            to restart it automatically.
+            <Message
+              id="dns.restartNotice"
+              values={{
+                integration: (
+                  <Link external styled to="https://headplane.net/configuration/integrations">
+                    {t("dns.integration")}
+                  </Link>
+                ),
+              }}
+            />
           </Callout>
         )}
         <General
@@ -104,5 +112,6 @@ export default function Page() {
 }
 
 export function ErrorBoundary({ error }: { error: unknown }) {
-  return <PageError error={error} page="DNS settings" />;
+  const { t } = useI18n();
+  return <PageError error={error} page={t("dns.page")} />;
 }

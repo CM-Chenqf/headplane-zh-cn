@@ -1,32 +1,33 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import ActionDialog from "~/components/action-dialog";
 import Button from "~/components/button";
 import Input from "~/components/input";
 import Select from "~/components/select";
+import { useI18n } from "~/i18n/provider";
 import { fieldValidator } from "~/utils/form";
 
-import { recordValue } from "../schemas";
-
-const validators = {
-  A: fieldValidator(recordValue.A),
-  AAAA: fieldValidator(recordValue.AAAA),
-};
+import { dnsSchemas } from "../schemas";
 
 export default function AddRecord() {
+  const { locale, t } = useI18n();
+  const validators = useMemo(() => {
+    const { recordValue } = dnsSchemas(locale);
+    return { A: fieldValidator(recordValue.A), AAAA: fieldValidator(recordValue.AAAA) };
+  }, [locale]);
   const [type, setType] = useState<keyof typeof validators>("A");
 
   return (
     <ActionDialog
-      description="Point a domain at an IP address for every device on the tailnet."
+      description={t("dns.addRecordDescription")}
       intent="add_record"
-      submitLabel="Add record"
-      title="Add DNS record"
+      submitLabel={t("dns.addRecord")}
+      title={t("dns.addRecordTitle")}
       trigger={
         <Button>
           <Plus className="size-3.5" />
-          Add record
+          {t("dns.addRecord")}
         </Button>
       }
     >
@@ -35,7 +36,7 @@ export default function AddRecord() {
           { value: "A", label: "A" },
           { value: "AAAA", label: "AAAA" },
         ]}
-        label="Type"
+        label={t("dns.recordType")}
         name="type"
         onValueChange={(value) => {
           if (value === "A" || value === "AAAA") setType(value);
@@ -43,10 +44,10 @@ export default function AddRecord() {
         required
         value={type}
       />
-      <Input label="Domain" name="name" placeholder="test.example.com" required />
+      <Input label={t("dns.domain")} name="name" placeholder="test.example.com" required />
       <Input
         key={type}
-        label="IP address"
+        label={t("dns.ipAddress")}
         name="value"
         placeholder={type === "AAAA" ? "2001:db8::ff00:42:8329" : "100.100.100.100"}
         required

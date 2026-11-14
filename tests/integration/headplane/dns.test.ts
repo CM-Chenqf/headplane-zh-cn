@@ -3,6 +3,7 @@ import { chmod, readFile } from "node:fs/promises";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { parse, stringify } from "yaml";
 
+import type { Locale } from "~/i18n/locale";
 import { dnsAction } from "~/routes/dns/dns-actions";
 import { loader } from "~/routes/dns/overview";
 
@@ -247,8 +248,8 @@ describe.for(testedVersions())("DNS on Headscale %s", (version) => {
     await tailnet?.dispose();
   });
 
-  function dns(form: Record<string, string>) {
-    return app.call(dnsAction, "/dns", { as: owner, form });
+  function dns(form: Record<string, string>, locale: Locale = "en") {
+    return app.call(dnsAction, "/dns", { as: owner, headers: { "Accept-Language": locale }, form });
   }
 
   async function dnsStatus(node: Awaited<ReturnType<Tailnet["node"]>>) {
@@ -262,14 +263,17 @@ describe.for(testedVersions())("DNS on Headscale %s", (version) => {
 
   test("a record added in Headplane reaches the machines", async () => {
     const node = await tailnet.node({ name: "dns-client", user: "alice@" });
-    const result = await dns({
-      intent: "add_record",
-      type: "A",
-      name: "intranet.tailnet.test",
-      value: "100.100.1.1",
-    });
+    const result = await dns(
+      {
+        intent: "add_record",
+        type: "A",
+        name: "intranet.tailnet.test",
+        value: "100.100.1.1",
+      },
+      "zh-CN",
+    );
 
-    expect(statusOf(result)).toBe(200);
+    expect(result).toMatchObject({ ok: true, message: "记录已添加" });
     await tailnet.server.reloadRecords();
     await waitFor(
       "the record in the node's netmap",
@@ -284,13 +288,22 @@ describe.for(testedVersions())("DNS on Headscale %s", (version) => {
   test("nameservers, split DNS and search domains reach the machines", async () => {
     const node = await tailnet.node({ name: "resolver-client", user: "alice@" });
 
-    expect(statusOf(await dns({ intent: "add_ns", nameserver: "9.9.9.9" }))).toBe(200);
+    expect(await dns({ intent: "add_ns", nameserver: "9.9.9.9" }, "zh-CN")).toMatchObject({
+      ok: true,
+      message: "DNS 服务器已添加",
+    });
     expect(
       statusOf(
-        await dns({ intent: "add_ns", split_domain: "corp.example", nameserver: "10.0.0.53" }),
+        await dns(
+          { intent: "add_ns", split_domain: "corp.example", nameserver: "10.0.0.53" },
+          "zh-CN",
+        ),
       ),
     ).toBe(200);
-    expect(statusOf(await dns({ intent: "add_domain", domain: "corp.example" }))).toBe(200);
+    expect(await dns({ intent: "add_domain", domain: "corp.example" }, "zh-CN")).toMatchObject({
+      ok: true,
+      message: "搜索域已添加",
+    });
 
     await waitFor(
       "the DNS settings on the node",
@@ -307,14 +320,20 @@ describe.for(testedVersions())("DNS on Headscale %s", (version) => {
   test("turning Magic DNS off and on reaches the machines", async () => {
     const node = await tailnet.node({ name: "magic-client", user: "alice@" });
 
-    expect(statusOf(await dns({ intent: "toggle_magic", enabled: "false" }))).toBe(200);
+    expect(await dns({ intent: "toggle_magic", enabled: "false" }, "zh-CN")).toMatchObject({
+      ok: true,
+      message: "Magic DNS 已停用",
+    });
     await waitFor(
       "Magic DNS off on the node",
       async () => expect((await dnsStatus(node)).CurrentTailnet.MagicDNSEnabled).toBe(false),
       { timeout: 60_000 },
     );
 
-    expect(statusOf(await dns({ intent: "toggle_magic", enabled: "true" }))).toBe(200);
+    expect(await dns({ intent: "toggle_magic", enabled: "true" }, "zh-CN")).toMatchObject({
+      ok: true,
+      message: "Magic DNS 已启用",
+    });
     await waitFor(
       "Magic DNS on again",
       async () => expect((await dnsStatus(node)).CurrentTailnet.MagicDNSEnabled).toBe(true),
@@ -324,9 +343,9 @@ describe.for(testedVersions())("DNS on Headscale %s", (version) => {
 
   test("renaming the tailnet restarts Headscale and reaches the machines", async () => {
     const node = await tailnet.node({ name: "renamed-client", user: "alice@" });
-    const result = await dns({ intent: "rename_tailnet", name: "renamed.test" });
+    const result = await dns({ intent: "rename_tailnet", name: "renamed.test" }, "zh-CN");
 
-    expect(statusOf(result)).toBe(200);
+    expect(result).toMatchObject({ ok: true, message: "Tailnet 已重命名" });
     await waitFor(
       "the new domain on the node",
       async () => {
@@ -363,6 +382,13 @@ describe("DNS settings Headplane can't change", () => {
 
     expect(statusOf(result)).toBe(403);
     expect(errorsOf(result)).toEqual({ form: "The Headscale configuration is read-only." });
+    const chinese = await app.call(dnsAction, "/dns", {
+      as: cookie,
+      headers: { "Accept-Language": "zh-CN" },
+      form: { intent: "rename_tailnet", name: "renamed.test" },
+    });
+    expect(statusOf(chinese)).toBe(403);
+    expect(errorsOf(chinese)).toEqual({ form: "Headscale 配置为只读。" });
     expect(await readFile(configPath, "utf8")).toBe(before);
   });
 

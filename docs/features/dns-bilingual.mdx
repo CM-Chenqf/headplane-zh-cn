@@ -1,0 +1,145 @@
+---
+title: DNS / DNS 管理
+description: Manage Magic DNS, nameservers, split DNS, search domains and DNS records in English or Simplified Chinese.
+---
+
+# DNS / DNS 管理
+
+This guide covers the bilingual DNS module in `CM-Chenqf/headscale-web` on
+`main`. Full project and documentation translation is still in progress; a
+complete bilingual image has not been released at this stage.
+
+本页介绍 `CM-Chenqf/headscale-web` 的 `main` 分支 DNS 模块。
+完整项目和文档仍在翻译中，当前阶段尚未发布完整双语镜像。
+
+## 简体中文
+
+### 打开页面与保存设置
+
+在顶部选择 **简体中文**，打开 **DNS**。Headplane 必须能够读取 Headscale 的配置文件：
+
+```yaml
+# Headplane config.yaml
+headscale:
+  config_path: "/etc/headscale/config.yaml"
+```
+
+路径是 Headplane 所在主机或容器内的路径。无法读取配置时，DNS 页面不可用。
+所有者、管理员和网络管理员可以修改 DNS；IT 管理员和审计员只能查看，查看者和成员无权访问此页面。
+配置文件只读时，操作按钮被禁用，服务端也会拒绝写入。
+
+DNS 常规设置、DNS 服务器和搜索域会保存到 Headscale 配置文件中，已有注释及其他设置保持原样。
+这些设置在 Headscale 重启后生效。配置一个[集成](/configuration/integrations)可自动重启；
+未配置集成时，页面显示需手动重启的提醒。
+若出现“设置已保存，但 Headscale 重启后未恢复运行”，先检查 Headscale 日志和已写入的配置，
+确认服务恢复后再继续操作。此错误不表示文件写入已回滚。
+
+### 常规设置
+
+- **Tailnet 名称**：点击 **重命名** 修改基础域名。设备获取新名称前，可能出现访问异常。
+- **Magic DNS**：启用后，设备可通过形如 `device.tailnet.example` 的名称访问。
+  关闭后，页面说明设备只能通过 IP 地址访问。
+- **覆盖本地 DNS**：启用后，设备将查询发送至配置的 DNS 服务器；关闭后保留设备自身的 DNS 设置。
+  启用前必须至少配置一台全局 DNS 服务器。启用期间不能移除最后一台全局服务器，需先关闭覆盖设置。
+
+开关提交独立处理。保存失败会显示错误，界面返回已保存状态。
+
+### DNS 服务器与分域 DNS
+
+1. 在 **DNS 服务器** 点击 **添加 DNS 服务器**。
+2. 填写 IPv4 或 IPv6 地址。与上游一致，此处不接受主机名或 DoH URL。
+3. 按需开启 **限定域名**，填写仅由此服务器处理的域及子域。
+4. 提交，再按需重启 Headscale。
+
+未限定域名的服务器属于全局列表；限定域名的服务器带有域名标记。
+分域 DNS 沿用上游要求，仅 Tailscale 1.8 及更新版本会使用。
+上下移动箭头仅调整所在列表的顺序，全局列表与各个分域列表互不影响。
+键盘焦点会跟随移动的条目；列表边界对应的箭头不可用。
+移除某个分域的最后一台服务器时，该分域配置会一并删除。
+重复服务器、已被其他会话移除的条目以及无法继续移动的边界操作会显示错误，不写入配置。
+
+### 搜索域
+
+在 **搜索域** 添加设备解析短名称时尝试的域名后缀。使用箭头调整尝试顺序，
+通过移除按钮及确认弹窗删除后缀。启用 Magic DNS 时，Tailnet 域名始终排在首位，不能在此删除或调整。
+重复搜索域会被拒绝。
+
+### DNS 记录
+
+**DNS 记录**支持添加 A（IPv4）和 AAAA（IPv6）记录。域名、记录类型、地址及配置键保持原文，
+不会因切换语言而改变。相同域名可分别有 A 和 AAAA 记录，但不能重复添加同类型记录。
+删除某种类型时，其他类型及其他名称的记录保持不变。
+
+记录只通过 Headscale 的独立 JSON 文件编辑：
+
+```yaml
+# Headscale config.yaml
+dns:
+  extra_records_path: /var/lib/headscale/extra-records.json
+```
+
+```json
+[{ "name": "intranet.example.com", "type": "A", "value": "100.64.0.3" }]
+```
+
+先创建文件并授予 Headplane 读写权限。Headscale 监听此文件，记录更改无需通过集成重启服务。
+文件在 Headplane 容器中的路径不同时，在 Headplane 配置中设置 `headscale.dns_records_path`；
+Headscale 仍必须配置 `dns.extra_records_path`。
+仅在 `dns.extra_records` 中内联配置的记录保持只读；将记录移至上述 JSON 文件后才能通过面板编辑。
+独立文件只读时，页面会说明需调整的文件权限。详见[配置与集成](/configuration/integrations)。
+
+## English
+
+### Access and applying changes
+
+Select **English** and open **DNS**. Set `headscale.config_path` in Headplane to
+the Headscale YAML file, using a path visible inside the Headplane container.
+The page is unavailable without a readable configuration. Owners, admins and
+network admins can write; IT admins and auditors can inspect; viewers and
+members cannot open the page. Read-only configurations prevent writes in both
+the interface and the server action.
+
+General settings, nameservers and search domains update the YAML file while
+preserving comments and unrelated keys. Restart Headscale to apply them, or
+configure one [integration](/configuration/integrations) to restart it
+automatically. Without an integration, the page shows the restart notice.
+The “Saved, but Headscale didn't come back” error means the configuration was
+written; it was not rolled back. Inspect Headscale's logs and restore service
+before continuing.
+
+### General, nameservers and search domains
+
+**Rename** changes the tailnet base domain. Devices may behave unexpectedly
+until they receive the new name. **Magic DNS** controls device-name resolution.
+**Override local DNS** requires at least one global nameserver; disable it before
+removing the last global server. Each toggle submits independently and shows a
+save error when the change fails.
+
+Use **Add nameserver** with an IPv4 or IPv6 address. Hostnames and DoH URLs are
+not accepted. **Restrict to domain** creates split DNS for that domain and its
+subdomains, retaining the upstream Tailscale 1.8 minimum for split DNS.
+Reorder within the global list or a split-domain list; other lists are unchanged.
+Keyboard focus follows the moved row and boundary arrows are disabled. Removing
+the last server for a split domain removes that domain. Duplicate, stale and
+out-of-bounds changes return errors without writing the configuration.
+
+**Search domains** lists suffixes tried for short names. Add, reorder or remove
+them with the corresponding controls. The Magic DNS domain stays first when
+enabled and cannot be moved or removed from this list. Duplicate suffixes are
+rejected.
+
+### DNS records
+
+**Add record** accepts A records with IPv4 and AAAA records with IPv6. A domain
+can have one of each type; duplicate domain/type pairs are rejected. Removing
+one type preserves other records. Domain names, addresses, record types and
+configuration keys keep their original values in both languages.
+
+Headplane edits records only through the JSON array in Headscale's
+`dns.extra_records_path`. Create a writable file with the format shown above.
+Headscale watches the file and applies record changes without a restart or
+integration. Use Headplane's `headscale.dns_records_path` if the container sees
+the file at a different path; Headscale still needs `dns.extra_records_path`.
+Inline `dns.extra_records` remain read-only, as do files without write permission.
+Follow the [integration guide](/configuration/integrations) for shared paths and
+automatic restarts.
