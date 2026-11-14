@@ -11,6 +11,8 @@
 - 跟踪上游 `main` 和 `release/X.Y`；兼容范围和测试版本沿用各对应分支，不单独扩大支持承诺。
 - 功能和汉化改动保存在维护分支中，使用合并上游提交的方式升级。不要用上游分支强制覆盖维护分支。
 
+本阶段的基础配置先落到 `main`。已继承的 `release/0.8` 文档工具链与 `main` 不同，需要在对应版本的汉化阶段单独适配发布配置，不直接覆盖成 `main` 的文档站。任何发布分支都要完成双语和发布配置验收后再发版。
+
 ## 上游更新和汉化提醒
 
 `Upstream sync` 每天北京时间 09:27 发起检查，也支持手动运行。GitHub 定时任务可能延迟运行；仓库长期不活跃导致定时任务停用时，需要在 Actions 页面重新启用。
@@ -53,19 +55,21 @@
 
 先在 Cloudflare 创建两个用于 Direct Upload 的 Pages 项目，然后在 GitHub 仓库的 Settings → Secrets and variables → Actions 配置：
 
-| 类型 | 名称 | 用途 |
-| --- | --- | --- |
-| Secret | `CF_API_TOKEN` | 具备目标账号 Cloudflare Pages 编辑权限的 API Token |
-| Secret | `CF_ACCOUNT_ID` | Cloudflare 账号 ID |
-| Variable | `CF_PAGES_PROJECT` | 正式文档项目名，默认 `headscale-web-docs` |
-| Variable | `CF_PAGES_BETA_PROJECT` | 预览文档项目名，默认 `headscale-web-docs-beta` |
-| Variable | `HEADPLANE_DOCS_ORIGIN` | 正式文档来源地址，不带末尾斜杠；默认使用正式项目的 `pages.dev` 地址 |
+| 类型     | 名称                         | 用途                                                                |
+| -------- | ---------------------------- | ------------------------------------------------------------------- |
+| Secret   | `CF_API_TOKEN`               | 具备目标账号 Cloudflare Pages 编辑权限的 API Token                  |
+| Secret   | `CF_ACCOUNT_ID`              | Cloudflare 账号 ID                                                  |
+| Variable | `CF_PAGES_PROJECT`           | 正式文档项目名，默认 `headscale-web-docs`                           |
+| Variable | `CF_PAGES_BETA_PROJECT`      | 预览文档项目名，默认 `headscale-web-docs-beta`                      |
+| Variable | `HEADPLANE_DOCS_ORIGIN`      | 正式文档来源地址，不带末尾斜杠；默认使用正式项目的 `pages.dev` 地址 |
 | Variable | `HEADPLANE_DOCS_BETA_ORIGIN` | 预览文档来源地址，不带末尾斜杠；默认使用预览项目的 `pages.dev` 地址 |
-| Variable | `CF_PAGES_DEPLOY_ENABLED` | 确认项目及凭据配置完成后设为 `true`，开启部署 |
+| Variable | `CF_PAGES_DEPLOY_ENABLED`    | 确认项目及凭据配置完成后设为 `true`，开启部署                       |
 
 Token 仅存入 GitHub Secrets，不写入仓库，也不在聊天中提供。
 
 未开启部署时，预览文档仍会构建并保存为 Actions artifact。正式文档由稳定版发布后生成，附加到对应 GitHub Release；未开启部署或选择 dry-run 时，组装后的站点也只保存为 artifact。自定义域名上线前，先更新两个文档来源变量，再重新构建，避免版本切换跳回上游网站。
+
+文档相关 PR 先运行 `Docs (check)`，只验证构建，不部署。
 
 ## 本地检查
 

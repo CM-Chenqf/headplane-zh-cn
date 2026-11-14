@@ -5,8 +5,14 @@ const { mkdtempSync, rmSync } = require("node:fs");
 const { tmpdir } = require("node:os");
 const { join, resolve, sep } = require("node:path");
 
-const { watchedBranch, reviewCategory, syncBranchName, pullRequestBody, issueBody, hasCommit } =
-  require("./sync-upstream.cjs");
+const {
+  watchedBranch,
+  reviewCategory,
+  syncBranchName,
+  pullRequestBody,
+  issueBody,
+  hasCommit,
+} = require("./sync-upstream.cjs");
 
 test("tracks future release lines without copying upstream feature branches", () => {
   assert.equal(watchedBranch("main"), true);
@@ -55,9 +61,16 @@ test("detects upstream commits across divergent fork history and reports broken 
   const originalDirectory = process.cwd();
   const temporaryRoot = resolve(tmpdir());
   const directory = mkdtempSync(join(temporaryRoot, "headplane-sync-"));
-  const git = (...args) => execFileSync("git", args, {
-    cwd: directory, encoding: "utf8", stdio: "pipe",
-  }).trim();
+  const resolvedDirectory = resolve(directory);
+  if (!resolvedDirectory.startsWith(`${temporaryRoot}${sep}headplane-sync-`)) {
+    throw new Error("Refusing to use a directory outside the temporary test root");
+  }
+  const git = (...args) =>
+    execFileSync("git", args, {
+      cwd: directory,
+      encoding: "utf8",
+      stdio: "pipe",
+    }).trim();
 
   try {
     git("init", "--initial-branch=main", "--object-format=sha1");
@@ -81,10 +94,6 @@ test("detects upstream commits across divergent fork history and reports broken 
     assert.throws(() => hasCommit("HEAD", "f".repeat(40)));
   } finally {
     process.chdir(originalDirectory);
-    const resolvedDirectory = resolve(directory);
-    if (!resolvedDirectory.startsWith(`${temporaryRoot}${sep}headplane-sync-`)) {
-      throw new Error("Refusing to remove a directory outside the temporary test root");
-    }
     rmSync(resolvedDirectory, { recursive: true, force: true });
   }
 });

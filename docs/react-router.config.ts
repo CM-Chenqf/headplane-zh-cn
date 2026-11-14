@@ -14,7 +14,8 @@ export default {
     const paths = getStaticPaths();
     const entries = await readdir(import.meta.dirname, { recursive: true });
 
-    for (const entry of entries) {
+    for (const nativeEntry of entries) {
+      const entry = nativeEntry.replaceAll("\\", "/");
       if (!/\.mdx?$/.test(entry) || ignoredDirs.some((dir) => entry.startsWith(dir))) {
         continue;
       }

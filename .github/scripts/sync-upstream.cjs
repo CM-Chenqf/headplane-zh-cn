@@ -30,11 +30,14 @@ function filesForReview(paths) {
     groups.get(category).push(path);
   }
 
-  return [...groups].map(([category, files]) => {
-    const listed = files.slice(0, 80).map((file) => `- \`${file.replace(/`/g, "\\`")}\``);
-    if (files.length > 80) listed.push(`- 另有 ${files.length - 80} 个文件，详见 Files changed。`);
-    return `### ${category}\n\n${listed.join("\n")}`;
-  }).join("\n\n");
+  return [...groups]
+    .map(([category, files]) => {
+      const listed = files.slice(0, 80).map((file) => `- \`${file.replace(/`/g, "\\`")}\``);
+      if (files.length > 80)
+        listed.push(`- 另有 ${files.length - 80} 个文件，详见 Files changed。`);
+      return `### ${category}\n\n${listed.join("\n")}`;
+    })
+    .join("\n\n");
 }
 
 function pullRequestBody(upstream, branch, sha, paths) {
@@ -57,7 +60,9 @@ function issueBody(upstream, pending) {
   return [
     ISSUE_MARKER,
     `上游 \`${upstream}\` 有待处理的更新。合并功能后仍需完成中文界面和文档复核。`,
-    ...pending.map((item) => `- [ ] \`${item.branch}\` @ \`${item.sha.slice(0, 12)}\`：${item.message}`),
+    ...pending.map(
+      (item) => `- [ ] \`${item.branch}\` @ \`${item.sha.slice(0, 12)}\`：${item.message}`,
+    ),
     "请使用普通 merge commit 合并同步 PR，以保留上游历史。不同上游提交的同步分支相互独立，" +
       "同一发布线可选择最新 PR 处理，再关闭已被它包含的旧 PR。",
     "此 Issue 在上游提交发生变化时追加提醒；定时检查不会自动完成翻译或发布。",
@@ -94,20 +99,26 @@ async function sync({ github, context, core }) {
   }
 
   git([
-    "fetch", "--no-tags", `https://github.com/${config.repository}.git`,
+    "fetch",
+    "--no-tags",
+    `https://github.com/${config.repository}.git`,
     "+refs/heads/main:refs/remotes/sync-source/main",
     "+refs/heads/release/*:refs/remotes/sync-source/release/*",
   ]);
-  const branches = git([
-    "for-each-ref", "--format=%(refname:strip=3)", "refs/remotes/sync-source/",
-  ]).split("\n").filter(watchedBranch);
+  const branches = git(["for-each-ref", "--format=%(refname:strip=3)", "refs/remotes/sync-source/"])
+    .split("\n")
+    .filter(watchedBranch);
 
   try {
     await github.rest.issues.getLabel({ owner, repo, name: LABEL });
   } catch (error) {
     if (error.status !== 404) throw error;
     await github.rest.issues.createLabel({
-      owner, repo, name: LABEL, color: "1D76DB", description: "Upstream updates and translation review",
+      owner,
+      repo,
+      name: LABEL,
+      color: "1D76DB",
+      description: "Upstream updates and translation review",
     });
   }
 
@@ -121,7 +132,11 @@ async function sync({ github, context, core }) {
         base = (await github.rest.repos.getBranch({ owner, repo, branch })).data.commit.sha;
       } catch (error) {
         if (error.status !== 404) throw error;
-        pending.push({ branch, sha, message: "新的上游发布分支，需要先建立保留双语改动的对应分支。" });
+        pending.push({
+          branch,
+          sha,
+          message: "新的上游发布分支，需要先建立保留双语改动的对应分支。",
+        });
         continue;
       }
       git(["fetch", "--no-tags", "origin", `refs/heads/${branch}`]);
@@ -129,14 +144,23 @@ async function sync({ github, context, core }) {
 
       const head = syncBranchName(branch, sha);
       const { data: pulls } = await github.rest.pulls.list({
-        owner, repo, state: "all", base: branch, head: `${owner}:${head}`, per_page: 100,
+        owner,
+        repo,
+        state: "all",
+        base: branch,
+        head: `${owner}:${head}`,
+        per_page: 100,
       });
       // A squash merge lacks upstream ancestry, but its already merged PR still
       // records that this exact revision was reviewed. Never reopen a rejected PR.
       if (pulls.some((pull) => pull.merged_at)) continue;
       let pull = pulls.find((candidate) => candidate.state === "open");
       if (!pull && pulls.length > 0) {
-        pending.push({ branch, sha, message: `之前的同步 PR 已关闭但未合并：${pulls[0].html_url}` });
+        pending.push({
+          branch,
+          sha,
+          message: `之前的同步 PR 已关闭但未合并：${pulls[0].html_url}`,
+        });
         continue;
       }
       if (!pull) {
@@ -144,13 +168,25 @@ async function sync({ github, context, core }) {
         // overwriting conflict resolutions made by a maintainer on an older PR.
         const remoteHead = git(["ls-remote", "--heads", "origin", `refs/heads/${head}`]);
         if (!remoteHead) git(["push", "origin", `${sha}:refs/heads/${head}`]);
-        const changed = git(["diff", "--name-only", `${base}...${sha}`]).split("\n").filter(Boolean);
-        pull = (await github.rest.pulls.create({
-          owner, repo, base: branch, head,
-          title: `chore(sync): ${branch} @ ${sha.slice(0, 12)}`,
-          body: pullRequestBody(config.repository, branch, sha, changed),
-        })).data;
-        await github.rest.issues.addLabels({ owner, repo, issue_number: pull.number, labels: [LABEL] });
+        const changed = git(["diff", "--name-only", `${base}...${sha}`])
+          .split("\n")
+          .filter(Boolean);
+        pull = (
+          await github.rest.pulls.create({
+            owner,
+            repo,
+            base: branch,
+            head,
+            title: `chore(sync): ${branch} @ ${sha.slice(0, 12)}`,
+            body: pullRequestBody(config.repository, branch, sha, changed),
+          })
+        ).data;
+        await github.rest.issues.addLabels({
+          owner,
+          repo,
+          issue_number: pull.number,
+          labels: [LABEL],
+        });
       }
       pending.push({ branch, sha, message: `同步与汉化检查：${pull.html_url}` });
     } catch (error) {
@@ -162,27 +198,44 @@ async function sync({ github, context, core }) {
   }
 
   const issues = await github.paginate(github.rest.issues.listForRepo, {
-    owner, repo, state: "open", labels: LABEL, per_page: 100,
+    owner,
+    repo,
+    state: "open",
+    labels: LABEL,
+    per_page: 100,
   });
-  const tracking = issues.find((issue) => !issue.pull_request && issue.body?.includes(ISSUE_MARKER));
+  const tracking = issues.find(
+    (issue) => !issue.pull_request && issue.body?.includes(ISSUE_MARKER),
+  );
   if (pending.length > 0) {
     const body = issueBody(config.repository, pending);
     if (!tracking) {
       await github.rest.issues.create({
-        owner, repo, title: "[上游同步] 待合并更新与汉化检查", body, labels: [LABEL],
+        owner,
+        repo,
+        title: "[上游同步] 待合并更新与汉化检查",
+        body,
+        labels: [LABEL],
         ...(config.assignee ? { assignees: [config.assignee] } : {}),
       });
     } else if (tracking.body !== body) {
       await github.rest.issues.update({ owner, repo, issue_number: tracking.number, body });
       await github.rest.issues.createComment({
-        owner, repo, issue_number: tracking.number,
+        owner,
+        repo,
+        issue_number: tracking.number,
         body: "上游更新清单发生变化，请查看 Issue 顶部的同步 PR 和汉化检查项。",
       });
     }
     await core.summary.addRaw(body).write();
   } else {
     if (tracking) {
-      await github.rest.issues.update({ owner, repo, issue_number: tracking.number, state: "closed" });
+      await github.rest.issues.update({
+        owner,
+        repo,
+        issue_number: tracking.number,
+        state: "closed",
+      });
     }
     await core.summary.addRaw("所有已跟踪的上游分支均已同步。本次没有待处理更新。").write();
   }
