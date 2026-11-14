@@ -3,44 +3,46 @@ import { Plus } from "lucide-react";
 import ActionDialog from "~/components/action-dialog";
 import Button from "~/components/button";
 import Input from "~/components/input";
+import { useI18n } from "~/i18n/provider";
 import { fieldValidator } from "~/utils/form";
-import { USERNAME_RULE } from "~/utils/user";
 
-import { username } from "../schemas";
+import { usernameSchema } from "../schemas";
 
 interface CreateUserProps {
   isOidc?: boolean;
   isDisabled?: boolean;
 }
 
-const validateUsername = fieldValidator(username);
-
 export default function CreateUser({ isOidc, isDisabled }: CreateUserProps) {
+  const { locale, t } = useI18n();
+  const validateUsername = fieldValidator(usernameSchema(locale));
   return (
     <ActionDialog
-      description={`The user is listed under Unlinked Headscale Users until they sign in${
-        isOidc ? " through your OIDC provider" : ""
-      }, which links them to a Headplane account.`}
+      description={t(isOidc ? "users.createOidcDescription" : "users.createDescription")}
       intent="create"
-      submitLabel="Create user"
-      title="Create a Headscale user"
+      submitLabel={t("users.create")}
+      title={t("users.createTitle")}
       trigger={
         <Button disabled={isDisabled} variant="primary">
           <Plus className="size-3.5" />
-          Add user
+          {t("users.add")}
         </Button>
       }
     >
       <Input
-        description={USERNAME_RULE}
-        label="Username"
+        description={t("users.validation.usernameRule")}
+        label={t("users.username")}
         name="name"
-        placeholder="my-new-user"
+        placeholder={t("users.usernamePlaceholder")}
         required
         validate={validateUsername}
       />
-      <Input label="Display name" name="display_name" placeholder="John Doe" />
-      <Input label="Email" name="email" placeholder="name@example.com" type="email" />
+      <Input
+        label={t("users.displayName")}
+        name="display_name"
+        placeholder={t("users.displayNamePlaceholder")}
+      />
+      <Input label={t("users.email")} name="email" placeholder="name@example.com" type="email" />
     </ActionDialog>
   );
 }

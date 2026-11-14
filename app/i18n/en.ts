@@ -1,9 +1,11 @@
 import errors from "./en/errors";
 import machines from "./en/machines";
+import users from "./en/users";
 
 export default {
   ...machines,
   ...errors,
+  ...users,
   "common.close": "Close",
   "common.actions": "Actions",
   "common.cancel": "Cancel",

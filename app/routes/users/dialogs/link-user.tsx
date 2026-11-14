@@ -1,6 +1,7 @@
 import ActionDialog from "~/components/action-dialog";
 import Callout from "~/components/callout";
 import Select from "~/components/select";
+import { useI18n } from "~/i18n/provider";
 
 interface LinkUserProps {
   headplaneUserId: string;
@@ -19,33 +20,35 @@ export default function LinkUser({
   isOpen,
   setIsOpen,
 }: LinkUserProps) {
+  const { t } = useI18n();
   const hasChoices = headscaleUsers.length > 0;
 
   return (
     <ActionDialog
-      description="The linked Headscale user decides which machines they can manage and enables self-service features."
+      description={t("users.linkDescription")}
       fields={{ headplane_user_id: headplaneUserId }}
       intent="link"
       isDisabled={!hasChoices}
       onOpenChange={setIsOpen}
       open={isOpen}
-      submitLabel="Link user"
-      title={`Link a Headscale user to ${displayName}`}
+      submitLabel={t("users.linkSubmit")}
+      title={t("users.linkTitle", { name: displayName })}
     >
       {hasChoices ? (
         <Select
           defaultValue={currentLink ?? null}
           items={headscaleUsers.map((user) => ({
             value: user.id,
-            label: user.id === currentLink ? `${user.name} (current)` : user.name,
+            label:
+              user.id === currentLink ? t("users.currentLink", { name: user.name }) : user.name,
           }))}
-          label="Headscale user"
+          label={t("users.headscaleUser")}
           name="headscale_user_id"
-          placeholder="Select a Headscale user"
+          placeholder={t("users.selectHeadscaleUser")}
           required
         />
       ) : (
-        <Callout>Every Headscale user is already linked to another account.</Callout>
+        <Callout>{t("users.noLinkChoices")}</Callout>
       )}
     </ActionDialog>
   );

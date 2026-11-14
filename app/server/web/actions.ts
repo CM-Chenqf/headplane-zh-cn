@@ -29,6 +29,8 @@ interface Intent<E extends v.ObjectEntries, C> {
 
 interface ActionOptions<C, T extends Record<string, v.ObjectEntries>> {
   locale?: Locale;
+  // Missing fields report the object schema's message, not the field's message.
+  validationMessage?: string;
   capability?: Capabilities;
   setup: (args: ActionFunctionArgs) => Promise<C>;
   intents: { [K in keyof T]: Intent<T[K], C> };
@@ -58,7 +60,7 @@ export function createAction<
         }
       }
 
-      const parsed = parseValues(v.object(intent.fields), values);
+      const parsed = parseValues(v.object(intent.fields, options.validationMessage), values);
       if (!parsed.ok) {
         return invalid(parsed.errors);
       }

@@ -6,13 +6,13 @@ interface MachinesSeenProps {
 }
 
 export default function MachinesSeen({ machines }: MachinesSeenProps) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   if (machines.length === 0) {
-    return <span className="text-muted">No machines</span>;
+    return <span className="text-muted">{t("users.noMachines")}</span>;
   }
 
   if (machines.some((machine) => machine.online)) {
-    return <span className="text-ok">Connected</span>;
+    return <span className="text-ok">{t("common.connected")}</span>;
   }
 
   const lastSeen = new Date(Math.max(...machines.map((m) => new Date(m.lastSeen).getTime())));

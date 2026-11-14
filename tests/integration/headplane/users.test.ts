@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 
+import type { Locale } from "~/i18n/locale";
 import { loader } from "~/routes/users/overview";
 import { userAction } from "~/routes/users/user-actions";
 import { parsePolicy } from "~/utils/acl-policy";
@@ -34,8 +35,8 @@ function name(base: string) {
   return `${base}${counter}`;
 }
 
-function act(form: Record<string, string | string[]>, as = owner.cookie) {
-  return app.call(userAction, "/users", { as, form });
+function act(form: Record<string, string | string[]>, as = owner.cookie, locale: Locale = "en") {
+  return app.call(userAction, "/users", { as, form, headers: { "Accept-Language": locale } });
 }
 
 async function headscaleUser(userName: string) {
@@ -53,6 +54,63 @@ async function groups() {
 }
 
 describe("creating users", () => {
+  test.for([
+    {
+      locale: "en",
+      created: "User created",
+      renamed: "User renamed",
+      linked: "Headscale user linked",
+      deleted: "User deleted",
+    },
+    {
+      locale: "zh-CN",
+      created: "用户已创建",
+      renamed: "用户已重命名",
+      linked: "已关联 Headscale 用户",
+      deleted: "用户已删除",
+    },
+  ] as const)(
+    "$locale creates, renames, links and deletes through the real API",
+    async ({ locale, created, renamed, linked, deleted }) => {
+      expect(
+        await act(
+          {
+            intent: "create",
+            name: name("双语用户"),
+            display_name: "测试用户",
+            email: "bilingual@example.com",
+          },
+          owner.cookie,
+          locale,
+        ),
+      ).toMatchObject({ ok: true, message: created });
+      const user = (await headscaleUser(name("双语用户")))!;
+      expect(user).toMatchObject({ displayName: "测试用户", email: "bilingual@example.com" });
+      expect(
+        await act(
+          { intent: "rename", headscale_user_id: user.id, name: name("重命名用户") },
+          owner.cookie,
+          locale,
+        ),
+      ).toMatchObject({ ok: true, message: renamed });
+      expect((await tailnet.api.users.list({ id: user.id }))[0].name).toBe(name("重命名用户"));
+      const member = await app.signIn("member");
+      expect(
+        await act(
+          { intent: "link", headplane_user_id: member.userId, headscale_user_id: user.id },
+          owner.cookie,
+          locale,
+        ),
+      ).toMatchObject({ ok: true, message: linked });
+      expect((await headplaneUser(member.userId))?.headscale_user_id).toBe(user.id);
+      expect(
+        await act({ intent: "delete", headscale_user_id: user.id }, owner.cookie, locale),
+      ).toMatchObject({ ok: true, message: deleted });
+      expect(await headscaleUser(name("重命名用户"))).toBeUndefined();
+      expect((await headplaneUser(member.userId))?.headscale_user_id).toBeNull();
+    },
+  );
+
   test("stores the display name and email in Headscale", async () => {
     const result = await act({
       intent: "create",
@@ -73,6 +131,11 @@ describe("creating users", () => {
 
     expect(await act({ intent: "create", name: name("frank") })).toMatchObject({
       data: { errors: { form: `A user named ${name("frank")} already exists.` } },
+    });
+    const chinese = await act({ intent: "create", name: name("frank") }, owner.cookie, "zh-CN");
+    expect(statusOf(chinese)).toBe(409);
+    expect(chinese).toMatchObject({
+      data: { errors: { form: `名为 ${name("frank")} 的用户已存在。` } },
     });
   });
 
@@ -234,6 +297,15 @@ describe("linking accounts to Headscale users", () => {
     });
 
     expect(statusOf(result)).toBe(409);
+    const chinese = await act(
+      { intent: "link", headplane_user_id: second.userId, headscale_user_id: user.id },
+      owner.cookie,
+      "zh-CN",
+    );
+    expect(statusOf(chinese)).toBe(409);
+    expect(chinese).toMatchObject({
+      data: { errors: { form: "该 Headscale 用户已关联其他账号。" } },
+    });
     expect((await headplaneUser(second.userId))?.headscale_user_id).toBeNull();
   });
 
@@ -323,6 +395,14 @@ describe("groups", () => {
 
     expect(result).toMatchObject({ data: { errors: { form: "Invalid group name: Admins" } } });
     expect(await groups()).toEqual({ "group:eng": ["uma@"] });
+    expect(
+      await act(
+        { intent: "update_groups", user_name: name("victor"), groups: ["Admins"] },
+        owner.cookie,
+        "zh-CN",
+      ),
+    ).toMatchObject({ data: { errors: { form: "用户组名称无效：Admins" } } });
+    expect(await groups()).toEqual({ "group:eng": ["uma@"] });
   });
 });
 
@@ -348,6 +428,19 @@ describe("with the policy in a file", () => {
     });
 
     expect(statusOf(result)).toBe(403);
+    const chinese = await fileApp.call(userAction, "/users", {
+      as: cookie,
+      headers: { "Accept-Language": "zh-CN" },
+      form: { intent: "update_groups", user_name: "wendy", groups: ["group:eng"] },
+    });
+    expect(statusOf(chinese)).toBe(403);
+    expect(chinese).toMatchObject({
+      data: {
+        errors: {
+          form: "ACL 策略为只读。请在 Headscale 配置中将 `policy.mode` 设为 `database`，以启用用户组编辑。",
+        },
+      },
+    });
     const data = (await fileApp.call(loader, "/users", { as: cookie })) as LoaderData;
     expect(data.canEditGroups).toBe(false);
   });
@@ -361,6 +454,8 @@ test("lists Headplane accounts while Headscale is unreachable", async () => {
 
   const data = (await offline.call(loader, "/users", { as: cookie })) as LoaderData;
 
-  expect(data.apiError).toBeDefined();
+  expect(data.apiError).toBe(
+    "Could not connect to the Headscale API. Headscale user data and machine information are unavailable.",
+  );
   expect(data.headplaneUsers.map((user) => user.id)).toEqual([userId]);
 });

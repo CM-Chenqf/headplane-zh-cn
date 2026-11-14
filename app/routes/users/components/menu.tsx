@@ -2,6 +2,7 @@ import { Ellipsis } from "lucide-react";
 import { useState } from "react";
 
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "~/components/menu";
+import { useI18n } from "~/i18n/provider";
 
 import Delete from "../dialogs/delete-user";
 import LinkUser from "../dialogs/link-user";
@@ -33,6 +34,7 @@ export default function UserMenu({
   policyGroups,
   policyHasComments,
 }: MenuProps) {
+  const { t } = useI18n();
   const [modal, setModal] = useState<Modal>(null);
 
   const isLinked = currentLink !== undefined;
@@ -103,6 +105,7 @@ export default function UserMenu({
 
       <Menu>
         <MenuTrigger className="text-muted hover:bg-hover hover:text-fg size-7 rounded-md">
+          <span className="sr-only">{t("common.actions")}</span>
           <Ellipsis className="size-4" />
         </MenuTrigger>
         <MenuContent>
@@ -110,19 +113,19 @@ export default function UserMenu({
             disabled={!isLinked || user.role === "owner"}
             onClick={() => setModal("reassign")}
           >
-            Change role
+            {t("users.changeRole")}
           </MenuItem>
           <MenuItem onClick={() => setModal("link")}>
-            {isLinked ? "Change linked user" : "Link Headscale user"}
+            {t(isLinked ? "users.changeLink" : "users.link")}
           </MenuItem>
           {canEditGroups && user.linkedHeadscaleUser && (
-            <MenuItem onClick={() => setModal("groups")}>Edit groups</MenuItem>
+            <MenuItem onClick={() => setModal("groups")}>{t("users.editGroups")}</MenuItem>
           )}
           {isOwner && !isSelf && (
             <>
               <MenuSeparator />
               <MenuItem variant="danger" onClick={() => setModal("transfer")}>
-                Transfer ownership
+                {t("users.transfer")}
               </MenuItem>
             </>
           )}
@@ -130,7 +133,7 @@ export default function UserMenu({
             <>
               <MenuSeparator />
               <MenuItem variant="danger" onClick={() => setModal("delete")}>
-                Delete
+                {t("users.delete")}
               </MenuItem>
             </>
           )}
