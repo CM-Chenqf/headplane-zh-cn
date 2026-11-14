@@ -217,7 +217,9 @@ describe("machine tags on a real tailnet", () => {
       form: { intent: "update_tags", node_id: node.id, tags: "server" },
     });
     expect(statusOf(chinese)).toBe(400);
-    expect(formError(chinese)).toContain("Headscale 拒绝了此操作（HTTP 400）。原始诊断信息：");
+    // Headscale reports this validation failure as 500. Keep that upstream
+    // status in the diagnostic, even though Headplane returns a 400 form error.
+    expect(formError(chinese)).toContain("Headscale 拒绝了此操作（HTTP 500）。原始诊断信息：");
     expect(formError(chinese)).toContain("tag must start with the string 'tag:'");
     expect((await node.machine()).tags).toEqual([]);
   });
