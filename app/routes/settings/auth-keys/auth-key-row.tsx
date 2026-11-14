@@ -29,12 +29,24 @@ export default function AuthKeyRow({ authKey, user }: Props) {
               {tag}
             </span>
           ))}
-          <Chip text={authKey.reusable ? "Reusable" : isSpent ? "Used" : "Single use"} />
-          {authKey.ephemeral && <Chip text="Ephemeral" />}
+          <Chip
+            text={t(
+              authKey.reusable
+                ? "authKeys.reusable"
+                : isSpent
+                  ? "authKeys.used"
+                  : "authKeys.singleUse",
+            )}
+          />
+          {authKey.ephemeral && <Chip text={t("authKeys.ephemeral")} />}
         </div>
       </TableCell>
       <TableCell>
-        {user ? getUserDisplayName(user) : <span className="text-muted">Tags only</span>}
+        {user ? (
+          getUserDisplayName(user, locale)
+        ) : (
+          <span className="text-muted">{t("authKeys.tagsOnly")}</span>
+        )}
       </TableCell>
       <TableCell
         className={isPastExpiry ? "text-muted whitespace-nowrap" : "whitespace-nowrap"}

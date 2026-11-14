@@ -40,8 +40,12 @@ describe.for(testedVersions())("sign-in restrictions on Headscale %s", (version)
     await tailnet?.dispose();
   });
 
-  function restriction(form: Record<string, string>) {
-    return app.call(restrictionAction, "/settings/restrictions", { as: owner, form });
+  function restriction(form: Record<string, string>, locale = "en") {
+    return app.call(restrictionAction, "/settings/restrictions", {
+      as: owner,
+      headers: { "Accept-Language": locale },
+      form,
+    });
   }
 
   async function expectRefused(name: string, email: string) {
@@ -88,17 +92,17 @@ describe.for(testedVersions())("sign-in restrictions on Headscale %s", (version)
     expect(result).toMatchObject({ data: { errors: { form: "This user isn't in the list." } } });
   });
 
-  test("a domain restriction keeps other domains out until it's removed", async () => {
+  test("a Chinese domain restriction keeps other domains out until it's removed", async () => {
     expect(
-      statusOf(await restriction({ intent: "add", type: "domain", value: "allowed.test" })),
-    ).toBe(200);
+      await restriction({ intent: "add", type: "domain", value: "allowed.test" }, "zh-CN"),
+    ).toMatchObject({ ok: true, message: "域名已添加" });
 
     await expectRefused("domain-outsider", "mallory@other.test");
     await expectAdmitted("domain-insider", "alice@allowed.test");
 
     expect(
-      statusOf(await restriction({ intent: "remove", type: "domain", value: "allowed.test" })),
-    ).toBe(200);
+      await restriction({ intent: "remove", type: "domain", value: "allowed.test" }, "zh-CN"),
+    ).toMatchObject({ ok: true, message: "域名已移除" });
 
     await expectAdmitted("domain-returning", "mallory@other.test");
   });
