@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useFetcher } from "react-router";
 
 import Button from "~/components/button";
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 import type { ActionResult } from "~/utils/form";
 
@@ -16,6 +17,7 @@ type Scope = Record<string, string>;
  * that tell lists apart, such as the split DNS domain.
  */
 export function useReorder(intent: string, field: string) {
+  const { t } = useI18n();
   const fetcher = useFetcher<ActionResult>();
   const [focusTarget, setFocusTarget] = useState<{ id: string; direction: Direction }>();
   const pending = fetcher.formData;
@@ -64,7 +66,7 @@ export function useReorder(intent: string, field: string) {
         )}
       >
         <Button
-          aria-label={`Move ${item} up`}
+          aria-label={t("dns.moveUp", { item })}
           disabled={isEdge("up")}
           onClick={() => move(item, "up", scope)}
           onFocus={() => setFocusTarget(undefined)}
@@ -75,7 +77,7 @@ export function useReorder(intent: string, field: string) {
           <ArrowUp className="size-4" />
         </Button>
         <Button
-          aria-label={`Move ${item} down`}
+          aria-label={t("dns.moveDown", { item })}
           disabled={isEdge("down")}
           onClick={() => move(item, "down", scope)}
           onFocus={() => setFocusTarget(undefined)}
@@ -93,7 +95,7 @@ export function useReorder(intent: string, field: string) {
     order,
     controls,
     error:
-      fetcher.data?.ok === false ? (fetcher.data.errors.form ?? "Couldn't reorder.") : undefined,
+      fetcher.data?.ok === false ? (fetcher.data.errors.form ?? t("dns.reorderFailed")) : undefined,
   };
 }
 

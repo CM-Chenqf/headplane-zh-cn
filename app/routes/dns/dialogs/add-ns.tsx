@@ -1,35 +1,36 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import ActionDialog from "~/components/action-dialog";
 import Button from "~/components/button";
 import Input from "~/components/input";
 import { SwitchField } from "~/components/switch";
+import { useI18n } from "~/i18n/provider";
 import { fieldValidator } from "~/utils/form";
 
-import { nameserver } from "../schemas";
-
-const validateNameserver = fieldValidator(nameserver);
+import { dnsSchemas } from "../schemas";
 
 export default function AddNameserver() {
+  const { locale, t } = useI18n();
+  const validateNameserver = useMemo(() => fieldValidator(dnsSchemas(locale).nameserver), [locale]);
   const [isSplit, setIsSplit] = useState(false);
 
   return (
     <ActionDialog
       intent="add_ns"
       onOpenChange={(isOpen) => isOpen && setIsSplit(false)}
-      submitLabel="Add nameserver"
-      title="Add nameserver"
+      submitLabel={t("dns.addNameserver")}
+      title={t("dns.addNameserver")}
       trigger={
         <Button>
           <Plus className="size-3.5" />
-          Add nameserver
+          {t("dns.addNameserver")}
         </Button>
       }
     >
       <Input
-        description="Use this IPv4 or IPv6 address to resolve names."
-        label="Nameserver"
+        description={t("dns.nameserverDescription")}
+        label={t("dns.nameserver")}
         name="nameserver"
         placeholder="1.2.3.4"
         required
@@ -37,14 +38,14 @@ export default function AddNameserver() {
       />
       <SwitchField
         checked={isSplit}
-        description="Split DNS. Only Tailscale 1.8 and later use this nameserver."
-        label="Restrict to domain"
+        description={t("dns.splitDescription")}
+        label={t("dns.restrictDomain")}
         onCheckedChange={setIsSplit}
       />
       {isSplit && (
         <Input
-          description="Only queries for this domain and its subdomains use the nameserver."
-          label="Domain"
+          description={t("dns.splitDomainDescription")}
+          label={t("dns.domain")}
           name="split_domain"
           placeholder="example.com"
           required

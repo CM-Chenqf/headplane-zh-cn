@@ -9,6 +9,7 @@
     "language",
     "machines-bilingual",
     "users-bilingual",
-    "acls-bilingual"
+    "acls-bilingual",
+    "dns-bilingual"
   ]
 }

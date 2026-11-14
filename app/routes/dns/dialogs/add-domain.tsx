@@ -3,22 +3,24 @@ import { Plus } from "lucide-react";
 import ActionDialog from "~/components/action-dialog";
 import Button from "~/components/button";
 import Input from "~/components/input";
+import { useI18n } from "~/i18n/provider";
 
 export default function AddDomain() {
+  const { t } = useI18n();
   return (
     <ActionDialog
-      description="Devices try this suffix when resolving a short name."
+      description={t("dns.addDomainDescription")}
       intent="add_domain"
-      submitLabel="Add domain"
-      title="Add search domain"
+      submitLabel={t("dns.addDomain")}
+      title={t("dns.addDomainTitle")}
       trigger={
         <Button>
           <Plus className="size-3.5" />
-          Add domain
+          {t("dns.addDomain")}
         </Button>
       }
     >
-      <Input label="Domain" name="domain" placeholder="corp.example.com" required />
+      <Input label={t("dns.domain")} name="domain" placeholder="corp.example.com" required />
     </ActionDialog>
   );
 }

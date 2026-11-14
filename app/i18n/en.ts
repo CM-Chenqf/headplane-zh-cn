@@ -1,4 +1,5 @@
 import acls from "./en/acls";
+import dns from "./en/dns";
 import editor from "./en/editor";
 import errors from "./en/errors";
 import machines from "./en/machines";
@@ -6,6 +7,7 @@ import users from "./en/users";
 
 export default {
   ...acls,
+  ...dns,
   ...editor,
   ...machines,
   ...errors,

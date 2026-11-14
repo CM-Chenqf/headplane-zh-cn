@@ -10,6 +10,7 @@
 
 ## Changes
 
+- The bilingual fork now translates DNS settings, nameservers, split DNS, search domains, records, validation and action results into Simplified Chinese, with bilingual usage documentation.
 - The bilingual fork now translates Access Control rules, tags, groups, policy editors, syntax diagnostics and save results into Simplified Chinese, with bilingual usage documentation.
 - The bilingual fork now translates user management, account linking, roles, ownership transfer, groups and the member device connection guide into Simplified Chinese, with bilingual usage documentation.
 - The bilingual fork now translates the Machines list, details, filters, dialogs, validation and action results into Simplified Chinese. Headscale diagnostics keep their original text alongside a translated explanation.
