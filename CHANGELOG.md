@@ -10,6 +10,7 @@
 
 ## Changes
 
+- Fork maintainers can check for upstream updates and translation work in GitHub pull requests, publish images under their own GHCR namespace, and configure separate Cloudflare Pages documentation sites.
 - Headplane can be served under a path other than `/admin` by setting `server.base_path`, without building it from source (closes [#637](https://github.com/tale/headplane/issues/637)).
 - Headplane has a new color palette built from its logo: warm greys, black primary buttons, and a muted blue that marks links, focus, and the current page. Dark mode now separates the page, menus, and dialogs by shade so overlays stand out, and secondary text is easier to read in both themes (via [#651](https://github.com/tale/headplane/issues/651)).
 - Dialogs can now be closed by clicking outside them, except the ones that confirm a destructive action like removing a machine.
@@ -37,6 +38,7 @@
 
 ## Fixes
 
+- Documentation builds on Windows now use URL separators when prerendering nested pages.
 - Saving from the Rules or Tags & Groups tabs no longer drops the comma from text like `,}` or `,]` inside a policy value.
 - Live updates work again right after signing in. Previously the machines list and other pages only refreshed on their own after a full page reload.
 - Changes to DNS settings and sign-in restrictions now actually apply with the `proc` and `kubernetes` integrations. Both sent `SIGHUP`, which only makes Headscale reload its ACL policy. They now stop Headscale with `SIGTERM` and wait for systemd or Kubernetes to restart it, so Headscale needs a supervisor that restarts it.

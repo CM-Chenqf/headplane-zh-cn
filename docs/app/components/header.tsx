@@ -7,6 +7,7 @@ import { Link, useLocation } from "react-router";
 
 import LogoMark from "@/components/logo-mark";
 import VersionPicker from "@/components/version-picker";
+import { docsBuild } from "@/lib/releases";
 
 export const iconButtonClass =
   "text-muted hover:bg-hover hover:text-fg inline-flex size-8 shrink-0 items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&_svg]:size-4";
@@ -62,7 +63,7 @@ export default function Header({ menu }: { menu?: ReactNode }) {
           <a
             aria-label="GitHub"
             className={iconButtonClass}
-            href="https://github.com/tale/headplane"
+            href={`https://github.com/${docsBuild.repository}`}
           >
             <GitHubIcon />
           </a>

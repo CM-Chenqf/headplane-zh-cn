@@ -10,6 +10,7 @@ on:
       - "main"
       - "release/**"
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -43,6 +44,9 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+
+      - name: Check upstream sync automation
+        run: node --test .github/scripts/sync-upstream.test.cjs
 
       - name: Build
         run: ./build.sh --skip-pnpm-prune

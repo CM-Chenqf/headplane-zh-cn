@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 export const docsBuild = __HEADPLANE_DOCS__;
 
-export const stableOrigin = "https://headplane.net";
-export const betaOrigin = "https://beta.headplane.net";
+export const stableOrigin = docsBuild.stableOrigin;
+export const betaOrigin = docsBuild.betaOrigin;
 
 export interface Release {
   version: string;
