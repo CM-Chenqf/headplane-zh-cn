@@ -1,7 +1,8 @@
 import Chip from "~/components/chip";
 import { TableCell } from "~/components/table";
+import { useI18n } from "~/i18n/provider";
 import type { PreAuthKey, User } from "~/types";
-import { formatTimeDelta, formatTimeUntil } from "~/utils/time";
+import { formatDateTime, formatTimeDelta, formatTimeUntil } from "~/utils/time";
 import { getUserDisplayName } from "~/utils/user";
 
 import ExpireAuthKey from "./dialogs/expire-auth-key";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function AuthKeyRow({ authKey, user }: Props) {
+  const { locale, t } = useI18n();
   const createdAt = new Date(authKey.createdAt);
   const expiration = new Date(authKey.expiration);
   const isPastExpiry = expiration < new Date();
@@ -37,16 +39,18 @@ export default function AuthKeyRow({ authKey, user }: Props) {
       <TableCell
         className={isPastExpiry ? "text-muted whitespace-nowrap" : "whitespace-nowrap"}
         suppressHydrationWarning
-        title={expiration.toLocaleString()}
+        title={formatDateTime(expiration, locale)}
       >
-        {isPastExpiry ? `Expired ${formatTimeDelta(expiration)}` : formatTimeUntil(expiration)}
+        {isPastExpiry
+          ? t("time.expired", { time: formatTimeDelta(expiration, locale) })
+          : formatTimeUntil(expiration, locale)}
       </TableCell>
       <TableCell
         className="text-muted whitespace-nowrap"
         suppressHydrationWarning
-        title={createdAt.toLocaleString()}
+        title={formatDateTime(createdAt, locale)}
       >
-        {formatTimeDelta(createdAt)}
+        {formatTimeDelta(createdAt, locale)}
       </TableCell>
       <TableCell className="py-1.5 text-right align-middle">
         {!isPastExpiry && !isSpent && user && <ExpireAuthKey authKey={authKey} user={user} />}

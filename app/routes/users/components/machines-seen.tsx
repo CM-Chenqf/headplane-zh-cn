@@ -1,10 +1,12 @@
-import { formatTimeDelta } from "~/utils/time";
+import { useI18n } from "~/i18n/provider";
+import { formatDateTime, formatTimeDelta } from "~/utils/time";
 
 interface MachinesSeenProps {
   machines: { online: boolean; lastSeen: string }[];
 }
 
 export default function MachinesSeen({ machines }: MachinesSeenProps) {
+  const { locale } = useI18n();
   if (machines.length === 0) {
     return <span className="text-muted">No machines</span>;
   }
@@ -15,8 +17,8 @@ export default function MachinesSeen({ machines }: MachinesSeenProps) {
 
   const lastSeen = new Date(Math.max(...machines.map((m) => new Date(m.lastSeen).getTime())));
   return (
-    <span className="text-muted" suppressHydrationWarning title={lastSeen.toLocaleString()}>
-      {formatTimeDelta(lastSeen)}
+    <span className="text-muted" suppressHydrationWarning title={formatDateTime(lastSeen, locale)}>
+      {formatTimeDelta(lastSeen, locale)}
     </span>
   );
 }

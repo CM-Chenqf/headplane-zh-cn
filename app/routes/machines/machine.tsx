@@ -7,6 +7,7 @@ import Link from "~/components/link";
 import PageHeader from "~/components/page-header";
 import Section, { SettingList } from "~/components/section";
 import StatusCircle from "~/components/status-circle";
+import { useI18n } from "~/i18n/provider";
 import {
   agentsContext,
   authContext,
@@ -19,6 +20,7 @@ import { nodesResource, usersResource } from "~/server/headscale/live-store";
 import { Capabilities } from "~/server/web/roles";
 import { getOSInfo, getTSVersion } from "~/utils/host-info";
 import { extractTagOwnerTags, isNoExpiry, mapNodes, sortAssignableTags } from "~/utils/node-info";
+import { formatDateTime } from "~/utils/time";
 import { toastClientAction } from "~/utils/toast";
 import { getUserDisplayName, isTaggedDevicesUser } from "~/utils/user";
 
@@ -111,6 +113,7 @@ export default function Page({
     supportsDisablingKeyExpiry,
   },
 }: Route.ComponentProps) {
+  const { locale } = useI18n();
   const [showRouting, setShowRouting] = useState(false);
 
   const uiTags = useMemo(() => {
@@ -215,14 +218,16 @@ export default function Page({
               <Attribute isMono name="Tailscale version" value={getTSVersion(stats)} />
             </>
           ) : undefined}
-          <Attribute name="Created" value={new Date(node.createdAt).toLocaleString()} />
+          <Attribute name="Created" value={formatDateTime(new Date(node.createdAt), locale)} />
           <Attribute
             name="Last seen"
-            value={node.online ? "Connected" : new Date(node.lastSeen).toLocaleString()}
+            value={node.online ? "Connected" : formatDateTime(new Date(node.lastSeen), locale)}
           />
           <Attribute
             name="Key expiry"
-            value={!isNoExpiry(node.expiry) ? new Date(node.expiry!).toLocaleString() : "Never"}
+            value={
+              !isNoExpiry(node.expiry) ? formatDateTime(new Date(node.expiry!), locale) : "Never"
+            }
           />
           <Attribute
             isMono

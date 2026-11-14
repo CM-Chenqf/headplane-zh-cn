@@ -1,0 +1,63 @@
+---
+title: Language / 语言
+description: Choose English or Simplified Chinese in the bilingual fork.
+---
+
+# Language / 语言
+
+This feature belongs to the `CM-Chenqf/headscale-web` fork. Translation is being
+delivered in stages; this is not yet a fully translated release.
+
+## English
+
+Select **简体中文** or **English** in the sign-in page header or the dashboard
+header. The selection is saved in the `headplane_locale` browser cookie for one
+year. It applies before and after sign-in and does not change the account,
+permissions, Headscale configuration, or other browsers.
+
+On the first visit, the `Accept-Language` browser preference selects English or
+Simplified Chinese. Chinese language variants use Simplified Chinese. Other
+languages fall back to English. Clear the `headplane_locale` cookie to follow
+the browser preference again.
+
+The current stage translates sign-in, sign-out, API key validation, SSO errors,
+the shared navigation, theme choices, relative times, date tooltips, and machine
+key expiry notices. The HTML language and page description follow the selection
+on the server. The rest of the dashboard and the documentation site are still
+being translated. Documentation links continue to open the upstream English
+site until the bilingual documentation site is ready.
+
+Configuration keys, API fields, commands, product names and diagnostic logs keep
+their original spelling. Changing language does not change the time zone.
+
+## 简体中文
+
+在登录页或管理界面的顶部选择 **简体中文** 或 **English**。
+选择结果通过浏览器的 `headplane_locale` Cookie 保存一年，登录前后均有效，
+不会更改账号、权限、Headscale 配置或其他浏览器的语言。
+
+首次访问时，按浏览器的 `Accept-Language` 语言偏好选择英文或简体中文。
+中文语言变体统一使用简体中文，其他不支持的语言回退到英文。
+清除 `headplane_locale` Cookie 后恢复跟随浏览器语言。
+
+当前阶段已覆盖登录、退出、API 密钥校验、SSO 错误提示、公共导航、主题选项、
+相对时间、日期提示和设备密钥过期提示。服务端生成的 HTML 语言及页面描述也会同步切换。
+其他管理页面和完整文档仍在翻译中。双语文档站点上线前，界面中的文档链接仍指向上游英文站点。
+
+配置键、API 字段、命令、产品名称和诊断日志保留原文。切换语言不会更改时区。
+
+## Maintaining translations / 维护翻译
+
+Add English source messages in `app/i18n/en.ts` and Simplified Chinese in
+`app/i18n/zh-CN.ts`. TypeScript checks message keys; unit tests check matching
+interpolation placeholders. Use `useI18n()` in React and `getLocale(request)`
+with `translate()` in server actions. Use `Message` for sentences containing
+inline code or styled names, so the whole sentence can be reordered safely.
+Pass the selected locale to the time formatters. Keep request languages isolated;
+never store the current user's language in a process-wide variable.
+
+英文资源位于 `app/i18n/en.ts`，简体中文位于 `app/i18n/zh-CN.ts`。
+两份资源必须一起更新，保留相同占位符。React 使用 `useI18n()`，
+服务端操作使用 `getLocale(request)` 和 `translate()`。
+包含命令或带样式名称的句子使用 `Message`，避免拼接句子片段。
+时间格式化函数显式传入语言，不使用进程级变量保存当前用户语言。

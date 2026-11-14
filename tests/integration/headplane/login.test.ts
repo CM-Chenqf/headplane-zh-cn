@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
+import { setLocale } from "~/i18n/locale.server";
 import { action } from "~/routes/auth/login/page";
 
 import { createTailnet, type Tailnet } from "../../harness/tailnet";
@@ -39,13 +40,18 @@ describe.for(testedVersions())("API key sign-in on Headscale %s", (version) => {
     expect(await signIn(app, { api_key: "not-a-real-key" })).toEqual({
       success: false,
       message: "That API key is invalid or has expired.",
+      messageKey: "login.error.invalid",
     });
   });
 
   test.for<Record<string, string>>([{}, { api_key: "" }])(
     "asks for a key when none is given (%o)",
     async (form) => {
-      expect(await signIn(app, form)).toEqual({ success: false, message: "Enter an API key." });
+      expect(await signIn(app, form)).toEqual({
+        success: false,
+        message: "Enter an API key.",
+        messageKey: "login.error.required",
+      });
     },
   );
 
@@ -62,6 +68,19 @@ describe.for(testedVersions())("API key sign-in on Headscale %s", (version) => {
     expect(await signIn(app, { api_key: `${apiKey.slice(0, 10)}\n${apiKey.slice(10)}` })).toEqual({
       success: false,
       message: "That API key is invalid or has expired.",
+      messageKey: "login.error.invalid",
+    });
+  });
+  test("a rejected key is explained in the saved language", async () => {
+    expect(
+      await app.call(action, "/login", {
+        form: { api_key: "not-a-real-key" },
+        headers: { Cookie: (await setLocale("zh-CN")).split(";")[0], "Accept-Language": "en" },
+      }),
+    ).toEqual({
+      success: false,
+      message: "此 API 密钥无效或已过期。",
+      messageKey: "login.error.invalid",
     });
   });
 });
@@ -74,5 +93,6 @@ test("explains when Headscale can't be reached", async () => {
   expect(await signIn(app, { api_key: "hskey-api-anything" })).toEqual({
     success: false,
     message: "Couldn't check the API key. See the server logs.",
+    messageKey: "login.error.unavailable",
   });
 });
