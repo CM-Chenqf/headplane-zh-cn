@@ -65,7 +65,7 @@ export default {
   "restrictions.readOnly": "Headscale 配置为只读，无法在此修改登录限制。",
   "restrictions.noPermission": "当前权限不允许修改登录限制。",
   "restrictions.restartNotice":
-    "更改已保存到 Headscale 配置文件，重启 Headscale 后才会生效。可配置{integration}以自动重启。",
+    "更改会保存到 Headscale 配置文件，但需重启 Headscale 后才会生效。可配置{integration}以自动重启。",
   "restrictions.integration": "集成",
   "restrictions.removeTitle": "移除 {value}？",
   "restrictions.error.readOnly": "Headscale 配置为只读。",
