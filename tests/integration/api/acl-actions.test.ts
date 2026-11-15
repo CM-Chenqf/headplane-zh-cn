@@ -103,7 +103,7 @@ describe.for(HS_VERSIONS)(
           });
           for (const invalid of ['{"acls": [', '{"acls": "not-a-list"}']) {
             const rejected = await aclAction(await args(locale, invalid));
-            expect(rejected.init).toBe(400);
+            expect(rejected.init).toMatchObject({ status: 400 });
             expect(rejected.data.success).toBe(false);
             expect(rejected.data.errorDetail?.length).toBeGreaterThan(0);
             expect(rejected.data.error).toBe(
