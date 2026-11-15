@@ -29,6 +29,7 @@ for (const version of testedVersions()) {
     let app: TestApp;
     let browser: Awaited<ReturnType<typeof startBrowser>>;
     let cookie: string;
+    let headscaleUserId: string;
 
     beforeAll(async () => {
       tailnet = await createTailnet({ version, policy: POLICY });
@@ -46,6 +47,7 @@ for (const version of testedVersions()) {
       });
 
       const alice = await tailnet.user("alice@");
+      headscaleUserId = alice.id;
       const signedIn = await app.signIn("owner");
       await app.ctx.auth.linkHeadscaleUser(signedIn.userId, alice.id);
       cookie = signedIn.cookie;
@@ -60,6 +62,12 @@ for (const version of testedVersions()) {
       await browser?.stop();
       await tailnet?.dispose();
     });
+
+    // Agent registration creates its own tagged keys in the background. Only
+    // this person's keys can belong to the browser sessions under test.
+    function personKeys() {
+      return tailnet.api.preAuthKeys.listForUser(headscaleUserId);
+    }
 
     // What the page's loader hands the browser for a session.
     async function sessionFor(machine: string, user: string, englishOverride = false) {
@@ -91,13 +99,11 @@ for (const version of testedVersions()) {
 
     test("joins as a temporary machine of the signed-in person", async () => {
       await tailnet.node({ name: "joined", user: "alice@", ssh: true });
-      const existing = new Set((await tailnet.api.preAuthKeys.listAll!()).map((key) => key.id));
+      const existing = new Set((await personKeys()).map((key) => key.id));
       const started = Date.now();
       const session = await sessionFor("joined", "root", true);
       const issued = Date.now();
-      const created = (await tailnet.api.preAuthKeys.listAll!()).filter(
-        (key) => !existing.has(key.id),
-      );
+      const created = (await personKeys()).filter((key) => !existing.has(key.id));
       expect(created).toHaveLength(1);
       const [key] = created;
       expect(key).toMatchObject({ ephemeral: true, reusable: false, user: { name: "alice@" } });
@@ -148,7 +154,7 @@ for (const version of testedVersions()) {
       await tailnet.node({ name: "identity-check", user: "alice@", ssh: true });
       const apiSession = await app.signInWithApiKey();
       const unlinked = await app.signIn("admin", { email: "unlinked-ssh@example.com" });
-      const before = await tailnet.api.preAuthKeys.listAll!();
+      const before = (await personKeys()).map((key) => key.id).sort();
       const prompt = await app.call(loader, "/ssh/identity-check", {
         as: cookie,
         params: { id: "identity-check" },
@@ -178,7 +184,7 @@ for (const version of testedVersions()) {
         expect(statusOf(result)).toBe(status);
         expect(result).toMatchObject({ data: { code, message } });
       }
-      expect(await tailnet.api.preAuthKeys.listAll!()).toEqual(before);
+      expect((await personKeys()).map((key) => key.id).sort()).toEqual(before);
     });
 
     test.for([
@@ -190,7 +196,7 @@ for (const version of testedVersions()) {
         await node.down();
       }
 
-      const before = await tailnet.api.preAuthKeys.listAll!();
+      const before = (await personKeys()).map((key) => key.id).sort();
       const result = await app.call(loader, `/ssh/${machine}`, {
         as: cookie,
         params: { id: machine },
@@ -209,7 +215,7 @@ for (const version of testedVersions()) {
       } else {
         expect(result).toMatchObject({ offline: true, node: undefined });
       }
-      expect(await tailnet.api.preAuthKeys.listAll!()).toHaveLength(before.length);
+      expect((await personKeys()).map((key) => key.id).sort()).toEqual(before);
     });
   });
 }
