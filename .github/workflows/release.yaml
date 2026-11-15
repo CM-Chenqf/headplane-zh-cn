@@ -24,7 +24,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-      packages: read
+      packages: write
     outputs:
       image: ${{ steps.release.outputs.image }}
       version: ${{ steps.release.outputs.version }}
@@ -89,6 +89,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      # Recheck inside each job too: rerunning a failed push/attestation job must
+      # never bypass the original preflight and overwrite a published full tag.
+      - name: Refuse an already used full image version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.prepare.outputs.version }}${{ matrix.suffix }}
+        run: node .github/scripts/fork-release.cjs image-unused "$VERSION"
       # Full versions first; moving aliases follow the immutable release.
       - name: Build and push the accepted image
         id: push
