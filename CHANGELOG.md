@@ -2,6 +2,8 @@
 
 ## Changes
 
+- Community maintenance now uses fixed main/stable branches and vX.Y.Z-zh.N release tags. Published source, bilingual docs and image digests remain attached to each immutable release; full image versions are not overwritten.
+
 - The community-maintained 0.8 fork now supports English and Simplified Chinese for DNS, Settings and Browser SSH, plus the complete VitePress documentation, navigation, search and historical changelog. Language changes preserve form drafts and SSH sessions. Docker runtime and publication acceptance remain pending; no image, release or documentation deployment is enabled by this change.
 
 - The community-maintained 0.8 fork now supports English and Simplified Chinese for Access Control, its five visual editors, policy files, diff and search controls, validation and diagnostics, with a bilingual guide. Switching languages preserves drafts, and policy fields, unknown actions, permissions and supported Headscale versions retain their original behavior. Full localization and publication acceptance remain incomplete.

@@ -1,0 +1,140 @@
+const assert = require("node:assert/strict");
+const { test } = require("node:test");
+const { execFileSync } = require("node:child_process");
+const { createHash } = require("node:crypto");
+const { mkdtempSync, readFileSync, writeFileSync, rmSync } = require("node:fs");
+const { tmpdir } = require("node:os");
+const { join } = require("node:path");
+const {
+  parseTag,
+  publishedVersions,
+  validateState,
+  validateTag,
+  metadata,
+  imageMissing,
+  bundle,
+  run,
+} = require("./fork-release.cjs");
+const { siteReleases } = require("./docs-site.cjs");
+const state = {
+  schemaVersion: 1,
+  repository: "CM-Chenqf/headplane-zh-cn",
+  channel: "stable",
+  upstream: { repository: "tale/headplane", version: "0.8.2", commit: "a".repeat(40) },
+  revision: 1,
+  publicationReady: true,
+};
+
+test("documentation subprocesses can stream output and still propagate build failures", () => {
+  assert.equal(run(process.execPath, ["-e", "process.exit(0)"], { stdio: "inherit" }), "");
+  assert.throws(() => run(process.execPath, ["-e", "process.exit(7)"], { stdio: "inherit" }));
+});
+
+test("release archives bind the exact Git source, both image digests and documentation checksums", () => {
+  const directory = mkdtempSync(join(tmpdir(), "headplane-release-test-"));
+  try {
+    for (const name of ["docs-root.tar.gz", "docs-archive.tar.gz"])
+      writeFileSync(join(directory, name), "documentation snapshot");
+    for (const target of ["final", "debug-shell"])
+      writeFileSync(
+        join(directory, `${target}.json`),
+        JSON.stringify({ target, digest: `sha256:${"a".repeat(64)}` }),
+      );
+    const manifest = bundle(state, directory, directory);
+    assert.equal(
+      manifest.sourceCommit,
+      execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+    );
+    assert.deepEqual(
+      manifest.images.map((image) => image.reference),
+      [
+        "ghcr.io/cm-chenqf/headplane-zh-cn:0.8.2-zh.1",
+        "ghcr.io/cm-chenqf/headplane-zh-cn:0.8.2-zh.1-shell",
+      ],
+    );
+    for (const [name, record] of Object.entries(manifest.assets))
+      assert.equal(
+        record.sha256,
+        createHash("sha256")
+          .update(readFileSync(join(directory, name)))
+          .digest("hex"),
+      );
+    assert.equal(readFileSync(join(directory, "SHA256SUMS"), "utf8").trim().split("\n").length, 4);
+    assert.ok(
+      readFileSync(join(directory, "release-notes.md"), "utf8").includes(
+        "not an official Chinese edition",
+      ),
+    );
+    writeFileSync(
+      join(directory, "debug-shell.json"),
+      JSON.stringify({ target: "final", digest: `sha256:${"b".repeat(64)}` }),
+    );
+    assert.throws(() => bundle(state, directory, directory), /digest record/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("community releases are stable releases with a separate, strict revision namespace", () => {
+  assert.deepEqual(parseTag("v0.8.2-zh.12").parts, [0, 8, 2, 12]);
+  for (const tag of [
+    "v0.8.2",
+    "v0.8.2-beta.1",
+    "v0.8.2-zh.0",
+    "v00.8.2-zh.1",
+    "v0.8.2-zh.01",
+    "v0.8.2-zh.1-shell",
+    "--delete",
+  ])
+    assert.throws(() => parseTag(tag));
+  assert.equal(validateTag(state, "v0.8.2-zh.1", "0.8.2").revision, 1);
+  assert.equal(metadata(state).image, "ghcr.io/cm-chenqf/headplane-zh-cn");
+  for (const bad of [{ channel: "development" }, { publicationReady: false }, { revision: 2 }])
+    assert.throws(() => validateTag({ ...state, ...bad }, "v0.8.2-zh.1", "0.8.2"));
+  assert.throws(() => validateTag(state, "v0.8.2-zh.1", "0.8.1"));
+  assert.throws(() => validateState({ ...state, repository: "tale/headplane" }));
+});
+
+test("only published community releases move latest; inherited tags, drafts and beta releases do not", () => {
+  const published = (tag_name, rest = {}) => ({
+    tag_name,
+    published_at: "2026-11-15",
+    draft: false,
+    prerelease: false,
+    ...rest,
+  });
+  assert.deepEqual(
+    publishedVersions([
+      published("v9.0.0"),
+      published("v0.8.2-zh.10"),
+      published("v0.9.0-zh.1"),
+      published("v0.8.2-zh.2"),
+      published("v1.0.0-zh.1", { draft: true }),
+      published("v2.0.0-zh.1", { prerelease: true }),
+      published("v3.0.0-zh.1", { published_at: null }),
+    ]),
+    ["v0.9.0-zh.1", "v0.8.2-zh.10", "v0.8.2-zh.2"],
+  );
+});
+
+test("registry auth, rate limit, network and server failures never authorize overwriting a tag", () => {
+  assert.equal(imageMissing(404, { errors: [{ code: "MANIFEST_UNKNOWN" }] }), true);
+  for (const [status, body] of [
+    [401, { errors: [{ code: "UNAUTHORIZED" }] }],
+    [403, {}],
+    [429, {}],
+    [500, {}],
+    [404, {}],
+    [404, { errors: [] }],
+    [404, { errors: [{ code: "DENIED" }] }],
+    [200, {}],
+  ])
+    assert.equal(imageMissing(status, body), false);
+});
+
+test("the documentation root follows the latest community release and archives each older minor once", () => {
+  const releases = ["v0.8.2-zh.1", "v0.8.2-zh.10", "v0.8.3-zh.1", "v0.9.0-zh.1", "v9.0.0"].map(
+    (tag_name) => ({ tag_name, published_at: "2026-11-15", draft: false, prerelease: false }),
+  );
+  assert.deepEqual(siteReleases(releases), ["v0.9.0-zh.1", "v0.8.3-zh.1"]);
+});
