@@ -75,7 +75,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/CM-Chenqf/headscale-web" },
+      { icon: "github", link: "https://github.com/CM-Chenqf/headplane-zh-cn" },
       { icon: "githubsponsors", link: "https://github.com/sponsors/tale" },
       { icon: "kofi", link: "https://ko-fi.com/atale" },
     ],

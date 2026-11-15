@@ -2,7 +2,7 @@
 
 [简体中文](/zh-CN/features/language)
 
-This page describes the `CM-Chenqf/headscale-web` fork's **0.8 release line**, based on upstream 0.8.2. It keeps this line's original interface, VitePress documentation, configuration, permissions and compatibility requirements. It does not include the newer interface or features from `main`.
+This page describes the community-maintained `CM-Chenqf/headplane-zh-cn` fork's **0.8 release line**, based on [tale/headplane](https://github.com/tale/headplane) 0.8.2. It is not an official Chinese release of Headplane, Headscale, or Tailscale. The upstream MIT license and original copyright notices are retained. This line keeps its original interface, VitePress documentation, configuration, permissions and compatibility requirements. It does not include the newer interface or features from `main`.
 
 ## Current scope
 
