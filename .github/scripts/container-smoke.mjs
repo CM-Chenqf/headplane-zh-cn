@@ -102,10 +102,17 @@ for (const version of versions) {
     }
     assert.ok(ready, "Headplane and real Headscale health must pass");
     docker("exec", name, "/bin/hp_healthcheck");
-    for (const [locale, title] of [
-      ["en", "Sign in to Headplane"],
-      ["zh-CN", "登录 Headplane"],
-    ]) {
+    // Each upstream line keeps its own sign-in UI and wording.
+    const titles = mainHarness
+      ? [
+          ["en", "Sign in to Headplane"],
+          ["zh-CN", "登录 Headplane"],
+        ]
+      : [
+          ["en", "Welcome to Headplane"],
+          ["zh-CN", "欢迎使用 Headplane"],
+        ];
+    for (const [locale, title] of titles) {
       const response = await fetch(`${base}/login`, { headers: { "Accept-Language": locale } });
       assert.equal(response.status, 200);
       const html = await response.text();
