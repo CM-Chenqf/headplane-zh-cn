@@ -1,7 +1,9 @@
 import type { MessageKey } from "./messages";
 import machines from "./zh-CN/machines";
 import release from "./zh-CN/release";
+import users from "./zh-CN/users";
 export default {
+  ...users,
   ...release,
   ...machines,
   "common.close": "关闭",

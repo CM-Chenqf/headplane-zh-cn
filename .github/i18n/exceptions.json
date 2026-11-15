@@ -120,6 +120,36 @@
       "file": "app/components/tags/TailscaleSSH.tsx",
       "text": "text=\"Tailscale SSH\"",
       "reason": "Tailscale SSH 产品及协议名称，保留原文。"
+    },
+    {
+      "file": "app/routes/users/dialogs/user-groups.tsx",
+      "text": "groups",
+      "reason": "ACL 策略字段名，必须与实际策略一致。"
+    },
+    {
+      "file": "app/routes/users/dialogs/user-groups.tsx",
+      "text": "placeholder=\"group:example\"",
+      "reason": "ACL 用户组合法格式示例，group: 前缀不能翻译。"
+    },
+    {
+      "file": "app/routes/users/dialogs/create-user.tsx",
+      "text": "placeholder=\"name@example.com\"",
+      "reason": "电子邮箱格式示例，保留可识别的地址语法。"
+    },
+    {
+      "file": "app/routes/home.tsx",
+      "text": "alt=\"Linux\"",
+      "reason": "操作系统专有名称，保留原文。"
+    },
+    {
+      "file": "app/routes/home.tsx",
+      "text": "Linux",
+      "reason": "操作系统专有名称，保留原文。"
+    },
+    {
+      "file": "app/routes/home.tsx",
+      "text": "curl -fsSL https://tailscale.com/install.sh | sh",
+      "reason": "原有可执行 Linux 安装命令，不得翻译。"
     }
   ]
 }

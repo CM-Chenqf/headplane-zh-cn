@@ -10,7 +10,9 @@ Language preferences, API-key sign-in and its errors, SSO configuration and sign
 
 [Machines](/features/machines-bilingual) also supports bilingual lists, details, filters, management dialogs, validation and action results, badges and dates. Device values, commands, permissions and Headscale capability checks retain the original behavior.
 
-Users and account linking, Access Control and editors, DNS, Settings, Browser SSH and the remaining documentation still need adaptation. Changing the language currently leaves those pages in English. This is an unfinished development branch, not a complete Chinese release. Do not deploy a tag or image as a complete localization until the remaining modules and publication checks pass.
+[Users, roles and account linking](/features/users-bilingual) also supports bilingual account lists, creation and management dialogs, policy groups, ownership transfer, the home-page account picker and member downloads. Local form errors follow the selected language while keeping drafts; original identifiers, permissions and API diagnostics are preserved.
+
+Access Control and editors, DNS, Settings, Browser SSH and the remaining documentation still need adaptation. Changing the language currently leaves those pages in English. This is an unfinished development branch, not a complete Chinese release. Do not deploy a tag or image as a complete localization until the remaining modules and publication checks pass.
 
 ## Choose the interface language
 

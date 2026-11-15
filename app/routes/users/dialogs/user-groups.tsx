@@ -6,6 +6,7 @@ import Link from "~/components/link";
 import Text from "~/components/text";
 import Title from "~/components/title";
 import TokenList from "~/components/token-list";
+import { useI18n, Message } from "~/i18n/provider";
 import { isValidGroupName } from "~/utils/acl-policy";
 
 interface UserGroupsProps {
@@ -29,6 +30,7 @@ export default function UserGroups({
   availableGroups,
   policyHasComments,
 }: UserGroupsProps) {
+  const { t } = useI18n();
   const fetcher = useFetcher<{ message?: string; error?: string }>();
   const submittingRef = useRef(false);
   const [selected, setSelected] = useState([...groups]);
@@ -73,18 +75,23 @@ export default function UserGroups({
           fetcher.submit(form, { method: "POST" });
         }}
       >
-        <Title>Edit ACL groups for {displayName}</Title>
+        <Title>{t("users.groupsTitle", { name: displayName })}</Title>
         <Text>
-          Groups live in the ACL policy, not in Headscale. Changing them here rewrites the{" "}
-          <code className="font-mono">groups</code> section of your policy. See the{" "}
-          <Link external styled to="https://tailscale.com/kb/1018/acls">
-            Tailscale ACL guide
-          </Link>{" "}
-          for details.
+          <Message
+            id="users.groupsDescription"
+            values={{
+              section: <code className="font-mono">groups</code>,
+              docs: (
+                <Link external styled to="https://tailscale.com/kb/1018/acls">
+                  {t("users.aclGuide")}
+                </Link>
+              ),
+            }}
+          />
         </Text>
         {policyHasComments ? (
           <p className="mt-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-            Your policy contains comments. Saving here rewrites the policy and drops them.
+            {t("users.policyComments")}
           </p>
         ) : null}
         {error ? (
@@ -93,9 +100,9 @@ export default function UserGroups({
           </p>
         ) : null}
         <TokenList
-          emptyText="This user is not in any group"
+          emptyText={t("users.noGroups")}
           isDisabled={isSubmitting}
-          label="Groups"
+          label={t("users.groups")}
           onChange={setSelected}
           placeholder="group:example"
           suggestions={availableGroups}

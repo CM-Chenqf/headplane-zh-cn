@@ -9,6 +9,8 @@ import windowsSvg from "~/assets/windows.svg";
 import Card from "~/components/card";
 import CodeBlock from "~/components/code-block";
 import Link from "~/components/link";
+import { getLocale } from "~/i18n/locale.server";
+import { useI18n, Message } from "~/i18n/provider";
 import LinkAccount from "~/layout/link-account";
 import {
   authContext,
@@ -25,6 +27,7 @@ import { getUserDisplayName, sortUsersByDisplayName } from "~/utils/user";
 import type { Route } from "./+types/home";
 
 export async function loader({ request, context }: Route.LoaderArgs) {
+  const locale = await getLocale(request);
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
   const headscaleConfig = context.get(headscaleConfigContext);
@@ -47,7 +50,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
       const apiUsers = usersSnap.data;
       headscaleUsers = sortUsersByDisplayName(apiUsers.filter((u) => !claimed.has(u.id))).map(
-        (u) => ({ id: u.id, name: getUserDisplayName(u) }),
+        (u) => ({ id: u.id, name: getUserDisplayName(u, locale) }),
       );
     } catch {
       // API unavailable, skip the link picker
@@ -133,6 +136,7 @@ const downloads = [
 ];
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const { t } = useI18n();
   if (loaderData.status === "needs_link") {
     return <LinkAccount headscaleUsers={loaderData.headscaleUsers} />;
   }
@@ -143,16 +147,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         <Card variant="flat" className="flex max-w-2xl items-center gap-4">
           <Check className="inline-flex size-4" />
           <Card.Text className="text-sm">
-            Your account is linked to Headscale user <strong>{loaderData.linkedUserName}</strong>.
+            <Message
+              id="users.home.linkedAs"
+              values={{ name: <strong>{loaderData.linkedUserName}</strong> }}
+            />
           </Card.Text>
         </Card>
       )}
       <Card variant="flat" className="max-w-2xl">
-        <Card.Title>Access your network via Tailscale</Card.Title>
-        <Card.Text className="mt-1">
-          You've successfully authenticated but don't have access to the dashboard. You can still
-          connect to your Headscale network by installing Tailscale.
-        </Card.Text>
+        <Card.Title>{t("users.home.title")}</Card.Title>
+        <Card.Text className="mt-1">{t("users.home.description")}</Card.Text>
 
         <div className="mt-4 rounded-lg border border-mist-200 p-3 dark:border-mist-700">
           <div className="flex items-center gap-2">
@@ -166,7 +170,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               styled
               to="https://github.com/tailscale/tailscale/blob/main/scripts/installer.sh"
             >
-              View script source
+              {t("users.home.source")}
             </Link>
           </p>
         </div>
@@ -201,9 +205,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               : "text-mist-600 dark:text-mist-300",
           )}
         >
-          {loaderData.unlinked
-            ? "Your account isn't linked to a Headscale user. Ask your administrator to create one for you."
-            : "Need access to the dashboard? Contact your administrator to request access."}
+          {loaderData.unlinked ? t("users.home.unlinked") : t("users.home.askAdmin")}
         </Card.Text>
       </Card>
     </div>

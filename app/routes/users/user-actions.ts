@@ -1,5 +1,7 @@
 import { data } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
 import { isDataWithApiError } from "~/server/headscale/api/error-client";
 import { usersResource } from "~/server/headscale/live-store";
@@ -12,6 +14,8 @@ import { validateUsername } from "~/utils/user";
 import type { Route } from "./+types/overview";
 
 export async function userAction({ request, context }: Route.ActionArgs) {
+  const locale = await getLocale(request);
+  const t = createTranslator(locale);
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
   const headscaleLiveStore = context.get(headscaleLiveStoreContext);
@@ -19,7 +23,7 @@ export async function userAction({ request, context }: Route.ActionArgs) {
   const principal = await auth.require(request);
   const check = await auth.can(principal, Capabilities.write_users);
   if (!check) {
-    throw data("You do not have permission to update users", {
+    throw data(t("users.error.writeForbidden"), {
       status: 403,
     });
   }
@@ -27,7 +31,7 @@ export async function userAction({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
   const action = formData.get("action_id")?.toString();
   if (!action) {
-    throw data("Missing `action_id` in the form data.", {
+    throw data(t("users.error.missingAction"), {
       status: 404,
     });
   }
@@ -40,24 +44,24 @@ export async function userAction({ request, context }: Route.ActionArgs) {
       const email = formData.get("email")?.toString();
 
       if (!name) {
-        throw data("Missing `username` in the form data.", {
+        throw data(t("users.error.missingUsername"), {
           status: 400,
         });
       }
 
-      const nameError = validateUsername(name);
+      const nameError = validateUsername(name, locale);
       if (nameError) {
         throw data(nameError, { status: 400 });
       }
 
       await api.users.create({ name, email, displayName });
       await headscaleLiveStore.refresh(usersResource, api);
-      return { message: "User created successfully" };
+      return { message: t("users.success.created") };
     }
     case "delete_user": {
       const headscaleUserId = formData.get("headscale_user_id")?.toString();
       if (!headscaleUserId) {
-        throw data("Missing `headscale_user_id` in the form data.", {
+        throw data(t("users.error.missingHeadscaleId"), {
           status: 400,
         });
       }
@@ -70,7 +74,7 @@ export async function userAction({ request, context }: Route.ActionArgs) {
       }
 
       await headscaleLiveStore.refresh(usersResource, api);
-      return { message: "User deleted successfully" };
+      return { message: t("users.success.deleted") };
     }
     case "rename_user": {
       const headscaleUserId = formData.get("headscale_user_id")?.toString();
@@ -79,7 +83,7 @@ export async function userAction({ request, context }: Route.ActionArgs) {
         return data({ success: false }, 400);
       }
 
-      const newNameError = validateUsername(newName);
+      const newNameError = validateUsername(newName, locale);
       if (newNameError) {
         throw data(newNameError, { status: 400 });
       }
@@ -87,78 +91,78 @@ export async function userAction({ request, context }: Route.ActionArgs) {
       const users = await api.users.list({ id: headscaleUserId });
       const user = users.find((user) => user.id === headscaleUserId);
       if (!user) {
-        throw data(`No user found with id: ${headscaleUserId}`, { status: 400 });
+        throw data(t("users.error.notFound", { id: headscaleUserId }), { status: 400 });
       }
 
       if (user.provider === "oidc") {
         // OIDC users cannot be renamed via this endpoint, return an error
-        throw data("Users managed by OIDC cannot be renamed", {
+        throw data(t("users.error.oidcRename"), {
           status: 403,
         });
       }
 
       await api.users.rename(headscaleUserId, newName);
       await headscaleLiveStore.refresh(usersResource, api);
-      return { message: "User renamed successfully" };
+      return { message: t("users.success.renamed") };
     }
     case "reassign_user": {
       const headplaneUserId = formData.get("headplane_user_id")?.toString();
       const newRole = formData.get("new_role")?.toString();
       if (!headplaneUserId || !newRole) {
-        throw data("Missing `headplane_user_id` or `new_role` in the form data.", {
+        throw data(t("users.error.missingRoleFields"), {
           status: 400,
         });
       }
 
       const result = await auth.reassignUser(headplaneUserId, newRole as Role);
       if (!result) {
-        throw data("Failed to reassign user role.", { status: 500 });
+        throw data(t("users.error.reassign"), { status: 500 });
       }
 
-      return { message: "User reassigned successfully" };
+      return { message: t("users.success.roleChanged") };
     }
     case "transfer_ownership": {
       if (!isUserPrincipal(principal) || principal.user.role !== "owner") {
-        throw data("Only the owner can transfer ownership.", { status: 403 });
+        throw data(t("users.error.ownerOnly"), { status: 403 });
       }
 
       const headplaneUserId = formData.get("headplane_user_id")?.toString();
       if (!headplaneUserId) {
-        throw data("Missing `headplane_user_id` in the form data.", { status: 400 });
+        throw data(t("users.error.missingHeadplaneId"), { status: 400 });
       }
 
       const result = await auth.transferOwnership(principal.user.id, headplaneUserId);
       if (!result) {
-        throw data("Failed to transfer ownership.", { status: 500 });
+        throw data(t("users.error.transfer"), { status: 500 });
       }
 
-      return { message: "Ownership transferred successfully" };
+      return { message: t("users.success.transferred") };
     }
     case "link_user": {
       const headplaneUserId = formData.get("headplane_user_id")?.toString();
       const headscaleUserId = formData.get("headscale_user_id")?.toString();
       if (!headplaneUserId || !headscaleUserId) {
-        throw data("Missing `headplane_user_id` or `headscale_user_id` in the form data.", {
+        throw data(t("users.error.missingLinkFields"), {
           status: 400,
         });
       }
 
       const linked = await auth.linkHeadscaleUser(headplaneUserId, headscaleUserId);
       if (!linked) {
-        throw data("That Headscale user is already linked to another account.", { status: 409 });
+        throw data(t("users.error.claimed"), { status: 409 });
       }
 
-      return { message: "Headscale user linked successfully" };
+      return { message: t("users.success.linked") };
     }
     case "update_user_groups": {
       // Group membership lives in the policy, so `write_policy` is needed too.
       if (!auth.can(principal, Capabilities.write_policy)) {
-        throw data("You do not have permission to write to the ACL policy", { status: 403 });
+        throw data(t("users.error.policyForbidden"), { status: 403 });
       }
 
       const userName = formData.get("user_name")?.toString();
       if (!userName) {
-        throw data("Missing `user_name` in the form data.", { status: 400 });
+        throw data(t("users.error.missingPolicyUser"), { status: 400 });
       }
 
       const groups = (formData.get("groups")?.toString() ?? "")
@@ -168,13 +172,13 @@ export async function userAction({ request, context }: Route.ActionArgs) {
 
       const invalid = groups.filter((group) => !isValidGroupName(group));
       if (invalid.length > 0) {
-        return data({ error: `Invalid group name: ${invalid.join(", ")}` }, 400);
+        return data({ error: t("users.error.invalidGroups", { groups: invalid.join(", ") }) }, 400);
       }
 
       const { policy } = await api.policy.get();
       const parsed = parsePolicy(policy);
       if (!parsed.ok) {
-        return data({ error: `The ACL policy could not be parsed: ${parsed.error}` }, 400);
+        return data({ error: t("users.error.policyParse", { error: parsed.error }) }, 400);
       }
 
       try {
@@ -186,20 +190,19 @@ export async function userAction({ request, context }: Route.ActionArgs) {
         if (message.includes("update is disabled")) {
           return data(
             {
-              error:
-                "The ACL policy is read-only. Set `policy.mode` to `database` in your Headscale configuration to edit groups.",
+              error: t("users.error.policyReadOnly"),
             },
             403,
           );
         }
 
-        return data({ error: `Could not update the ACL policy: ${message}` }, 500);
+        return data({ error: t("users.error.policyUpdate", { error: message }) }, 500);
       }
 
-      return { message: "Groups updated successfully" };
+      return { message: t("users.success.groupsUpdated") };
     }
     default:
-      throw data("Invalid `action_id` provided.", {
+      throw data(t("users.error.invalidAction"), {
         status: 400,
       });
   }

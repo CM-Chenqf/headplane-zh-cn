@@ -1,8 +1,10 @@
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { translate } from "~/i18n/messages";
 import type { User } from "~/types/User";
 
-export function getUserDisplayName(user: User): string {
+export function getUserDisplayName(user: User, locale: Locale = defaultLocale): string {
   if (user.name === "tagged-devices") {
-    return "Tag-owned";
+    return translate(locale, "machines.tagOwned");
   }
 
   return user.name || user.displayName || user.email || user.id;
@@ -20,16 +22,13 @@ export function sortUsersByDisplayName(users: User[]): User[] {
 // can never be matched by a rule.
 export const USERNAME_PATTERN = String.raw`\p{L}[\p{L}\p{Nd}._\-]*(@[\p{L}\p{Nd}._\-]+)?`;
 
-export const USERNAME_RULE =
-  "Usernames must be at least 2 characters, start with a letter, and contain only " +
-  "letters, numbers, dots, dashes and underscores, with at most one @ that cannot " +
-  "be the last character.";
+export const USERNAME_RULE = translate("en", "users.validation.usernameRule");
 
 const usernameRegex = new RegExp(`^${USERNAME_PATTERN}$`, "u");
 
 // Returns an error message when the username is not usable in Headscale.
-export function validateUsername(name: string): string | undefined {
+export function validateUsername(name: string, locale: Locale = defaultLocale): string | undefined {
   if (name.length < 2 || !usernameRegex.test(name)) {
-    return USERNAME_RULE;
+    return translate(locale, "users.validation.usernameRule");
   }
 }

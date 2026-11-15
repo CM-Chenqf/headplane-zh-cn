@@ -7,10 +7,10 @@
     "language preferences",
     "sign-in and SSO notices",
     "shared navigation and components",
-    "Machines"
+    "Machines",
+    "Users and account linking"
   ],
   "pending": [
-    "Users and account linking",
     "Access Control and editors",
     "DNS",
     "Settings",
@@ -59,7 +59,26 @@
     "app/components/tags/Expiry.tsx",
     "app/routes/machines/machine-actions.ts",
     "app/utils/host-info.ts",
-    "app/utils/time.ts"
+    "app/utils/time.ts",
+    "app/routes/users/overview.tsx",
+    "app/routes/users/user-actions.ts",
+    "app/routes/users/components/headplane-user-row.tsx",
+    "app/routes/users/components/headscale-user-row.tsx",
+    "app/routes/users/components/manage-banner.tsx",
+    "app/routes/users/components/menu.tsx",
+    "app/routes/users/components/headscale-user-menu.tsx",
+    "app/routes/users/dialogs/create-user.tsx",
+    "app/routes/users/dialogs/rename-user.tsx",
+    "app/routes/users/dialogs/delete-user.tsx",
+    "app/routes/users/dialogs/reassign-user.tsx",
+    "app/routes/users/dialogs/transfer-ownership.tsx",
+    "app/routes/users/dialogs/link-user.tsx",
+    "app/routes/users/dialogs/user-groups.tsx",
+    "app/layout/link-account.tsx",
+    "app/routes/home.tsx",
+    "app/components/token-list.tsx",
+    "app/utils/user.ts",
+    "app/routes/users/use-native-validation.ts"
   ],
   "documents": [
     {
@@ -69,6 +88,10 @@
     {
       "english": "docs/features/machines-bilingual.md",
       "chinese": "docs/zh-CN/features/machines-bilingual.md"
+    },
+    {
+      "english": "docs/features/users-bilingual.md",
+      "chinese": "docs/zh-CN/features/users-bilingual.md"
     }
   ]
 }

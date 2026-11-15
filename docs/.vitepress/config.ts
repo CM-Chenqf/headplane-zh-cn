@@ -52,6 +52,7 @@ export default defineConfig({
             text: "Features",
             items: [
               { text: "Machines (English / 简体中文)", link: "/features/machines-bilingual" },
+              { text: "Users (English / 简体中文)", link: "/features/users-bilingual" },
               {
                 text: "Single Sign-On (SSO)",
                 link: "/features/sso",
