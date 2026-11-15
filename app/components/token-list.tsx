@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Button from "~/components/button";
 import Input from "~/components/input";
 import TableList from "~/components/table-list";
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 
 interface TokenListProps {
@@ -34,6 +35,7 @@ export default function TokenList({
   validate,
   normalize,
 }: TokenListProps) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState("");
 
   const prepare = useMemo(
@@ -82,6 +84,7 @@ export default function TokenList({
             <TableList.Item className="font-mono text-sm" id={value} key={value}>
               {value}
               <Button
+                aria-label={t("common.removeNamed", { name: value })}
                 className="rounded-md p-0.5"
                 disabled={isDisabled}
                 onClick={() => onChange(values.filter((entry) => entry !== value))}
@@ -95,11 +98,11 @@ export default function TokenList({
       </TableList>
       <div className="flex items-center gap-2">
         <Input
-          aria-label={`Add to ${label}`}
+          aria-label={t("common.addTo", { name: label })}
           className="w-full"
           disabled={isDisabled}
           invalid={draft.length > 0 && draftIsInvalid}
-          label={label}
+          label={t("common.addTo", { name: label })}
           labelHidden
           onChange={setDraft}
           onKeyDown={(event) => {
@@ -112,6 +115,7 @@ export default function TokenList({
           value={draft}
         />
         <Button
+          aria-label={t("common.addTo", { name: label })}
           className={cn("rounded-md p-1", draftIsInvalid && "cursor-not-allowed opacity-50")}
           disabled={isDisabled || draftIsInvalid}
           onClick={() => add(draft)}

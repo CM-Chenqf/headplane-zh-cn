@@ -1,8 +1,13 @@
+import { useId } from "react";
+
 import Dialog, { DialogPanel } from "~/components/dialog";
 import Notice from "~/components/notice";
 import Text from "~/components/text";
 import Title from "~/components/title";
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
+
+import { useNativeValidation } from "../use-native-validation";
 
 interface LinkUserProps {
   headplaneUserId: string;
@@ -21,38 +26,50 @@ export default function LinkUser({
   isOpen,
   setIsOpen,
 }: LinkUserProps) {
+  const { t } = useI18n();
+  const errorId = useId();
+  const validation = useNativeValidation();
+  const { invalid, errorMessage, ...validationEvents } = validation.field<HTMLSelectElement>(
+    "headscale_user_id",
+    "users.validation.headscaleUser",
+  );
   return (
     <Dialog isOpen={isOpen} onOpenChange={setIsOpen}>
       <DialogPanel>
-        <Title>Link Headscale user for {displayName}</Title>
-        <Text className="mb-6">
-          Select which Headscale user this identity should be linked to. This controls which
-          machines they can manage and enables self-service features.
-        </Text>
+        <Title>{t("users.linkTitle", { name: displayName })}</Title>
+        <Text className="mb-6">{t("users.linkDescription")}</Text>
         {headscaleUsers.length === 0 ? (
-          <Notice>All Headscale users are already linked to other accounts.</Notice>
+          <Notice>{t("users.noLinkChoices")}</Notice>
         ) : (
           <>
             <input name="action_id" type="hidden" value="link_user" />
             <input name="headplane_user_id" type="hidden" value={headplaneUserId} />
             <select
+              {...validationEvents}
+              aria-invalid={invalid || undefined}
+              aria-describedby={errorMessage ? errorId : undefined}
               className={cn(
                 "w-full rounded-lg border p-2",
                 "border-mist-200 dark:border-mist-700",
                 "bg-mist-50 dark:bg-mist-900",
               )}
+              aria-label={t("users.headscaleUser")}
               defaultValue={currentLink ?? ""}
               name="headscale_user_id"
               required
             >
-              <option value="">Select a Headscale user...</option>
+              <option value="">{t("users.selectHeadscaleUser")}</option>
               {headscaleUsers.map((u) => (
                 <option key={u.id} value={u.id}>
-                  {u.name}
-                  {u.id === currentLink ? " (current)" : ""}
+                  {u.id === currentLink ? t("users.currentLink", { name: u.name }) : u.name}
                 </option>
               ))}
             </select>
+            {errorMessage && (
+              <p id={errorId} className="text-xs text-red-500 dark:text-red-400">
+                {errorMessage}
+              </p>
+            )}
           </>
         )}
       </DialogPanel>

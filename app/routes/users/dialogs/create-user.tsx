@@ -3,7 +3,10 @@ import Dialog, { DialogPanel } from "~/components/dialog";
 import Input from "~/components/input";
 import Text from "~/components/text";
 import Title from "~/components/title";
-import { USERNAME_PATTERN, USERNAME_RULE } from "~/utils/user";
+import { useI18n } from "~/i18n/provider";
+import { USERNAME_PATTERN } from "~/utils/user";
+
+import { useNativeValidation } from "../use-native-validation";
 
 interface CreateUserProps {
   isOidc?: boolean;
@@ -11,32 +14,47 @@ interface CreateUserProps {
 }
 
 export default function CreateUser({ isOidc, isDisabled }: CreateUserProps) {
+  const { t } = useI18n();
+  const validation = useNativeValidation();
   return (
-    <Dialog>
-      <Button disabled={isDisabled}>Add user</Button>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) validation.reset();
+      }}
+    >
+      <Button disabled={isDisabled}>{t("users.add")}</Button>
       <DialogPanel>
-        <Title>Create a Headscale user</Title>
+        <Title>{t("users.createTitle")}</Title>
         <Text className="mb-6">
-          This creates a new user in Headscale. The user will appear in the &ldquo;Unlinked
-          Headscale Users&rdquo; section until they sign in
-          {isOidc ? " through your OIDC provider" : ""} and are automatically linked to a Headplane
-          account.
+          {t(isOidc ? "users.createOidcDescription" : "users.createDescription")}
         </Text>
         <input name="action_id" type="hidden" value="create_user" />
         <div className="flex flex-col gap-4">
           <Input
-            description={USERNAME_RULE}
+            {...validation.field("username", "users.validation.usernameRule")}
+            description={t("users.validation.usernameRule")}
             minLength={2}
             pattern={USERNAME_PATTERN}
             required
-            title={USERNAME_RULE}
-            label="Username"
+            title={t("users.validation.usernameRule")}
+            label={t("users.username")}
             name="username"
-            placeholder="my-new-user"
+            placeholder={t("users.usernamePlaceholder")}
             type="text"
           />
-          <Input label="Display Name" name="display_name" placeholder="John Doe" type="text" />
-          <Input label="Email" name="email" placeholder="name@example.com" type="email" />
+          <Input
+            label={t("users.displayName")}
+            name="display_name"
+            placeholder={t("users.displayNamePlaceholder")}
+            type="text"
+          />
+          <Input
+            {...validation.field("email", "users.validation.email")}
+            label={t("users.email")}
+            name="email"
+            placeholder="name@example.com"
+            type="email"
+          />
         </div>
       </DialogPanel>
     </Dialog>

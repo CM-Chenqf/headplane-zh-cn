@@ -2,6 +2,7 @@
 
 ## Changes
 
+- The community-maintained 0.8 fork now supports English and Simplified Chinese for users, roles, ownership transfer, account linking, policy groups and the member download page, with localized form validation and a bilingual guide. Original authentication, permissions, form fields and Headscale support are preserved; full localization and publication acceptance remain incomplete.
 - The community-maintained 0.8 fork now offers English and Simplified Chinese machine lists, details, filters, management dialogs, validation and action notices, badges, dates and an accompanying bilingual guide. Device values, permissions and Headscale compatibility checks retain their original behavior; the rest of the release-line localization is still in progress.
 - The community-maintained localization fork is now named `headplane-zh-cn`. Repository links use the new name, and the README identifies this as an unofficial fork with the upstream MIT license and attribution retained. Localization and publication acceptance remain incomplete.
 - This fork's 0.8 release line can switch English and Simplified Chinese for sign-in, SSO notices, shared navigation and common controls. Other pages and the full documentation are still being adapted; publication remains disabled until adaptation and acceptance are complete.

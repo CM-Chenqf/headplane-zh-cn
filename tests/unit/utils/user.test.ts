@@ -1,7 +1,12 @@
 import { describe, expect, test } from "vitest";
 
 import type { User } from "~/types/User";
-import { getUserDisplayName, USERNAME_PATTERN, validateUsername } from "~/utils/user";
+import {
+  getUserDisplayName,
+  USERNAME_PATTERN,
+  USERNAME_RULE,
+  validateUsername,
+} from "~/utils/user";
 
 const makeUser = (overrides: Partial<User>): User => ({
   id: "default-id",
@@ -11,6 +16,11 @@ const makeUser = (overrides: Partial<User>): User => ({
 });
 
 describe("getUserDisplayName", () => {
+  test("translates only the synthetic tag-owned label, preserving user-provided names", () => {
+    expect(getUserDisplayName(makeUser({ name: "tagged-devices" }), "zh-CN")).toBe("由标签管理");
+    expect(getUserDisplayName(makeUser({ name: "tagged-devices" }))).toBe("Tag-owned");
+    expect(getUserDisplayName(makeUser({ name: "Alice 示例" }), "zh-CN")).toBe("Alice 示例");
+  });
   test("uses name when set", () => {
     const user = makeUser({ id: "123", name: "John" });
     expect(getUserDisplayName(user)).toBe("John");
@@ -58,6 +68,16 @@ describe("getUserDisplayName", () => {
 });
 
 describe("validateUsername", () => {
+  test("keeps Unicode validation identical across languages and localizes only the error", () => {
+    for (const name of ["中文用户", "用户１２", "josé", "用户@example.com"]) {
+      expect(validateUsername(name, "en")).toBeUndefined();
+      expect(validateUsername(name, "zh-CN")).toBeUndefined();
+    }
+    for (const name of ["用", "用户@", "1用户", "用户²", "用户 空格"]) {
+      expect(validateUsername(name)).toBe(USERNAME_RULE);
+      expect(validateUsername(name, "zh-CN")).toMatch(/^用户名至少为 2 个字符/);
+    }
+  });
   test.each(["ab", "john_doe", "user-1.name", "alice@example.com", "josé"])(
     "accepts %s",
     (name) => {

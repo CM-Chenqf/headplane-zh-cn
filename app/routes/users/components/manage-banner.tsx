@@ -1,6 +1,7 @@
 import { Building2, House } from "lucide-react";
 
 import Link from "~/components/link";
+import { useI18n, Message } from "~/i18n/provider";
 import cn from "~/utils/cn";
 
 import CreateUser from "../dialogs/create-user";
@@ -11,6 +12,7 @@ interface ManageBannerProps {
 }
 
 export default function ManageBanner({ oidc, isDisabled }: ManageBannerProps) {
+  const { t } = useI18n();
   return (
     <div
       className={cn(
@@ -23,18 +25,29 @@ export default function ManageBanner({ oidc, isDisabled }: ManageBannerProps) {
         <p className="text-sm text-mist-600 dark:text-mist-300">
           {oidc ? (
             <>
-              Users are managed through your{" "}
-              <Link external styled to={oidc.issuer}>
-                OIDC provider
-              </Link>
-              .
+              <Message
+                id="users.oidcDescription"
+                values={{
+                  provider: (
+                    <Link external styled to={oidc.issuer}>
+                      {t("users.oidcProvider")}
+                    </Link>
+                  ),
+                }}
+              />
             </>
           ) : (
             <>
-              Users are managed locally.{" "}
-              <Link styled to="https://headscale.net/stable/ref/oidc">
-                Set up OIDC
-              </Link>
+              <Message
+                id="users.localDescription"
+                values={{
+                  setup: (
+                    <Link styled to="https://headscale.net/stable/ref/oidc">
+                      {t("users.setupOidc")}
+                    </Link>
+                  ),
+                }}
+              />
             </>
           )}
         </p>
