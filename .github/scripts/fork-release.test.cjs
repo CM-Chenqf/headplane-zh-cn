@@ -13,6 +13,7 @@ const {
   metadata,
   imageMissing,
   bundle,
+  run,
 } = require("./fork-release.cjs");
 const { siteReleases } = require("./docs-site.cjs");
 const state = {
@@ -23,6 +24,11 @@ const state = {
   revision: 1,
   publicationReady: true,
 };
+
+test("documentation subprocesses can stream output and still propagate build failures", () => {
+  assert.equal(run(process.execPath, ["-e", "process.exit(0)"], { stdio: "inherit" }), "");
+  assert.throws(() => run(process.execPath, ["-e", "process.exit(7)"], { stdio: "inherit" }));
+});
 
 test("release archives bind the exact Git source, both image digests and documentation checksums", () => {
   const directory = mkdtempSync(join(tmpdir(), "headplane-release-test-"));

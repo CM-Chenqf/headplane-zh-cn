@@ -17,11 +17,13 @@ const TAG_RE = new RegExp(`^v${VERSION}-zh\\.([1-9]\\d*)$`);
 const SHA_RE = /^[a-f0-9]{40}$/;
 const ASSETS = ["source.tar.gz", "docs-root.tar.gz", "docs-archive.tar.gz"];
 const run = (command, args, options = {}) =>
-  execFileSync(command, args, {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "inherit"],
-    ...options,
-  }).trim();
+  (
+    execFileSync(command, args, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "inherit"],
+      ...options,
+    }) ?? ""
+  ).trim();
 const git = (...args) => run("git", args);
 const gh = (...args) => run("gh", args);
 const json = (path) => JSON.parse(readFileSync(path, "utf8"));
@@ -354,6 +356,7 @@ module.exports = {
   metadata,
   imageMissing,
   bundle,
+  run,
 };
 if (require.main === module)
   main().catch((error) => {
