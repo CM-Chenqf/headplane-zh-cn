@@ -6,10 +6,10 @@
   "completed": [
     "language preferences",
     "sign-in and SSO notices",
-    "shared navigation and components"
+    "shared navigation and components",
+    "Machines"
   ],
   "pending": [
-    "Machines",
     "Users and account linking",
     "Access Control and editors",
     "DNS",
@@ -19,6 +19,8 @@
     "Docker and deployment acceptance"
   ],
   "uiFiles": [
+    "app/components/input.tsx",
+    "app/components/menu.tsx",
     "app/root.tsx",
     "app/components/language-switch.tsx",
     "app/components/attribute.tsx",
@@ -36,12 +38,37 @@
     "app/routes/auth/login/config-error.tsx",
     "app/routes/auth/login/logout.tsx",
     "app/routes/auth/login/oidc-error.tsx",
-    "app/routes/auth/login/page.tsx"
+    "app/routes/auth/login/page.tsx",
+    "app/routes/machines/overview.tsx",
+    "app/routes/machines/machine.tsx",
+    "app/routes/machines/components/machine-row.tsx",
+    "app/routes/machines/components/machine-filters.tsx",
+    "app/routes/machines/components/menu.tsx",
+    "app/routes/machines/dialogs/delete.tsx",
+    "app/routes/machines/dialogs/expire.tsx",
+    "app/routes/machines/dialogs/move.tsx",
+    "app/routes/machines/dialogs/new.tsx",
+    "app/routes/machines/dialogs/rename.tsx",
+    "app/routes/machines/dialogs/routes.tsx",
+    "app/routes/machines/dialogs/tags.tsx",
+    "app/components/status-circle.tsx",
+    "app/components/tags/ExitNode.tsx",
+    "app/components/tags/Subnet.tsx",
+    "app/components/tags/HeadplaneAgent.tsx",
+    "app/components/tags/TailscaleSSH.tsx",
+    "app/components/tags/Expiry.tsx",
+    "app/routes/machines/machine-actions.ts",
+    "app/utils/host-info.ts",
+    "app/utils/time.ts"
   ],
   "documents": [
     {
       "english": "docs/features/language.md",
       "chinese": "docs/zh-CN/features/language.md"
+    },
+    {
+      "english": "docs/features/machines-bilingual.md",
+      "chinese": "docs/zh-CN/features/machines-bilingual.md"
     }
   ]
 }

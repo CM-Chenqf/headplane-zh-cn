@@ -10,6 +10,7 @@ import { ExpiryTag } from "~/components/tags/Expiry";
 import { HeadplaneAgentTag } from "~/components/tags/HeadplaneAgent";
 import { SubnetTag } from "~/components/tags/Subnet";
 import { TailscaleSSHTag } from "~/components/tags/TailscaleSSH";
+import { useI18n } from "~/i18n/provider";
 import type { User } from "~/types";
 import cn from "~/utils/cn";
 import { copyToClipboard } from "~/utils/copy";
@@ -44,6 +45,7 @@ export default function MachineRow({
   supportsNodeOwnerChange,
   supportsDisablingKeyExpiry,
 }: Props) {
+  const { t, locale } = useI18n();
   const uiTags = useMemo(() => uiTagsForNode(node, isAgent), [node, isAgent]);
 
   const ipOptions = useMemo(() => {
@@ -68,7 +70,7 @@ export default function MachineRow({
             {node.givenName}
           </p>
           <p className="text-sm opacity-50">
-            {node.user ? getUserDisplayName(node.user) : "Tag-owned"}
+            {node.user ? getUserDisplayName(node.user) : t("machines.tagOwned")}
           </p>
           <div className="mt-1.5 flex flex-wrap gap-1">
             {mapTagsToComponents(node, uiTags)}
@@ -82,7 +84,10 @@ export default function MachineRow({
         <div className="flex items-center gap-x-1">
           {node.ipAddresses[0]}
           <Menu>
-            <MenuTrigger className="rounded-full bg-transparent p-1 hover:bg-mist-100 dark:hover:bg-mist-800">
+            <MenuTrigger
+              aria-label={t("machines.copyAddress", { name: node.givenName })}
+              className="rounded-full bg-transparent p-1 hover:bg-mist-100 dark:hover:bg-mist-800"
+            >
               <ChevronDown className="h-4 w-4" />
             </MenuTrigger>
             <MenuContent align="end">
@@ -91,11 +96,7 @@ export default function MachineRow({
                   key={ip}
                   onClick={async () => {
                     const isCopied = await copyToClipboard(ip);
-                    toast(
-                      isCopied
-                        ? "Copied IP address to clipboard"
-                        : "Copy failed. Please copy the address manually.",
-                    );
+                    toast(isCopied ? t("machines.copiedAddress") : t("common.copyAddressFailed"));
                   }}
                 >
                   <div
@@ -115,13 +116,13 @@ export default function MachineRow({
         <td className="py-2">
           {node.hostInfo !== undefined ? (
             <>
-              <p className="leading-snug">{hinfo.getTSVersion(node.hostInfo)}</p>
+              <p className="leading-snug">{hinfo.getTSVersion(node.hostInfo, locale)}</p>
               <p className="max-w-48 truncate text-sm opacity-50">
-                {hinfo.getOSInfo(node.hostInfo)}
+                {hinfo.getOSInfo(node.hostInfo, locale)}
               </p>
             </>
           ) : (
-            <p className="text-sm opacity-50">Unknown</p>
+            <p className="text-sm opacity-50">{t("common.unknown")}</p>
           )}
         </td>
       ) : undefined}
@@ -134,12 +135,12 @@ export default function MachineRow({
               suppressHydrationWarning
             >
               {node.online && !node.expired
-                ? "Connected"
-                : new Date(node.lastSeen).toLocaleString()}
+                ? t("common.connected")
+                : new Date(node.lastSeen).toLocaleString(locale)}
             </p>
             {!(node.online && !node.expired) && (
               <p className="text-xs opacity-50" suppressHydrationWarning>
-                {formatTimeDelta(new Date(node.lastSeen))}
+                {formatTimeDelta(new Date(node.lastSeen), locale)}
               </p>
             )}
           </div>

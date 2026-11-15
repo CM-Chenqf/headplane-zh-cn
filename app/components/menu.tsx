@@ -18,11 +18,13 @@ export const MenuTrigger = ({
   children,
   disabled,
   onClick,
+  "aria-label": ariaLabel,
 }: Pick<
   ComponentProps<typeof BaseMenu.Trigger>,
-  "className" | "children" | "disabled" | "onClick"
+  "className" | "children" | "disabled" | "onClick" | "aria-label"
 >): JSX.Element => (
   <BaseMenu.Trigger
+    aria-label={ariaLabel}
     className={cn(
       "inline-flex items-center justify-center",
       "focus:outline-hidden focus:ring-2 focus:ring-indigo-500/40 focus:ring-offset-1",

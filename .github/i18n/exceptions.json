@@ -26,7 +26,11 @@
       "text": "content=\"width=device-width, initial-scale=1\"",
       "reason": "浏览器 viewport 元数据，非显示文案。"
     },
-    { "file": "app/root.tsx", "text": "\"Headplane\"", "reason": "浏览器标题中的项目专有名称。" },
+    {
+      "file": "app/root.tsx",
+      "text": "\"Headplane\"",
+      "reason": "浏览器标题中的项目专有名称。"
+    },
     {
       "file": "app/layout/header.tsx",
       "text": "headplane",
@@ -81,6 +85,41 @@
       "file": "app/routes/auth/login/config-error.tsx",
       "text": "headscale.api_key",
       "reason": "Headplane 配置字段名，必须与配置文件一致。"
+    },
+    {
+      "file": "app/routes/machines/overview.tsx",
+      "text": "[name].",
+      "reason": "MagicDNS 主机名占位示例，保留 [name] 和点号。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/new.tsx",
+      "text": "`tailscale up --login-server=${data.server}`",
+      "reason": "可执行的 Tailscale 命令或注册密钥格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/new.tsx",
+      "text": "placeholder=\"hskey-authreq-XXXXXXXXXXXXXXXXXXXXXXXX\"",
+      "reason": "可执行的 Tailscale 命令或注册密钥格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/tags.tsx",
+      "text": "placeholder=\"tag:example\"",
+      "reason": "ACL 标签示例及 tagOwners 策略字段，必须与实际配置一致。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/tags.tsx",
+      "text": "tagOwners",
+      "reason": "ACL 标签示例及 tagOwners 策略字段，必须与实际配置一致。"
+    },
+    {
+      "file": "app/routes/machines/components/menu.tsx",
+      "text": "SSH",
+      "reason": "SSH 标准协议名称，保留原文。"
+    },
+    {
+      "file": "app/components/tags/TailscaleSSH.tsx",
+      "text": "text=\"Tailscale SSH\"",
+      "reason": "Tailscale SSH 产品及协议名称，保留原文。"
     }
   ]
 }

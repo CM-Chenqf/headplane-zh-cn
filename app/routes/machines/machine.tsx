@@ -9,6 +9,9 @@ import Chip from "~/components/chip";
 import Link from "~/components/link";
 import StatusCircle from "~/components/status-circle";
 import Tooltip from "~/components/tooltip";
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
+import { useI18n } from "~/i18n/provider";
 import {
   agentsContext,
   authContext,
@@ -31,6 +34,7 @@ import Routes from "./dialogs/routes";
 import { machineAction } from "./machine-actions";
 
 export async function loader({ request, params, context }: Route.LoaderArgs) {
+  const t = createTranslator(await getLocale(request));
   const agentsFeature = context.get(agentsContext);
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
@@ -39,7 +43,7 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
   const headscaleLiveStore = context.get(headscaleLiveStoreContext);
 
   if (!params.id) {
-    throw new Error("No machine ID provided");
+    throw new Error(t("machines.error.missingId"));
   }
 
   if (params.id.endsWith(".ico")) {
@@ -49,9 +53,7 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
   const principal = await auth.require(request);
 
   if (!auth.can(principal, Capabilities.read_machines)) {
-    throw new Error(
-      "You do not have permission to view this page. Please contact your administrator.",
-    );
+    throw new Error(t("machines.error.viewForbidden"));
   }
 
   const magic = headscaleConfig.getMagicDNSBaseDomain();
@@ -118,6 +120,7 @@ export default function Page({
     supportsDisablingKeyExpiry,
   },
 }: Route.ComponentProps) {
+  const { t, locale } = useI18n();
   const [showRouting, setShowRouting] = useState(false);
 
   const uiTags = useMemo(() => {
@@ -129,20 +132,20 @@ export default function Page({
     <div>
       <p className="text-md mb-8">
         <Link className="font-medium" to="/machines">
-          All Machines
+          {t("machines.all")}
         </Link>
         <span className="mx-2">/</span>
         {node.givenName}
       </p>
       <div
         className={cn(
-          "flex justify-between items-center pb-2",
+          "flex flex-wrap justify-between items-center gap-3 pb-2",
           "border-b border-mist-100 dark:border-mist-800",
         )}
       >
-        <span className="flex items-baseline gap-x-4 text-sm">
-          <h1 className="text-2xl font-medium">{node.givenName}</h1>
-          <StatusCircle className="h-4 w-4" isOnline={node.online} />
+        <span className="flex min-w-0 items-baseline gap-x-4 text-sm">
+          <h1 className="min-w-0 text-2xl font-medium wrap-anywhere">{node.givenName}</h1>
+          <StatusCircle className="h-4 w-4 shrink-0" isOnline={node.online} />
         </span>
         <MenuOptions
           existingTags={existingTags}
@@ -155,22 +158,22 @@ export default function Page({
           supportsDisablingKeyExpiry={supportsDisablingKeyExpiry}
         />
       </div>
-      <div className="mb-4 flex gap-1">
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row">
         <div className="border-r border-mist-100 p-2 pr-4 dark:border-mist-800">
           <span className="flex items-center gap-x-1 text-sm text-mist-600 dark:text-mist-300">
-            Managed by
-            <Tooltip content="By default, a machine’s permissions match its creator’s.">
+            {t("machines.managedBy")}
+            <Tooltip content={t("machines.managedByHint")}>
               <Info className="p-1" />
             </Tooltip>
           </span>
           <div className="mt-1 flex items-center gap-x-2.5">
             <UserCircle />
-            {node.user ? getUserDisplayName(node.user) : "Tag-owned"}
+            {node.user ? getUserDisplayName(node.user) : t("machines.tagOwned")}
           </div>
         </div>
-        <div className="p-2 pl-4">
-          <p className="text-sm text-mist-600 dark:text-mist-300">Status</p>
-          <div className="mt-1 mb-8 flex gap-1">
+        <div className="min-w-0 p-2 sm:pl-4">
+          <p className="text-sm text-mist-600 dark:text-mist-300">{t("machines.status")}</p>
+          <div className="mt-1 mb-8 flex flex-wrap gap-1">
             {mapTagsToComponents(node, uiTags)}
             {tags.map((tag) => (
               <Chip key={tag} text={tag} />
@@ -179,15 +182,15 @@ export default function Page({
         </div>
       </div>
       <Routes isOpen={showRouting} node={node} setIsOpen={setShowRouting} />
-      <h2 className="mt-8 text-xl font-medium">Subnets & Routing</h2>
-      <div className="mb-4 flex items-center justify-between">
+      <h2 className="mt-8 text-xl font-medium">{t("machines.routing")}</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <p>
-          Subnets let you expose physical network routes onto Tailscale.{" "}
+          {t("machines.routingDescription")}{" "}
           <Link external styled to="https://tailscale.com/kb/1019/subnets">
-            Learn More
+            {t("common.learnMore")}
           </Link>
         </p>
-        <Button onClick={() => setShowRouting(true)}>Review</Button>
+        <Button onClick={() => setShowRouting(true)}>{t("machines.review")}</Button>
       </div>
       <Card
         className={cn(
@@ -198,8 +201,8 @@ export default function Page({
       >
         <div>
           <span className="flex items-center gap-x-1 text-mist-600 dark:text-mist-300">
-            Approved
-            <Tooltip content="Traffic to these routes are being routed through this machine.">
+            {t("machines.approved")}
+            <Tooltip content={t("machines.subnetHint")}>
               <Info className="h-3.5 w-3.5" />
             </Tooltip>
           </span>
@@ -219,13 +222,13 @@ export default function Page({
             onClick={() => setShowRouting(true)}
             variant="ghost"
           >
-            Edit
+            {t("machines.edit")}
           </Button>
         </div>
         <div>
           <span className="flex items-center gap-x-1 text-mist-600 dark:text-mist-300">
-            Awaiting Approval
-            <Tooltip content="This machine is advertising these routes, but they must be approved before traffic will be routed to them.">
+            {t("machines.waiting")}
+            <Tooltip content={t("machines.waitingHint")}>
               <Info className="h-3.5 w-3.5" />
             </Tooltip>
           </span>
@@ -245,13 +248,13 @@ export default function Page({
             onClick={() => setShowRouting(true)}
             variant="ghost"
           >
-            Edit
+            {t("machines.edit")}
           </Button>
         </div>
         <div>
           <span className="flex items-center gap-x-1 text-mist-600 dark:text-mist-300">
-            Exit Node
-            <Tooltip content="Whether this machine can act as an exit node for your tailnet.">
+            {t("machines.exitNode")}
+            <Tooltip content={t("machines.exitHint")}>
               <Info className="h-3.5 w-3.5" />
             </Tooltip>
           </span>
@@ -261,12 +264,12 @@ export default function Page({
             ) : node.customRouting.exitApproved ? (
               <span className="flex items-center gap-x-1">
                 <CheckCircle className="h-3.5 w-3.5 text-green-700" />
-                Allowed
+                {t("machines.allowed")}
               </span>
             ) : (
               <span className="flex items-center gap-x-1">
                 <CircleSlash className="h-3.5 w-3.5 text-red-700" />
-                Awaiting Approval
+                {t("machines.waiting")}
               </span>
             )}
           </div>
@@ -275,112 +278,134 @@ export default function Page({
             onClick={() => setShowRouting(true)}
             variant="ghost"
           >
-            Edit
+            {t("machines.edit")}
           </Button>
         </div>
       </Card>
-      <h2 className="text-xl font-medium">Machine Details</h2>
-      <p className="mb-4">
-        Information about this machine’s network. Used to debug connection issues.
-      </p>
+      <h2 className="text-xl font-medium">{t("machines.details")}</h2>
+      <p className="mb-4">{t("machines.detailsDescription")}</p>
       <Card
         className="grid w-full max-w-full grid-cols-1 gap-y-2 sm:gap-x-12 lg:grid-cols-2"
         variant="flat"
       >
         <div className="flex flex-col gap-1">
           <Attribute
-            name="Creator"
-            value={node.user ? getUserDisplayName(node.user) : "Tag-owned"}
+            name={t("machines.creator")}
+            value={node.user ? getUserDisplayName(node.user) : t("machines.tagOwned")}
           />
-          <Attribute name="Machine name" value={node.givenName} />
+          <Attribute name={t("machines.machineName")} value={node.givenName} />
           <Attribute
-            name="OS hostname"
-            tooltip="OS hostname is published by the machine’s operating system and is used as the default name for the machine."
+            name={t("machines.hostname")}
+            tooltip={t("machines.hostnameHint")}
             value={node.name}
           />
           {stats ? (
             <>
-              <Attribute name="OS" value={getOSInfo(stats)} />
-              <Attribute name="Tailscale version" value={getTSVersion(stats)} />
+              <Attribute name={t("machines.os")} value={getOSInfo(stats, locale)} />
+              <Attribute
+                name={t("machines.tailscaleVersion")}
+                value={getTSVersion(stats, locale)}
+              />
             </>
           ) : undefined}
-          <Attribute
-            name="ID"
-            tooltip="ID for this machine. Used in the Headscale API."
-            value={node.id}
-          />
+          <Attribute name="ID" tooltip={t("machines.idHint")} value={node.id} />
           <Attribute
             isCopyable
-            name="Node key"
-            tooltip="Public key which uniquely identifies this machine."
+            name={t("machines.nodeKey")}
+            tooltip={t("machines.nodeKeyHint")}
             value={node.nodeKey}
           />
-          <Attribute name="Created" value={new Date(node.createdAt).toLocaleString()} />
           <Attribute
-            name="Last Seen"
-            value={node.online ? "Connected" : new Date(node.lastSeen).toLocaleString()}
+            name={t("machines.created")}
+            value={new Date(node.createdAt).toLocaleString(locale)}
           />
           <Attribute
-            name="Key expiry"
-            value={!isNoExpiry(node.expiry) ? new Date(node.expiry!).toLocaleString() : "Never"}
+            name={t("machines.lastSeen")}
+            value={
+              node.online ? t("common.connected") : new Date(node.lastSeen).toLocaleString(locale)
+            }
+          />
+          <Attribute
+            name={t("machines.keyExpiry")}
+            value={
+              !isNoExpiry(node.expiry)
+                ? new Date(node.expiry!).toLocaleString(locale)
+                : t("common.never")
+            }
           />
           {magic ? (
-            <Attribute isCopyable name="Domain" value={`${node.givenName}.${magic}`} />
+            <Attribute
+              isCopyable
+              name={t("machines.domain")}
+              value={`${node.givenName}.${magic}`}
+            />
           ) : undefined}
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm font-semibold text-mist-600 uppercase dark:text-mist-300">
-            Addresses
+            {t("machines.addresses")}
           </p>
           <Attribute
             isCopyable
             name="Tailscale IPv4"
-            tooltip="This machine’s IPv4 address within your tailnet (your private Tailscale network)."
+            tooltip={t("machines.ipv4Hint")}
             value={getIpv4Address(node.ipAddresses)}
           />
           <Attribute
             isCopyable
             name="Tailscale IPv6"
-            tooltip="This machine’s IPv6 address within your tailnet (your private Tailscale network). Connections within your tailnet support IPv6 even if your ISP does not."
+            tooltip={t("machines.ipv6Hint")}
             value={getIpv6Address(node.ipAddresses)}
           />
           <Attribute
             isCopyable
-            name="Short domain"
-            tooltip="Users of your tailnet can use this DNS short name to access this machine."
+            name={t("machines.shortDomain")}
+            tooltip={t("machines.shortDomainHint")}
             value={node.givenName}
           />
           {magic ? (
             <Attribute
               isCopyable
-              name="Full domain"
-              tooltip="Users of your tailnet can use this DNS name to access this machine."
+              name={t("machines.fullDomain")}
+              tooltip={t("machines.fullDomainHint")}
               value={`${node.givenName}.${magic}`}
             />
           ) : undefined}
           {stats?.Endpoints ? (
-            <Attribute name="Endpoints" value={stats?.Endpoints?.join("\n") ?? "—"} />
+            <Attribute name={t("machines.endpoints")} value={stats?.Endpoints?.join("\n") ?? "—"} />
           ) : undefined}
           {stats ? (
             <>
               <p className="mt-4 text-sm font-semibold text-mist-600 uppercase dark:text-mist-300">
-                Client Connectivity
+                {t("machines.connectivity")}
               </p>
               <Attribute
-                name="Varies"
-                tooltip="Whether the machine is behind a difficult NAT that varies the machine’s IP address depending on the destination."
-                value={stats.NetInfo?.MappingVariesByDestIP ? "Yes" : "No"}
+                name={t("machines.varies")}
+                tooltip={t("machines.natHint")}
+                value={stats.NetInfo?.MappingVariesByDestIP ? t("common.yes") : t("common.no")}
               />
               <Attribute
-                name="Hairpinning"
-                tooltip="Whether the machine needs to traverse NATs with hairpinning."
-                value={stats.NetInfo?.HairPinning ? "Yes" : "No"}
+                name={t("machines.hairpinning")}
+                tooltip={t("machines.hairpinningHint")}
+                value={stats.NetInfo?.HairPinning ? t("common.yes") : t("common.no")}
               />
-              <Attribute name="IPv6" value={stats.NetInfo?.WorkingIPv6 ? "Yes" : "No"} />
-              <Attribute name="UDP" value={stats.NetInfo?.WorkingUDP ? "Yes" : "No"} />
-              <Attribute name="UPnP" value={stats.NetInfo?.UPnP ? "Yes" : "No"} />
-              <Attribute name="PCP" value={stats.NetInfo?.PCP ? "Yes" : "No"} />
-              <Attribute name="NAT-PMP" value={stats.NetInfo?.PMP ? "Yes" : "No"} />
+              <Attribute
+                name="IPv6"
+                value={stats.NetInfo?.WorkingIPv6 ? t("common.yes") : t("common.no")}
+              />
+              <Attribute
+                name="UDP"
+                value={stats.NetInfo?.WorkingUDP ? t("common.yes") : t("common.no")}
+              />
+              <Attribute
+                name="UPnP"
+                value={stats.NetInfo?.UPnP ? t("common.yes") : t("common.no")}
+              />
+              <Attribute name="PCP" value={stats.NetInfo?.PCP ? t("common.yes") : t("common.no")} />
+              <Attribute
+                name="NAT-PMP"
+                value={stats.NetInfo?.PMP ? t("common.yes") : t("common.no")}
+              />
             </>
           ) : undefined}
         </div>

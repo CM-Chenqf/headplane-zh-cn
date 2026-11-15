@@ -5,8 +5,8 @@ Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
 It is not an official Chinese release of Headplane, Headscale, or Tailscale.
 The upstream [MIT license](./LICENSE) and original copyright notices are retained.
 
-This is the **0.8 release line**. Language preferences, sign-in and shared UI
-are bilingual; business modules and full documentation are still being adapted.
+This is the **0.8 release line**. Language preferences, sign-in, shared UI and
+Machines are bilingual; other business modules and full documentation are still being adapted.
 No complete bilingual image or maintained documentation site has been published.
 See [release-line maintenance](./docs/features/language.md) for the current scope.
 

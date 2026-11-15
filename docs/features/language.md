@@ -8,7 +8,9 @@ This page describes the community-maintained `CM-Chenqf/headplane-zh-cn` fork's 
 
 Language preferences, API-key sign-in and its errors, SSO configuration and sign-in notices, sign-out, shared navigation, theme labels, connection banners, copy controls, dialog buttons and shared error explanations support English and Simplified Chinese.
 
-Machines, Users and account linking, Access Control and editors, DNS, Settings, Browser SSH and the remaining documentation still need adaptation. Changing the language currently leaves those pages in English. This is an unfinished development branch, not a complete Chinese release. Do not deploy a tag or image as a complete localization until the remaining modules and publication checks pass.
+[Machines](/features/machines-bilingual) also supports bilingual lists, details, filters, management dialogs, validation and action results, badges and dates. Device values, commands, permissions and Headscale capability checks retain the original behavior.
+
+Users and account linking, Access Control and editors, DNS, Settings, Browser SSH and the remaining documentation still need adaptation. Changing the language currently leaves those pages in English. This is an unfinished development branch, not a complete Chinese release. Do not deploy a tag or image as a complete localization until the remaining modules and publication checks pass.
 
 ## Choose the interface language
 
