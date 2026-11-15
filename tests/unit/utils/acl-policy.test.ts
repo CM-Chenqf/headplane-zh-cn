@@ -142,6 +142,15 @@ describe("parsePolicy", () => {
     expect(result).toEqual({ ok: false, error: "The policy must be a JSON object" });
   });
 
+  test("localizes parse explanations without changing policy data or original diagnostics", () => {
+    expect(parsePolicy("[]", "zh-CN")).toEqual({ ok: false, error: "策略必须是 JSON 对象" });
+    const original = parsePolicy("{ not json", "en");
+    const chinese = parsePolicy("{ not json", "zh-CN");
+    if (original.ok || chinese.ok) throw new Error("Invalid policy must not parse");
+    expect(chinese.error).toBe(`HuJSON 无效。原始诊断信息：${original.error}`);
+    expect(parsePolicy(POLICY, "zh-CN")).toEqual(parsePolicy(POLICY, "en"));
+  });
+
   test("tolerates sections with the wrong shape", () => {
     const { policy } = parseOrThrow(`{ "groups": "nope", "acls": { "a": 1 }, "hosts": [] }`);
     expect(policy.groups).toEqual({});

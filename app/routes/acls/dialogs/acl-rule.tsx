@@ -6,6 +6,7 @@ import Link from "~/components/link";
 import Text from "~/components/text";
 import Title from "~/components/title";
 import TokenList from "~/components/token-list";
+import { Message, useI18n } from "~/i18n/provider";
 import { withDefaultPort, type AclRule } from "~/utils/acl-policy";
 
 interface AclRuleDialogProps {
@@ -27,6 +28,7 @@ export default function AclRuleDialog({
   destinations,
   onSave,
 }: AclRuleDialogProps) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState<AclRule>(rule ?? EMPTY);
 
   useEffect(() => {
@@ -48,29 +50,34 @@ export default function AclRuleDialog({
           setIsOpen(false);
         }}
       >
-        <Title>{rule ? "Edit access rule" : "New access rule"}</Title>
+        <Title>{t(rule ? "acls.editAccessRule" : "acls.newAccessRule")}</Title>
         <Text>
-          Access rules allow traffic from a set of sources to a set of destinations. Destinations
-          must include a port, for example <code className="font-mono">tag:web:80,443</code>. If you
-          leave the port out, <code className="font-mono">:*</code> is added for you. See the{" "}
-          <Link external styled to="https://tailscale.com/kb/1018/acls">
-            Tailscale ACL guide
-          </Link>{" "}
-          for the full syntax.
+          <Message
+            id="acls.ruleDescription"
+            values={{
+              example: <code className="font-mono">tag:web:80,443</code>,
+              port: <code className="font-mono">:*</code>,
+              docs: (
+                <Link external styled to="https://tailscale.com/kb/1018/acls">
+                  {t("acls.tailscaleGuide")}
+                </Link>
+              ),
+            }}
+          />
         </Text>
         <TokenList
-          description="Groups, tags, hosts, users or autogroups allowed to initiate the connection."
-          emptyText="No sources yet"
-          label="Sources"
+          description={t("acls.sourcesDescription")}
+          emptyText={t("acls.noSources")}
+          label={t("acls.sources")}
           onChange={(src) => setDraft({ ...draft, src })}
           placeholder="group:eng"
           suggestions={sources}
           values={draft.src}
         />
         <TokenList
-          description="Where the traffic is allowed to go. A destination without a port becomes :* (all ports)."
-          emptyText="No destinations yet"
-          label="Destinations"
+          description={t("acls.destinationsDescription")}
+          emptyText={t("acls.noDestinations")}
+          label={t("acls.destinations")}
           normalize={withDefaultPort}
           onChange={(dst) => setDraft({ ...draft, dst })}
           placeholder="tag:web:80,443"
@@ -78,8 +85,8 @@ export default function AclRuleDialog({
           values={draft.dst}
         />
         <Input
-          description="Optional. Restricts the rule to a single protocol (tcp, udp, icmp, ...)."
-          label="Protocol"
+          description={t("acls.protocolDescription")}
+          label={t("acls.protocol")}
           onChange={(proto) => setDraft({ ...draft, proto: proto.length > 0 ? proto : undefined })}
           placeholder="tcp"
           value={draft.proto ?? ""}

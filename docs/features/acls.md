@@ -5,6 +5,10 @@ description: Edit the Headscale ACL policy, tags and groups from the Headplane U
 
 # Access Control
 
+[简体中文](/zh-CN/features/acls)
+
+This guide describes the **0.8 release line** of the unofficial `CM-Chenqf/headplane-zh-cn` fork, based on `tale/headplane` 0.8.2. The upstream MIT license and copyright notices are retained. This is not an official Chinese release of Headplane, Headscale or Tailscale.
+
 Headscale stores its Access Control List (ACL) as a single HuJSON policy. The
 **Access Control** page in Headplane exposes that policy in two ways: a
 structured editor for the parts most people change day to day, and the raw file
@@ -81,3 +85,31 @@ use the file editor if you want to keep them.
 Unknown top-level keys such as `autoApprovers` and `nodeAttrs` are preserved
 untouched, so using the visual editor never silently drops parts of a policy
 that Headplane does not model.
+
+## Language, diagnostics and compatibility
+
+Select English or Simplified Chinese in the dashboard header. Labels, dialogs,
+permission notices, local validation, parse explanations, editor search and diff
+controls follow that language. Switching languages does not submit or reset the
+policy buffer or an open dialog draft. **Discard Changes** restores the saved
+policy.
+
+Policy keys, actions such as `accept` and `check`, usernames, aliases, IP
+addresses, ports and duration values are never translated in the policy. Known
+actions have translated display labels; unknown actions remain visible verbatim
+and survive editing. Original JavaScript or Headscale parse diagnostics remain
+visible alongside the localized explanation. A failed save does not replace the
+saved policy.
+
+**Preview rules** is an upstream placeholder and does not simulate network
+access. This release line has no separate Grants or auto-approver visual editor;
+use **Edit file** for sections that have no form. Acceptance is determined by
+the deployed Headscale version, not by switching the interface language. The
+existing release-line integration matrix remains 0.27.0, 0.27.1, 0.28.0, 0.29.0
+and 0.29.1; localization does not extend those versions' policy syntax.
+
+If the policy cannot be parsed, the visual tabs show an explanation and the
+file editor remains available for corrections. A missing file-mode policy has
+a dedicated error page. Other API failures retain the original diagnostic
+information. Full documentation localization and publication acceptance remain
+in progress; see [language and maintenance](/features/language).

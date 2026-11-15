@@ -1,5 +1,7 @@
 import { data } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, requestApiContext } from "~/server/context";
 import { isDataWithApiError } from "~/server/headscale/api/error-client";
 import { Capabilities } from "~/server/web/roles";
@@ -10,13 +12,14 @@ import type { Route } from "./+types/overview";
 // If it isn't, it'll gracefully error anyways, since this means some
 // fishy client manipulation is happening.
 export async function aclAction({ request, context }: Route.ActionArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
 
   const principal = await auth.require(request);
   const check = auth.can(principal, Capabilities.write_policy);
   if (!check) {
-    throw data("You do not have permission to write to the ACL policy", {
+    throw data(t("acls.error.writeForbidden"), {
       status: 403,
     });
   }
@@ -25,7 +28,7 @@ export async function aclAction({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
   const policyData = formData.get("policy")?.toString();
   if (!policyData) {
-    throw data("Missing `policy` in the form data.", {
+    throw data(t("acls.error.missingPolicy"), {
       status: 400,
     });
   }
@@ -36,6 +39,7 @@ export async function aclAction({ request, context }: Route.ActionArgs) {
     return data({
       success: true,
       error: undefined,
+      errorDetail: undefined,
       policy,
       updatedAt,
     });
@@ -44,7 +48,7 @@ export async function aclAction({ request, context }: Route.ActionArgs) {
       const rawData = error.data.rawData;
       // https://github.com/juanfont/headscale/blob/c4600346f9c29b514dc9725ac103efb9d0381f23/hscontrol/types/policy.go#L11
       if (rawData.includes("update is disabled")) {
-        throw data("Policy is not writable", { status: 403 });
+        throw data(t("acls.error.notWritable"), { status: 403 });
       }
 
       const message =
@@ -63,22 +67,32 @@ export async function aclAction({ request, context }: Route.ActionArgs) {
       // releases are no longer supported.
       if (message.includes("parsing HuJSON:")) {
         const cutIndex = message.indexOf("parsing HuJSON:");
-        const trimmed =
-          cutIndex > -1 ? `Syntax error: ${message.slice(cutIndex + 16).trim()}` : message;
+        const trimmed = cutIndex > -1 ? message.slice(cutIndex + 16).trim() : message;
 
         return data(
-          { success: false, error: trimmed, policy: undefined, updatedAt: undefined },
+          {
+            success: false,
+            error: t("acls.error.syntax", { error: trimmed }),
+            errorDetail: trimmed,
+            policy: undefined,
+            updatedAt: undefined,
+          },
           400,
         );
       }
 
       if (message.includes("parsing policy from bytes:")) {
         const cutIndex = message.indexOf("parsing policy from bytes:");
-        const trimmed =
-          cutIndex > -1 ? `Syntax error: ${message.slice(cutIndex + 26).trim()}` : message;
+        const trimmed = cutIndex > -1 ? message.slice(cutIndex + 26).trim() : message;
 
         return data(
-          { success: false, error: trimmed, policy: undefined, updatedAt: undefined },
+          {
+            success: false,
+            error: t("acls.error.syntax", { error: trimmed }),
+            errorDetail: trimmed,
+            policy: undefined,
+            updatedAt: undefined,
+          },
           400,
         );
       }

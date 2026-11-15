@@ -1,5 +1,7 @@
 import { data } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
 import { isDataWithApiError } from "~/server/headscale/api/error-client";
 import { nodesResource, usersResource } from "~/server/headscale/live-store";
@@ -16,6 +18,7 @@ import type { Route } from "./+types/overview";
 //    If database, we can read/write easily via the API.
 //    If in file mode, we can only write if the Headscale config is available.
 export async function aclLoader({ request, context }: Route.LoaderArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
   const headscaleLiveStore = context.get(headscaleLiveStoreContext);
@@ -23,7 +26,7 @@ export async function aclLoader({ request, context }: Route.LoaderArgs) {
   const principal = await auth.require(request);
   const check = auth.can(principal, Capabilities.read_policy);
   if (!check) {
-    throw data("You do not have permission to read the ACL policy.", {
+    throw data(t("acls.error.readForbidden"), {
       status: 403,
     });
   }
