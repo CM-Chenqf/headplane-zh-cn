@@ -2,6 +2,7 @@
 
 ## Changes
 
+- The community-maintained localization fork is now named `headplane-zh-cn`. Repository links use the new name, and the README identifies this as an unofficial fork with the upstream MIT license and attribution retained. Localization and publication acceptance remain incomplete.
 - This fork's 0.8 release line can switch English and Simplified Chinese for sign-in, SSO notices, shared navigation and common controls. Other pages and the full documentation are still being adapted; publication remains disabled until adaptation and acceptance are complete.
 
 # 0.8.2 (October 22, 2026)

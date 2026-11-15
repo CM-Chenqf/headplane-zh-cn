@@ -4,7 +4,7 @@
 
 [English](/features/language)
 
-本页说明 `CM-Chenqf/headscale-web` 维护仓库的 **0.8 发布线**，基于上游 0.8.2。该分支保留本发布线原有界面、VitePress 文档工具链、配置、权限及兼容要求，不引入 `main` 的新版界面或新功能。
+本页说明社区维护仓库 `CM-Chenqf/headplane-zh-cn` 的 **0.8 发布线**，基于上游 [tale/headplane](https://github.com/tale/headplane) 0.8.2，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 MIT 许可证原文及原作者版权声明。本发布线保留原有界面、VitePress 文档工具链、配置、权限及兼容要求，不引入 `main` 的新版界面或新功能。
 
 ## 当前范围 {#current-scope}
 

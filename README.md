@@ -1,4 +1,16 @@
-# Headplane
+# Headplane zh-CN (unofficial fork)
+
+This is `CM-Chenqf/headplane-zh-cn`, a community-maintained English and
+Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
+It is not an official Chinese release of Headplane, Headscale, or Tailscale.
+The upstream [MIT license](./LICENSE) and original copyright notices are retained.
+
+This is the **0.8 release line**. Language preferences, sign-in and shared UI
+are bilingual; business modules and full documentation are still being adapted.
+No complete bilingual image or maintained documentation site has been published.
+See [release-line maintenance](./docs/features/language.md) for the current scope.
+
+本仓库是基于 `tale/headplane` 的**非官方**中英双语维护分支，保留上游 MIT 许可证原文及原作者署名。0.8 汉化仍未完成，进度见[中文维护说明](./docs/zh-CN/features/language.md)。
 
 > A feature-complete web UI for [Headscale](https://headscale.net)
 
