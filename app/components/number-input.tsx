@@ -1,6 +1,7 @@
 import { NumberField } from "@base-ui/react/number-field";
 import { Minus, Plus } from "lucide-react";
 
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 
 export interface NumberInputProps {
@@ -18,6 +19,7 @@ export interface NumberInputProps {
 }
 
 export default function NumberInput(props: NumberInputProps) {
+  const { locale, t } = useI18n();
   const { label, name, description } = props;
 
   return (
@@ -26,6 +28,7 @@ export default function NumberInput(props: NumberInputProps) {
     // the Root renders a hidden number input carrying the raw value. Naming the
     // Input would submit the formatted string and break server-side parsing.
     <NumberField.Root
+      locale={locale}
       className="flex flex-col gap-1"
       name={name}
       defaultValue={props.defaultValue}
@@ -55,10 +58,16 @@ export default function NumberInput(props: NumberInputProps) {
         )}
       >
         <NumberField.Input className="w-full rounded-l-md bg-transparent py-2 pl-3 text-sm focus:outline-hidden" />
-        <NumberField.Decrement aria-label="Decrement" className="h-7.5 w-7.5 rounded-lg p-1">
+        <NumberField.Decrement
+          aria-label={t("common.decrement")}
+          className="h-7.5 w-7.5 rounded-lg p-1"
+        >
           <Minus className="h-4 w-4" />
         </NumberField.Decrement>
-        <NumberField.Increment aria-label="Increment" className="h-7.5 w-7.5 rounded-lg p-1">
+        <NumberField.Increment
+          aria-label={t("common.increment")}
+          className="h-7.5 w-7.5 rounded-lg p-1"
+        >
           <Plus className="h-4 w-4" />
         </NumberField.Increment>
       </NumberField.Group>

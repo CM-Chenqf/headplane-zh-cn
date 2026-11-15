@@ -8,6 +8,10 @@ import {
   unstable_useRoute as useRoute,
 } from "react-router";
 
+import { defaultLocale } from "~/i18n/locale";
+import { getLocale } from "~/i18n/locale.server";
+import { translate } from "~/i18n/messages";
+import { LocaleProvider } from "~/i18n/provider";
 import { LiveDataProvider } from "~/utils/live-data";
 import ToastProvider from "~/utils/toast-provider";
 
@@ -18,17 +22,17 @@ import "@fontsource-variable/inter/opsz.css";
 import "./tailwind.css";
 import { getColorScheme } from "./utils/color-scheme";
 
-export const meta: MetaFunction = () => [
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => [
   { title: "Headplane" },
   {
     name: "description",
-    content: "A frontend for the headscale coordination server",
+    content: translate(loaderData?.locale ?? defaultLocale, "app.description"),
   },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const colorScheme = await getColorScheme(request);
-  return { colorScheme };
+  const [colorScheme, locale] = await Promise.all([getColorScheme(request), getLocale(request)]);
+  return { colorScheme, locale };
 }
 
 export function Layout({ children }: { readonly children: React.ReactNode }) {
@@ -38,32 +42,34 @@ export function Layout({ children }: { readonly children: React.ReactNode }) {
   // that control its state are usually open in portal containers which
   // are not a part of the normal React tree.
   return (
-    <LiveDataProvider>
-      <html
-        lang="en"
-        className={
-          loaderData?.colorScheme === "dark"
-            ? "dark"
-            : loaderData?.colorScheme === "light"
-              ? "light"
-              : ""
-        }
-      >
-        <head>
-          <meta charSet="utf-8" />
-          <meta content="width=device-width, initial-scale=1" name="viewport" />
-          <Meta />
-          <Links />
-          <link href={`${__PREFIX__}/favicon.ico`} rel="icon" />
-        </head>
-        <body className="w-full overflow-x-hidden overscroll-none dark:bg-mist-900 dark:text-mist-50">
-          {children}
-          <ToastProvider />
-          <ScrollRestoration />
-          <Scripts />
-        </body>
-      </html>
-    </LiveDataProvider>
+    <LocaleProvider locale={loaderData?.locale ?? defaultLocale}>
+      <LiveDataProvider>
+        <html
+          lang={loaderData?.locale ?? defaultLocale}
+          className={
+            loaderData?.colorScheme === "dark"
+              ? "dark"
+              : loaderData?.colorScheme === "light"
+                ? "light"
+                : ""
+          }
+        >
+          <head>
+            <meta charSet="utf-8" />
+            <meta content="width=device-width, initial-scale=1" name="viewport" />
+            <Meta />
+            <Links />
+            <link href={`${__PREFIX__}/favicon.ico`} rel="icon" />
+          </head>
+          <body className="w-full overflow-x-hidden overscroll-none dark:bg-mist-900 dark:text-mist-50">
+            {children}
+            <ToastProvider />
+            <ScrollRestoration />
+            <Scripts />
+          </body>
+        </html>
+      </LiveDataProvider>
+    </LocaleProvider>
   );
 }
 

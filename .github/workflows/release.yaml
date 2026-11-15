@@ -21,19 +21,45 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       latest: ${{ steps.check.outputs.latest }}
+      image: ${{ steps.check.outputs.image }}
     steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Check translation and publication readiness
+        run: node scripts/i18n/release-status.mjs
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify translations before publishing
+        run: pnpm i18n:release
+
       # Patch releases on older lines must not take over `latest`.
       - name: Check if this is the newest stable release
         id: check
         env:
           TAG: ${{ github.ref_name }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           NEWEST=$(git ls-remote --tags --refs "$REPO_URL" 'v*' \
             | sed 's|.*refs/tags/||' | grep -v -- - | sort -V | tail -n 1)
           [[ "$TAG" == "$NEWEST" ]] && LATEST=true || LATEST=false
           echo "Newest stable release is $NEWEST, latest=$LATEST"
           echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
   docker:
     name: Docker Release (${{ matrix.target }})
@@ -54,7 +80,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ needs.channel.outputs.image }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -89,13 +115,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            IMAGE_TAG=ghcr.io/${{ github.repository }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            IMAGE_TAG=${{ needs.channel.outputs.image }}:${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             HEADPLANE_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: ghcr.io/${{ github.repository }}
+          subject-name: ${{ needs.channel.outputs.image }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
@@ -126,5 +152,5 @@ jobs:
             gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md" --prerelease
           else
             gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md" --latest="$LATEST"
-            gh workflow run docs-build.yaml --ref "$TAG"
+            gh workflow run docs-build.yaml --ref "$TAG" -F dry_run=false
           fi

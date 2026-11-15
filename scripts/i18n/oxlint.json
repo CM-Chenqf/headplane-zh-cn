@@ -1,0 +1,17 @@
+{
+  "plugins": ["react"],
+  "jsPlugins": ["./raw-messages.mjs"],
+  "categories": { "correctness": "off" },
+  "rules": {
+    "react/jsx-no-literals": ["error", { "noStrings": true }],
+    "headplane-i18n/no-raw-messages": "error"
+  },
+  "ignorePatterns": [
+    "app/i18n/en.ts",
+    "app/i18n/zh-CN.ts",
+    "app/i18n/en/**",
+    "app/i18n/zh-CN/**",
+    "**/*.d.ts",
+    "app/utils/cn-tables.ts"
+  ]
+}
