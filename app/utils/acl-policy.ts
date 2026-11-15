@@ -1,3 +1,5 @@
+import { defaultLocale, type Locale } from "~/i18n/locale";
+import { createTranslator } from "~/i18n/messages";
 import { scanHuJson } from "~/utils/node-info";
 
 // A structured view over the Headscale ACL policy (HuJSON), which Headscale
@@ -53,7 +55,8 @@ export const EMPTY_POLICY: Policy = {
 
 const KNOWN_KEYS = ["groups", "tagOwners", "hosts", "acls", "ssh"];
 
-export function parsePolicy(raw: string): ParseResult {
+export function parsePolicy(raw: string, locale: Locale = defaultLocale): ParseResult {
+  const t = createTranslator(locale);
   if (raw.trim().length === 0) {
     return { ok: true, policy: structuredClone(EMPTY_POLICY), hasComments: false };
   }
@@ -65,12 +68,17 @@ export function parsePolicy(raw: string): ParseResult {
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : "The policy is not valid HuJSON",
+      error:
+        error instanceof Error
+          ? locale === "en"
+            ? error.message
+            : t("acls.parse.diagnostic", { error: error.message })
+          : t("acls.parse.invalid"),
     };
   }
 
   if (parsed == null || typeof parsed !== "object" || Array.isArray(parsed)) {
-    return { ok: false, error: "The policy must be a JSON object" };
+    return { ok: false, error: t("acls.parse.object") };
   }
 
   const record = parsed as Record<string, unknown>;

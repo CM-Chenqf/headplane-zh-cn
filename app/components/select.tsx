@@ -1,5 +1,6 @@
 import { Combobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown } from "lucide-react";
+import { useId } from "react";
 
 import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
@@ -41,6 +42,7 @@ export default function Select({
   ...props
 }: SelectProps) {
   const { t } = useI18n();
+  const inputId = useId();
   const selectedItem =
     value !== undefined ? (items.find((i) => i.value === value) ?? null) : undefined;
   const defaultSelectedItem =
@@ -49,7 +51,10 @@ export default function Select({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <label className={cn("text-sm font-medium", "text-mist-700 dark:text-mist-200")}>
+        <label
+          htmlFor={inputId}
+          className={cn("text-sm font-medium", "text-mist-700 dark:text-mist-200")}
+        >
           {label}
         </label>
       )}
@@ -73,6 +78,8 @@ export default function Select({
           )}
         >
           <Combobox.Input
+            id={inputId}
+            aria-label={props["aria-label"]}
             placeholder={placeholder}
             required={required}
             className="w-full rounded-md bg-transparent px-3 py-2 pr-9 text-sm outline-hidden"

@@ -4,6 +4,7 @@ import Dialog, { DialogPanel } from "~/components/dialog";
 import Input from "~/components/input";
 import Text from "~/components/text";
 import Title from "~/components/title";
+import { useI18n } from "~/i18n/provider";
 import { isValidHostName } from "~/utils/acl-policy";
 
 interface HostDialogProps {
@@ -23,6 +24,7 @@ export default function HostDialog({
   existingNames,
   onSave,
 }: HostDialogProps) {
+  const { t } = useI18n();
   const [draftName, setDraftName] = useState(name ?? "");
   const [draftValue, setDraftValue] = useState(value ?? "");
 
@@ -47,25 +49,19 @@ export default function HostDialog({
           setIsOpen(false);
         }}
       >
-        <Title>{name ? `Edit host ${name}` : "New host"}</Title>
-        <Text>
-          Hosts give a name to an IP address or CIDR range so it can be referenced from rules.
-        </Text>
+        <Title>{name ? t("acls.editHost", { name }) : t("acls.newHost")}</Title>
+        <Text>{t("acls.hostDescription")}</Text>
         <Input
-          errorMessage={
-            isDuplicate
-              ? "A host with this name already exists."
-              : "Host names may only contain lowercase letters, numbers and dashes."
-          }
+          errorMessage={isDuplicate ? t("acls.duplicateHost") : t("acls.invalidHost")}
           invalid={nameIsInvalid}
-          label="Name"
+          label={t("acls.name")}
           onChange={setDraftName}
           placeholder="office"
           value={draftName}
         />
         <Input
           invalid={draftValue.length > 0 && valueIsInvalid}
-          label="Address"
+          label={t("acls.address")}
           onChange={setDraftValue}
           placeholder="100.64.0.0/24"
           value={draftValue}

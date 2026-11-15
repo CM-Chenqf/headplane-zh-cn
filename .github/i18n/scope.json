@@ -8,10 +8,10 @@
     "sign-in and SSO notices",
     "shared navigation and components",
     "Machines",
-    "Users and account linking"
+    "Users and account linking",
+    "Access Control and editors"
   ],
   "pending": [
-    "Access Control and editors",
     "DNS",
     "Settings",
     "Browser SSH",
@@ -78,7 +78,21 @@
     "app/routes/home.tsx",
     "app/components/token-list.tsx",
     "app/utils/user.ts",
-    "app/routes/users/use-native-validation.ts"
+    "app/routes/users/use-native-validation.ts",
+    "app/routes/acls/acl-action.ts",
+    "app/routes/acls/acl-loader.ts",
+    "app/routes/acls/overview.tsx",
+    "app/routes/acls/components/cm.client.tsx",
+    "app/routes/acls/components/editor-section.tsx",
+    "app/routes/acls/components/fallback.tsx",
+    "app/routes/acls/components/rules-editor.tsx",
+    "app/routes/acls/components/tags-groups-editor.tsx",
+    "app/routes/acls/dialogs/acl-rule.tsx",
+    "app/routes/acls/dialogs/host.tsx",
+    "app/routes/acls/dialogs/named-list.tsx",
+    "app/routes/acls/dialogs/ssh-rule.tsx",
+    "app/utils/acl-policy.ts",
+    "app/i18n/editor.ts"
   ],
   "documents": [
     {
@@ -92,6 +106,10 @@
     {
       "english": "docs/features/users-bilingual.md",
       "chinese": "docs/zh-CN/features/users-bilingual.md"
+    },
+    {
+      "english": "docs/features/acls.md",
+      "chinese": "docs/zh-CN/features/acls.md"
     }
   ]
 }

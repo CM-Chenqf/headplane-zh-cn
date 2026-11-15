@@ -150,6 +150,81 @@
       "file": "app/routes/home.tsx",
       "text": "curl -fsSL https://tailscale.com/install.sh | sh",
       "reason": "原有可执行 Linux 安装命令，不得翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "tag:web:80,443",
+      "reason": "ACL 目标与端口语法示例，必须原样保留。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "placeholder=\"group:eng\"",
+      "reason": "ACL 策略引用及协议名示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "placeholder=\"tag:web:80,443\"",
+      "reason": "ACL 策略引用及协议名示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "placeholder=\"tcp\"",
+      "reason": "ACL 策略引用及协议名示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/named-list.tsx",
+      "text": "placeholder={`${copy.prefix}example`}",
+      "reason": "ACL group:/tag: 名称示例，由原始前缀生成。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/named-list.tsx",
+      "text": "\"alice@\"",
+      "reason": "Headscale 用户引用格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/named-list.tsx",
+      "text": "\"group:ops\"",
+      "reason": "ACL 用户组引用示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/overview.tsx",
+      "text": "file",
+      "reason": "Headscale 策略配置字段或模式值，须与实际配置一致。"
+    },
+    {
+      "file": "app/routes/acls/overview.tsx",
+      "text": "policy.mode",
+      "reason": "Headscale 策略配置字段或模式值，须与实际配置一致。"
+    },
+    {
+      "file": "app/routes/acls/overview.tsx",
+      "text": "database",
+      "reason": "Headscale 策略配置字段或模式值，须与实际配置一致。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"group:ops\"",
+      "reason": "Tailscale SSH 策略引用或时长格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"tag:server\"",
+      "reason": "Tailscale SSH 策略引用或时长格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"autogroup:nonroot\"",
+      "reason": "Tailscale SSH 策略引用或时长格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"12h\"",
+      "reason": "Tailscale SSH 策略引用或时长格式示例，不能翻译。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/host.tsx",
+      "text": "placeholder=\"office\"",
+      "reason": "符合上游小写英文字母规则的主机别名示例，不能改成中文值。"
     }
   ]
 }
