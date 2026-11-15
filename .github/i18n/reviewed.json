@@ -873,7 +873,7 @@
     "validation.required": "b609356db4df000b822a439d80f94f9ffa7f63c5cdbd6de2686ec834315ab793"
   },
   "documents": {
-    "CHANGELOG.md": "825165a5912d5af41ec144116d19e28b4abacbb29854a2fb8d589e6330d12edb",
+    "CHANGELOG.md": "4c153fea0f05150b774ed8e3c9faf32bde557d8c5d95ece1559bf7c810de2ea0",
     "docs/configuration/api-keys.md": "4f4f5f9825edb87d10d2cff11219de47029f059e029f8f733adb7f9a749adc46",
     "docs/configuration/index.md": "03391cf3a8f82271090706d000d6a6a1cb487d48dd4b5916a9b3a2ab9cf54760",
     "docs/configuration/integrations.mdx": "230d7334fdfd2a39a79e5a10131aa63fc7cba0f9e0d6dec8b0ca979c15d2b1ad",
@@ -885,7 +885,7 @@
     "docs/features/acls.mdx": "4b03616a857cbfde20d1f2ebb288da77aa987d2616c7a1e2d8fa7297d9b96693",
     "docs/features/agent.mdx": "ce722b5607f1a86dc1ef2fa9f8f3119be2a9df2a7b5fa9b0606494aafe42ac7c",
     "docs/features/dns-bilingual.mdx": "c031c55aaed369ea741e3b952c87c25f80af93a45a0eead2d30feb64f78615d4",
-    "docs/features/language.mdx": "48e09035f34c299d1ce727e934ff65431a393d1fe7d3915f9e31aaa6d21451d5",
+    "docs/features/language.mdx": "a7052fac92ed45c90e50f85b5f587098a55140d65173fae8d8994a995a952d29",
     "docs/features/machines-bilingual.mdx": "fd15f6f2852729248805e17d54fe372a58422b378d221e790a3821cbd687f896",
     "docs/features/meta.json": "ce0d5b08a87ed55721ef6739e09f9f0e81aaa53875147dd0be3eee9ece6889e8",
     "docs/features/proxy-auth.md": "bda8ded0b28700f99dc57407cff51d133c4d4f204c8f36c7867e55a56c84ee8d",
@@ -907,7 +907,7 @@
     "docs/reference/nixos-options.md": "80f23df72029b36661c745a97e5401522789cd0379194831ec8e77b90520147f",
     "docs/troubleshooting.mdx": "0981eb5ed739df7736f8385aac12150b31a882a99d96dae5ac4e40d6db8a0cd0",
     "docs/upgrading.mdx": "3320d4fdb24c9f2d73d44ca0477ac49e200f92a8ec9e4f9b0ed052e8d971c3c0",
-    "README.md": "41ebaad88028e80d3473925f38f451bfadd5034e05ae2e52bbacbc71c663c48f"
+    "README.md": "425a160d9e72e2ed69c89aca8f7b2bdabc446ab958aff03954a6122a5695d304"
   },
   "shared": {
     "docs/app/components/architecture.tsx": "c83dea130d9adea45bc15d6f2959f3403a850516b7ac549d96495f3a33791cda",

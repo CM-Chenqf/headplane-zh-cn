@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 type Section = {
   body: string;
@@ -40,6 +40,10 @@ function readSections(text: string): Section[] {
 }
 
 function cut(version: string) {
+  if (existsSync(new URL("../.github/fork-release.json", import.meta.url)))
+    die(
+      "Community fork: update .github/fork-release.json on stable, wait for CI, then use node .github/scripts/fork-release.cjs tag. Do not reuse upstream tags.",
+    );
   if (!SEMVER.test(version)) die(`\`${version}\` is not a version`);
 
   const tag = `v${version}`;

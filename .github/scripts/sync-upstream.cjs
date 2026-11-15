@@ -6,7 +6,51 @@ const ISSUE_MARKER = "<!-- headplane-zh-cn-upstream-sync -->";
 const LABEL = "upstream-sync";
 
 function watchedBranch(branch) {
-  return branch === "main" || /^release\/\d+\.\d+$/.test(branch);
+  return branch === "main" || branch === "stable";
+}
+
+function syncTargets(release) {
+  if (
+    release.draft ||
+    release.prerelease ||
+    !release.published_at ||
+    !/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(release.tag_name ?? "")
+  )
+    throw new Error("Upstream latest release is not a published stable version");
+  return [
+    { branch: "main", source: "main", ref: "refs/heads/main" },
+    {
+      branch: "stable",
+      source: `stable/${release.tag_name}`,
+      ref: `refs/tags/${release.tag_name}`,
+    },
+  ];
+}
+
+function validateStableSource(state, tag, sha) {
+  const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+  if (
+    typeof tag !== "string" ||
+    !tag.startsWith("v") ||
+    !semver.test(tag.slice(1)) ||
+    !semver.test(state?.upstream?.version ?? "") ||
+    !/^[a-f0-9]{40}$/.test(state?.upstream?.commit ?? "") ||
+    !/^[a-f0-9]{40}$/.test(sha)
+  )
+    throw new Error("Invalid stable source record");
+  const version = tag.slice(1).split(".").map(Number);
+  const previous = state.upstream.version.split(".").map(Number);
+  if (![...version, ...previous].every(Number.isSafeInteger))
+    throw new Error("Invalid stable source record");
+  for (let i = 0; i < 3; i++) {
+    if (version[i] < previous[i])
+      throw new Error("Refusing to downgrade the stable upstream version");
+    if (version[i] > previous[i]) return;
+  }
+  if (sha !== state.upstream.commit)
+    throw new Error(
+      "Upstream retargeted an already recorded release tag; manual investigation is required",
+    );
 }
 
 function reviewCategory(path) {
@@ -16,7 +60,10 @@ function reviewCategory(path) {
 }
 
 function syncBranchName(branch, sha) {
-  if (!watchedBranch(branch) || !/^[a-f0-9]{40}$/.test(sha)) {
+  if (
+    !(branch === "main" || /^stable\/v\d+\.\d+\.\d+$/.test(branch)) ||
+    !/^[a-f0-9]{40}$/.test(sha)
+  ) {
     throw new Error("Unexpected upstream branch or commit");
   }
   return `sync/upstream/${branch}/${sha.slice(0, 12)}`;
@@ -40,16 +87,17 @@ function filesForReview(paths) {
     .join("\n\n");
 }
 
-function pullRequestBody(upstream, branch, sha, paths) {
+function pullRequestBody(upstream, branch, sha, paths, source = branch) {
   return [
     "同步上游功能后，需要检查本 PR 中的新增和变更文案，并补齐中文界面与中文文档。",
-    `上游：${upstream}，分支：\`${branch}\`，提交：${sha}。`,
+    `上游：${upstream}，来源：\`${source}\`，目标：\`${branch}\`，提交：${sha}。`,
     `https://github.com/${upstream}/commit/${sha}`,
     "- [ ] 保留现有中英文切换和 fork 发布配置，解决合并冲突。\n" +
       "- [ ] 翻译新增英文，并复核已修改英文对应的中文。\n" +
       "- [ ] 同步中文文档、配置说明及需要更新的截图。\n" +
       "- [ ] 运行 `pnpm i18n:check`；逐项核对差异后，用 `pnpm i18n:review --message KEY` 或 `--file ENGLISH_PATH` 记录复核，再运行检查。\n" +
       "- [ ] 沿用上游兼容版本，运行构建及相关测试。\n" +
+      "- [ ] stable 升级时更新 `.github/fork-release.json` 的上游版本与提交，保留独立的 `-zh.N` 修订号；完成镜像验收前保持发布门禁。新版本继续使用 stable，不创建 release/X.Y。\n" +
       "- [ ] 完成翻译验收后合并；不要仅为消除冲突而覆盖中文改动。",
     "本流程只检测更新并创建 PR，不自动合并、不复制版本标签、不发布镜像。" +
       "请检查 PR 的 Actions 状态；如果 GitHub 要求批准工作流运行，先在 PR 页面批准。",
@@ -99,16 +147,11 @@ async function sync({ github, context, core }) {
     throw new Error("Invalid upstream repository");
   }
 
-  git([
-    "fetch",
-    "--no-tags",
-    `https://github.com/${config.repository}.git`,
-    "+refs/heads/main:refs/remotes/sync-source/main",
-    "+refs/heads/release/*:refs/remotes/sync-source/release/*",
-  ]);
-  const branches = git(["for-each-ref", "--format=%(refname:strip=3)", "refs/remotes/sync-source/"])
-    .split("\n")
-    .filter(watchedBranch);
+  const [sourceOwner, sourceRepo] = config.repository.split("/");
+  const release = (
+    await github.rest.repos.getLatestRelease({ owner: sourceOwner, repo: sourceRepo })
+  ).data;
+  const targets = syncTargets(release);
 
   try {
     await github.rest.issues.getLabel({ owner, repo, name: LABEL });
@@ -125,9 +168,11 @@ async function sync({ github, context, core }) {
 
   const pending = [];
   const failures = [];
-  for (const branch of branches) {
-    const sha = git(["rev-parse", `refs/remotes/sync-source/${branch}`]);
+  for (const { branch, source, ref } of targets) {
+    let sha = "unknown";
     try {
+      git(["fetch", "--no-tags", `https://github.com/${config.repository}.git`, ref]);
+      sha = git(["rev-parse", "FETCH_HEAD^{commit}"]);
       let base;
       try {
         base = (await github.rest.repos.getBranch({ owner, repo, branch })).data.commit.sha;
@@ -136,14 +181,18 @@ async function sync({ github, context, core }) {
         pending.push({
           branch,
           sha,
-          message: "新的上游发布分支，需要先建立保留双语改动的对应分支。",
+          message: "固定维护分支缺失，请恢复 main 或 stable；不要创建按版本编号的发布分支。",
         });
         continue;
       }
       git(["fetch", "--no-tags", "origin", `refs/heads/${branch}`]);
+      if (branch === "stable") {
+        const state = JSON.parse(git(["show", `${base}:.github/fork-release.json`]));
+        validateStableSource(state, release.tag_name, sha);
+      }
       if (hasCommit(base, sha)) continue;
 
-      const head = syncBranchName(branch, sha);
+      const head = syncBranchName(source, sha);
       const { data: pulls } = await github.rest.pulls.list({
         owner,
         repo,
@@ -178,8 +227,8 @@ async function sync({ github, context, core }) {
             repo,
             base: branch,
             head,
-            title: `chore(sync): ${branch} @ ${sha.slice(0, 12)}`,
-            body: pullRequestBody(config.repository, branch, sha, changed),
+            title: `chore(sync): ${source} → ${branch} @ ${sha.slice(0, 12)}`,
+            body: pullRequestBody(config.repository, branch, sha, changed, source),
           })
         ).data;
         await github.rest.issues.addLabels({
@@ -250,3 +299,5 @@ module.exports.syncBranchName = syncBranchName;
 module.exports.pullRequestBody = pullRequestBody;
 module.exports.issueBody = issueBody;
 module.exports.hasCommit = hasCommit;
+module.exports.syncTargets = syncTargets;
+module.exports.validateStableSource = validateStableSource;
