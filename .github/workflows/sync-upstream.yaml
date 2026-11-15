@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   sync:
-    if: github.repository == 'CM-Chenqf/headscale-web'
+    if: github.repository == 'CM-Chenqf/headplane-zh-cn'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the maintained branch

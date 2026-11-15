@@ -1,10 +1,12 @@
-# Headplane
+# Headplane 中文维护版（非官方）
 
 [English](./README.md) · [双语版本维护与部署](./.github/FORK_SETUP.zh-CN.md)
 
 > 为 [Headscale](https://headscale.net) 提供功能完整的 Web 管理界面。
 
-此仓库是 `tale/headplane` 的中英双语维护版本 `CM-Chenqf/headscale-web`。`main` 已包含中英文界面及文档源码；完整双语 Docker 镜像尚未发布，维护文档站尚未部署，`release/0.8` 尚待适配。部署前核实[维护指南](./.github/FORK_SETUP.zh-CN.md)中的实际发布状态。
+本仓库 `CM-Chenqf/headplane-zh-cn` 是基于上游 [tale/headplane](https://github.com/tale/headplane) 的社区中英双语维护分支，**不是 Headplane、Headscale 或 Tailscale 的官方中文版**。保留上游 [MIT 许可证](./LICENSE)原文及原作者版权声明。
+
+`main` 已包含中英文界面及文档源码；完整双语 Docker 镜像尚未发布，维护文档站尚未部署。`release/0.8` 目前仅完成语言基础、登录与公共界面，业务模块及完整文档仍待适配。部署前核实[维护指南](./.github/FORK_SETUP.zh-CN.md)中的实际发布状态。
 
 <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/preview-dark.png">

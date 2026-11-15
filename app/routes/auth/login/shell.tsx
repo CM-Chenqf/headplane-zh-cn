@@ -44,7 +44,7 @@ export default function Shell({ title, description, isWide, children }: Props) {
             <Link
               className="hover:text-fg"
               external
-              to="https://github.com/CM-Chenqf/headscale-web"
+              to="https://github.com/CM-Chenqf/headplane-zh-cn"
             >
               GitHub
             </Link>

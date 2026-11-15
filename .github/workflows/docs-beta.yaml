@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headscale-web-docs') }}
-  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headscale-web-docs-beta') }}
+  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headplane-zh-cn-docs') }}
+  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta') }}
 
 concurrency:
   group: docs-beta
@@ -57,7 +57,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy docs/build/client --project-name=${{ vars.CF_PAGES_BETA_PROJECT || 'headscale-web-docs-beta' }}
+          command: pages deploy docs/build/client --project-name=${{ vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta' }}
 
       - name: Save docs when deployment is not configured
         if: vars.CF_PAGES_DEPLOY_ENABLED != 'true'
