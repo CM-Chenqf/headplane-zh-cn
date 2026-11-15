@@ -885,7 +885,7 @@
     "docs/features/acls.mdx": "4b03616a857cbfde20d1f2ebb288da77aa987d2616c7a1e2d8fa7297d9b96693",
     "docs/features/agent.mdx": "ce722b5607f1a86dc1ef2fa9f8f3119be2a9df2a7b5fa9b0606494aafe42ac7c",
     "docs/features/dns-bilingual.mdx": "c031c55aaed369ea741e3b952c87c25f80af93a45a0eead2d30feb64f78615d4",
-    "docs/features/language.mdx": "012713a5e7f8ebab21778316371f1c909522e1dfd381b72675e2b01d431fd00e",
+    "docs/features/language.mdx": "48e09035f34c299d1ce727e934ff65431a393d1fe7d3915f9e31aaa6d21451d5",
     "docs/features/machines-bilingual.mdx": "fd15f6f2852729248805e17d54fe372a58422b378d221e790a3821cbd687f896",
     "docs/features/meta.json": "ce0d5b08a87ed55721ef6739e09f9f0e81aaa53875147dd0be3eee9ece6889e8",
     "docs/features/proxy-auth.md": "bda8ded0b28700f99dc57407cff51d133c4d4f204c8f36c7867e55a56c84ee8d",
@@ -907,7 +907,7 @@
     "docs/reference/nixos-options.md": "80f23df72029b36661c745a97e5401522789cd0379194831ec8e77b90520147f",
     "docs/troubleshooting.mdx": "0981eb5ed739df7736f8385aac12150b31a882a99d96dae5ac4e40d6db8a0cd0",
     "docs/upgrading.mdx": "3320d4fdb24c9f2d73d44ca0477ac49e200f92a8ec9e4f9b0ed052e8d971c3c0",
-    "README.md": "ba67e469d86d1abf34b4b26a336ea31aaef68150beb0207d4aab85651eea11be"
+    "README.md": "41ebaad88028e80d3473925f38f451bfadd5034e05ae2e52bbacbc71c663c48f"
   },
   "shared": {
     "docs/app/components/architecture.tsx": "c83dea130d9adea45bc15d6f2959f3403a850516b7ac549d96495f3a33791cda",
