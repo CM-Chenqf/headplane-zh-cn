@@ -127,7 +127,7 @@ function mapRoleToName(role: Role, locale: Locale) {
     case "viewer":
       return t("users.role.viewer");
     case "member":
-      return <p className="opacity-50">{t("users.role.member")}</p>;
+      return <span className="opacity-50">{t("users.role.member")}</span>;
     default:
       return t("common.unknown");
   }

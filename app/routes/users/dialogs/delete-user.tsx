@@ -25,9 +25,9 @@ export default function DeleteUser({ user, machines, isOpen, setIsOpen }: Delete
           <Text className="mb-6">
             {t("users.deleteDescription")}
             {user.provider === "oidc" && (
-              <p className="mt-4 text-sm text-mist-600 dark:text-mist-300">
+              <span className="mt-4 block text-sm text-mist-600 dark:text-mist-300">
                 {t("users.deleteOidcNotice")}
-              </p>
+              </span>
             )}
           </Text>
         )}

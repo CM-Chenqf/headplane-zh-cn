@@ -9,6 +9,7 @@
 
 ## Fixes
 
+- User rows and OIDC deletion notices no longer nest paragraphs, avoiding invalid HTML and member-list hydration errors.
 - Custom form validation messages are visible to users and assistive technology, and machine menu buttons retain their accessible names in both languages.
 
 # 0.8.2 (October 22, 2026)
