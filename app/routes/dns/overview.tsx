@@ -4,6 +4,9 @@ import { useLoaderData } from "react-router";
 import Code from "~/components/code";
 import Notice from "~/components/notice";
 import PageError from "~/components/page-error";
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
+import { Message, useI18n } from "~/i18n/provider";
 import { authContext, headscaleConfigContext } from "~/server/context";
 import { Capabilities } from "~/server/web/roles";
 
@@ -17,20 +20,19 @@ import { dnsAction } from "./dns-actions";
 
 // We do not want to expose every config value
 export async function loader({ request, context }: Route.LoaderArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const headscaleConfig = context.get(headscaleConfigContext);
 
   if (!headscaleConfig.readable()) {
-    throw new Error("No configuration is available");
+    throw new Error(t("dns.noConfig"));
   }
 
   const principal = await auth.require(request);
   const check = auth.can(principal, Capabilities.read_network);
   if (!check) {
     // Not authorized to view this page
-    throw new Error(
-      "You do not have permission to view this page. Please contact your administrator.",
-    );
+    throw new Error(t("dns.viewForbidden"));
   }
 
   const writablePermission = auth.can(principal, Capabilities.write_network);
@@ -49,6 +51,7 @@ export async function action(data: ActionFunctionArgs) {
 }
 
 export default function Page() {
+  const { t } = useI18n();
   const data = useLoaderData<typeof loader>();
 
   const allNs: Record<string, string[]> = {};
@@ -61,16 +64,8 @@ export default function Page() {
 
   return (
     <div className="flex max-w-(--breakpoint-lg) flex-col gap-16">
-      {data.writable ? undefined : (
-        <Notice>
-          The Headscale configuration is read-only. You cannot make changes to the configuration
-        </Notice>
-      )}
-      {data.access ? undefined : (
-        <Notice>
-          Your permissions do not allow you to modify the DNS settings for this tailnet.
-        </Notice>
-      )}
+      {data.writable ? undefined : <Notice>{t("dns.readOnly")}</Notice>}
+      {data.access ? undefined : <Notice>{t("dns.noPermission")}</Notice>}
       <RenameTailnet isDisabled={isDisabled} name={data.baseDomain} />
       <ManageNS isDisabled={isDisabled} nameservers={allNs} overrideLocalDns={data.overrideDns} />
       <ManageRecords isDisabled={isDisabled} records={data.extraRecords} />
@@ -81,15 +76,12 @@ export default function Page() {
       />
 
       <div className="flex w-full flex-col sm:w-2/3">
-        <h1 className="mb-4 text-2xl font-medium">Magic DNS</h1>
+        <h1 className="mb-4 text-2xl font-medium">{t("dns.magic")}</h1>
         <p className="mb-4">
-          Automatically register domain names for each device on the tailnet. Devices will be
-          accessible at{" "}
-          <Code>
-            [device].
-            {data.baseDomain}
-          </Code>{" "}
-          when Magic DNS is enabled.
+          <Message
+            id="dns.magicDescription"
+            values={{ address: <Code>{t("dns.deviceDomain", { domain: data.baseDomain })}</Code> }}
+          />
         </p>
         <ToggleMagic isDisabled={isDisabled} isEnabled={data.magicDns} />
       </div>
@@ -98,5 +90,6 @@ export default function Page() {
 }
 
 export function ErrorBoundary({ error }: { error: unknown }) {
-  return <PageError error={error} page="DNS" />;
+  const { t } = useI18n();
+  return <PageError error={error} page={t("dns.page")} />;
 }

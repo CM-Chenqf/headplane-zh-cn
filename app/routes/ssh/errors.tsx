@@ -2,74 +2,36 @@ import { AlertCircle } from "lucide-react";
 
 import Card from "~/components/card";
 import Link from "~/components/link";
+import { useI18n } from "~/i18n/provider";
+import { localizeSSHError } from "~/i18n/ssh";
 
-export const sshErrors = {
-  wasm_missing: {
-    title: "Browser SSH is not available",
-    message: "This version of Headplane was not built with browser SSH support.",
-    anchor: "#ssh-not-available",
-  },
-
-  agent_required: {
-    title: "Browser SSH requires the Headplane agent",
-    message: "Browser SSH is only available when the Headplane agent integration is enabled.",
-    anchor: "#agent-required",
-  },
-
-  oidc_required: {
-    title: "Browser SSH requires OIDC authentication",
-    message: "Browser SSH is only available when OIDC authentication is enabled.",
-    anchor: "#oidc-required",
-  },
-
-  node_not_found: (hostname: string) => ({
-    title: "Node not found",
-    message: `No node found with hostname ${hostname}.`,
-    anchor: "#node-not-found",
-  }),
-
-  user_not_linked: {
-    title: "User account not linked",
-    message:
-      "You'll need to link your user account to a Headscale user before you can use Browser SSH.",
-    anchor: "#user-not-linked",
-  },
-} as const;
+export { isSSHError, sshErrors } from "~/i18n/ssh";
 
 interface SSHErrorBoundaryProps {
   title: string;
   message: string;
   anchor: string;
-}
-
-export function isSSHError(error: unknown): error is SSHErrorBoundaryProps {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "title" in error &&
-    "message" in error &&
-    "anchor" in error &&
-    typeof error.title === "string" &&
-    typeof error.message === "string" &&
-    typeof error.anchor === "string"
-  );
+  code?: string;
+  hostname?: string;
 }
 
 const DOCS_BASE = "https://headplane.net/features/ssh";
 
-export function SSHErrorBoundary({ title, message, anchor }: SSHErrorBoundaryProps) {
+export function SSHErrorBoundary({ title, message, anchor, ...metadata }: SSHErrorBoundaryProps) {
+  const { locale, t } = useI18n();
+  const localized = localizeSSHError({ title, message, anchor, ...metadata }, locale);
   return (
     <Card className="w-screen" variant="flat">
       <div className="flex items-center justify-between gap-4">
-        <Card.Title>{title}</Card.Title>
+        <Card.Title>{localized.title}</Card.Title>
         <AlertCircle className="mb-2 h-6 w-6 text-red-500" />
       </div>
       <Card.Text>
-        {message}
+        {localized.message}
         <br />
         <br />
         <Link to={`${DOCS_BASE}${anchor}`} external styled>
-          Headplane SSH Documentation
+          {t("ssh.docs")}
         </Link>{" "}
       </Card.Text>
     </Card>

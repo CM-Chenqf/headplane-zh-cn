@@ -11,8 +11,11 @@ import Select from "~/components/select";
 import Switch from "~/components/switch";
 import Text from "~/components/text";
 import Title from "~/components/title";
+import { useI18n } from "~/i18n/provider";
 import type { User } from "~/types";
 import { getUserDisplayName, sortUsersByDisplayName } from "~/utils/user";
+
+import { useNativeValidation } from "../../../users/use-native-validation";
 
 interface AddAuthKeyProps {
   users: User[];
@@ -53,6 +56,8 @@ export default function AddAuthKey({
   currentHeadscaleUserId,
   currentSubject,
 }: AddAuthKeyProps) {
+  const { locale, t } = useI18n();
+  const validation = useNativeValidation();
   const fetcher = useFetcher();
   const submittingRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -105,14 +110,14 @@ export default function AddAuthKey({
       }}
     >
       <Button className="my-4" onClick={() => setIsOpen(true)}>
-        Create pre-auth key
+        {t("authKeys.create")}
       </Button>
       {createdKey ? (
         <DialogPanel variant="unactionable">
-          <Title>Pre-auth key created</Title>
-          <Text>Copy this key now. You will not be able to see the full key again.</Text>
+          <Title>{t("authKeys.createdTitle")}</Title>
+          <Text>{t("authKeys.copyNow")}</Text>
           <CodeBlock className="mt-4">{createdKey}</CodeBlock>
-          <Text className="mt-4 text-sm">To register a device with this key:</Text>
+          <Text className="mt-4 text-sm">{t("authKeys.register")}</Text>
           <CodeBlock className="mt-1">
             {`tailscale up --login-server=${url} --authkey ${createdKey}`}
           </CodeBlock>
@@ -132,17 +137,17 @@ export default function AddAuthKey({
           }}
           isDisabled={fetcher.state !== "idle" || !canSubmit}
         >
-          <Title>Generate auth key</Title>
+          <Title>{t("authKeys.generate")}</Title>
 
           {!selfServiceOnly && (
             <div className="mb-4 flex items-center justify-between gap-2">
               <div>
-                <Text className="font-semibold">Tag-only key</Text>
-                <Text className="text-sm">Create a key owned by ACL tags instead of a user.</Text>
+                <Text className="font-semibold">{t("authKeys.tagOnly")}</Text>
+                <Text className="text-sm">{t("authKeys.tagDescription")}</Text>
               </div>
               <Switch
                 defaultChecked={tagOnly}
-                label="Tag-only"
+                label={t("authKeys.tagOnly")}
                 onCheckedChange={() => setTagOnly(!tagOnly)}
               />
             </div>
@@ -151,67 +156,63 @@ export default function AddAuthKey({
           {!tagOnly && (
             <Select
               className="mb-2"
-              description={
-                selfServiceOnly
-                  ? "You can only create keys for your own user."
-                  : "Machines will belong to this user when they authenticate."
-              }
+              description={selfServiceOnly ? t("authKeys.own") : t("authKeys.userDescription")}
               disabled={selfServiceOnly}
               required
-              label="User"
+              label={t("authKeys.user")}
               onValueChange={(value) => setUserId(value)}
-              placeholder="Select a user"
+              placeholder={t("authKeys.selectUser")}
               value={userId}
               items={availableUsers.map((user) => ({
                 value: user.id,
-                label: getUserDisplayName(user),
+                label: getUserDisplayName(user, locale),
               }))}
             />
           )}
 
           <Input
             className="mb-2"
-            description="Comma-separated tags (e.g. server, prod). The tag: prefix is added automatically."
+            description={t("authKeys.tagsDescription")}
+            {...validation.field("acl_tags", "validation.required")}
             required={tagOnly}
-            label="ACL Tags"
+            label={t("authKeys.tags")}
             onChange={(value) => setTags(value)}
             placeholder="server, prod"
             value={tags}
           />
           <NumberInput
             defaultValue={90}
-            description="Set this key to expire after a certain number of days."
+            description={t("authKeys.expiryDescription")}
             required
-            label="Key Expiration"
+            label={t("authKeys.expiry")}
             max={365_000}
             min={1}
             name="expiry"
           />
           <div className="mt-6 flex items-center justify-between gap-2">
             <div>
-              <Text className="font-semibold">Reusable</Text>
-              <Text className="text-sm">Use this key to authenticate more than one device.</Text>
+              <Text className="font-semibold">{t("authKeys.reusable")}</Text>
+              <Text className="text-sm">{t("authKeys.reusableDescription")}</Text>
             </div>
             <Switch
               defaultChecked={reusable}
-              label="Reusable"
+              label={t("authKeys.reusable")}
               onCheckedChange={() => setReusable(!reusable)}
             />
           </div>
           <div className="mt-6 flex items-center justify-between gap-2">
             <div>
-              <Text className="font-semibold">Ephemeral</Text>
+              <Text className="font-semibold">{t("authKeys.ephemeral")}</Text>
               <Text className="text-sm">
-                Devices authenticated with this key will be automatically removed once they go
-                offline.{" "}
+                {t("authKeys.ephemeralDescription")}{" "}
                 <Link external styled to="https://tailscale.com/kb/1111/ephemeral-nodes">
-                  Learn more
+                  {t("common.learnMore")}
                 </Link>
               </Text>
             </div>
             <Switch
               defaultChecked={ephemeral}
-              label="Ephemeral"
+              label={t("authKeys.ephemeral")}
               onCheckedChange={() => setEphemeral(!ephemeral)}
             />
           </div>

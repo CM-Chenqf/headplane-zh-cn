@@ -1,5 +1,5 @@
 import { type, type Type } from "arktype";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
 
 type FormValue = string | number | boolean | null;
 
@@ -16,12 +16,15 @@ export interface FormFieldProps {
   onBlur: () => void;
   invalid: boolean;
   errorMessage?: string;
+  onInvalid?: (event: SyntheticEvent<HTMLInputElement>) => void;
+  onInput?: (event: SyntheticEvent<HTMLInputElement>) => void;
 }
 
 interface UseFormOptions<T extends Record<string, unknown>> {
   schema: Type<T>;
   defaultValues?: Partial<Record<keyof T & string, FormValue>>;
   actionData?: unknown;
+  localizeError?: (name: string, error: string) => string;
   validate?: (values: Record<string, FormValue>) => Record<string, string> | undefined;
 }
 
@@ -114,7 +117,25 @@ export function useForm<T extends Record<string, unknown>>(options: UseFormOptio
       onChange: (value: string) => setValue(name, value),
       onBlur: () => validateField(name),
       invalid: !!error,
-      errorMessage: error || undefined,
+      errorMessage: error ? (options.localizeError?.(name, error) ?? error) : undefined,
+      ...(options.localizeError
+        ? {
+            onInvalid(event: SyntheticEvent<HTMLInputElement>) {
+              event.preventDefault();
+              setState((previous) => ({
+                ...previous,
+                errors: { ...previous.errors, [name]: "validation.required" },
+              }));
+            },
+            onInput() {
+              if (error === "validation.required")
+                setState((previous) => ({
+                  ...previous,
+                  errors: { ...previous.errors, [name]: "" },
+                }));
+            },
+          }
+        : {}),
     };
   }
 

@@ -1,5 +1,7 @@
 import { data } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import {
   authContext,
   headscaleConfigContext,
@@ -11,6 +13,7 @@ import { Capabilities } from "~/server/web/roles";
 import type { Route } from "./+types/overview";
 
 export async function restrictionAction({ request, context }: Route.ActionArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const headscale = context.get(headscaleContext);
   const headscaleConfig = context.get(headscaleConfigContext);
@@ -20,13 +23,13 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
   const check = auth.can(principal, Capabilities.configure_iam);
 
   if (!check) {
-    throw data("You do not have permission to modify IAM settings.", {
+    throw data(t("restrictions.error.write"), {
       status: 403,
     });
   }
 
   if (!headscaleConfig.writable()) {
-    throw data("The Headscale configuration file is not editable.", {
+    throw data(t("restrictions.error.readOnly"), {
       status: 403,
     });
   }
@@ -34,7 +37,7 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
   const formData = await request.formData();
   const action = formData.get("action_id")?.toString();
   if (!action) {
-    throw data("No action provided.", {
+    throw data(t("restrictions.error.action"), {
       status: 400,
     });
   }
@@ -43,7 +46,7 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
     case "add_domain": {
       const domain = formData.get("domain")?.toString()?.trim();
       if (!domain) {
-        throw data("No domain provided.", {
+        throw data(t("restrictions.domain.required"), {
           status: 400,
         });
       }
@@ -60,13 +63,13 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       ]);
 
       integration?.onConfigChange(headscale);
-      return data("Domain added successfully.");
+      return data(t("restrictions.domain.added"));
     }
 
     case "remove_domain": {
       const domain = formData.get("domain")?.toString()?.trim();
       if (!domain) {
-        throw data("No domain provided.", {
+        throw data(t("restrictions.domain.required"), {
           status: 400,
         });
       }
@@ -74,7 +77,7 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       const storedDomains = headscaleConfig.getOIDCConfig()?.allowedDomains ?? [];
       if (!storedDomains.includes(domain)) {
         // Domain not found in the list
-        throw data(`Domain "${domain}" not found in allowed domains.`, {
+        throw data(t("restrictions.domain.missing", { value: domain }), {
           status: 400,
         });
       }
@@ -88,13 +91,13 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
         },
       ]);
       integration?.onConfigChange(headscale);
-      return data("Domain removed successfully.");
+      return data(t("restrictions.domain.removed"));
     }
 
     case "add_group": {
       const group = formData.get("group")?.toString()?.trim();
       if (!group) {
-        throw data("No group provided.", {
+        throw data(t("restrictions.group.required"), {
           status: 400,
         });
       }
@@ -111,13 +114,13 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       ]);
 
       integration?.onConfigChange(headscale);
-      return data("Group added successfully.");
+      return data(t("restrictions.group.added"));
     }
 
     case "remove_group": {
       const group = formData.get("group")?.toString()?.trim();
       if (!group) {
-        throw data("No group provided.", {
+        throw data(t("restrictions.group.required"), {
           status: 400,
         });
       }
@@ -125,7 +128,7 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       const storedGroups = headscaleConfig.getOIDCConfig()?.allowedGroups ?? [];
       if (!storedGroups.includes(group)) {
         // Group not found in the list
-        throw data(`Group "${group}" not found in allowed groups.`, {
+        throw data(t("restrictions.group.missing", { value: group }), {
           status: 400,
         });
       }
@@ -140,13 +143,13 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       ]);
 
       integration?.onConfigChange(headscale);
-      return data("Group removed successfully.");
+      return data(t("restrictions.group.removed"));
     }
 
     case "add_user": {
       const user = formData.get("user")?.toString()?.trim();
       if (!user) {
-        throw data("No user provided.", {
+        throw data(t("restrictions.user.required"), {
           status: 400,
         });
       }
@@ -161,13 +164,13 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       ]);
 
       integration?.onConfigChange(headscale);
-      return data("User added successfully.");
+      return data(t("restrictions.user.added"));
     }
 
     case "remove_user": {
       const user = formData.get("user")?.toString()?.trim();
       if (!user) {
-        throw data("No user provided.", {
+        throw data(t("restrictions.user.required"), {
           status: 400,
         });
       }
@@ -175,7 +178,7 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       const storedUsers = headscaleConfig.getOIDCConfig()?.allowedUsers ?? [];
       if (!storedUsers.includes(user)) {
         // User not found in the list
-        throw data(`User "${user}" not found in allowed users.`, {
+        throw data(t("restrictions.user.missing", { value: user }), {
           status: 400,
         });
       }
@@ -190,11 +193,11 @@ export async function restrictionAction({ request, context }: Route.ActionArgs) 
       ]);
 
       integration?.onConfigChange(headscale);
-      return data("User removed successfully.");
+      return data(t("restrictions.user.removed"));
     }
 
     default: {
-      throw data("Invalid action provided.", {
+      throw data(t("restrictions.error.invalid"), {
         status: 400,
       });
     }

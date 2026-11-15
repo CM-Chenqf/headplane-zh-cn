@@ -3,6 +3,14 @@
     {
       "key": "nav.dns",
       "reason": "DNS 协议缩写，保留原文。"
+    },
+    {
+      "key": "agent.title",
+      "reason": "Headplane Agent 为上游组件专有名称。"
+    },
+    {
+      "key": "dns.magic",
+      "reason": "Magic DNS 为上游功能专有名称。"
     }
   ],
   "literals": [
@@ -225,6 +233,106 @@
       "file": "app/routes/acls/dialogs/host.tsx",
       "text": "placeholder=\"office\"",
       "reason": "符合上游小写英文字母规则的主机别名示例，不能改成中文值。"
+    },
+    {
+      "file": "app/routes/settings/restrictions/dialogs/add-group.tsx",
+      "text": "placeholder=\"admin\"",
+      "reason": "OIDC 用户组标识示例，提交给身份提供者的原始值。"
+    },
+    {
+      "file": "app/routes/settings/restrictions/dialogs/add-user.tsx",
+      "text": "placeholder=\"john_doe\"",
+      "reason": "OIDC 用户标识示例，保持身份提供者原始值。"
+    },
+    {
+      "file": "app/routes/settings/restrictions/dialogs/add-domain.tsx",
+      "text": "placeholder=\"example.com\"",
+      "reason": "DNS 域名示例。"
+    },
+    {
+      "file": "app/routes/dns/components/rename-tailnet.tsx",
+      "text": "placeholder=\"ts.net\"",
+      "reason": "Tailnet 域名示例。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-ns.tsx",
+      "text": "placeholder=\"example.com\"",
+      "reason": "Split DNS 域名示例。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-record.tsx",
+      "text": "placeholder=\"test.example.com\"",
+      "reason": "DNS 记录域名示例。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-record.tsx",
+      "text": "\"A\"",
+      "reason": "DNS 记录类型常量，必须与 API 值一致。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-record.tsx",
+      "text": "\"AAAA\"",
+      "reason": "DNS 记录类型常量，必须与 API 值一致。"
+    },
+    {
+      "file": "app/routes/dns/components/manage-records.tsx",
+      "text": "A",
+      "reason": "DNS 记录类型常量，必须与 API 值一致。"
+    },
+    {
+      "file": "app/routes/dns/components/manage-records.tsx",
+      "text": "AAAA",
+      "reason": "DNS 记录类型常量，必须与 API 值一致。"
+    },
+    {
+      "file": "app/routes/ssh/page.tsx",
+      "text": "/ts2021",
+      "reason": "Headscale 控制协议端点，故障排查需要原路径。"
+    },
+    {
+      "file": "app/routes/ssh/page.tsx",
+      "text": "405 Method Not Allowed",
+      "reason": "保留 HTTP 状态原文以匹配服务端诊断，外层说明已双语化。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/dialogs/add-auth-key.tsx",
+      "text": "`tailscale up --login-server=${url} --authkey ${createdKey}`",
+      "reason": "可复制执行的原始 CLI 命令。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/dialogs/add-auth-key.tsx",
+      "text": "placeholder=\"server, prod\"",
+      "reason": "ASCII 标签名称示例，不能改为中文标签值。"
+    },
+    {
+      "file": "docs/.vitepress/config.ts",
+      "text": "\"Headplane\"",
+      "reason": "保留上游项目专有名称。"
+    },
+    {
+      "file": "docs/.vitepress/config.ts",
+      "text": "\"Community-maintained, unofficial bilingual fork of tale/headplane\"",
+      "reason": "root 英文 locale 的 SEO 描述；zh-CN locale 有对应中文描述。"
+    },
+    {
+      "file": "docs/.vitepress/config.ts",
+      "text": "\"English\"",
+      "reason": "语言切换菜单以语言自身名称显示。"
+    },
+    {
+      "file": "docs/.vitepress/config.ts",
+      "text": "'Unofficial community fork of <a href=\"https://github.com/tale/headplane\">tale/headplane</a>. MIT license retained.'",
+      "reason": "root 英文 locale 来源说明，与中文 locale 对应，必须保留上游链接和许可证。"
+    },
+    {
+      "file": "docs/.vitepress/config.ts",
+      "text": "\"tale/headplane 的非官方社区中英双语维护版\"",
+      "reason": "zh-CN locale 的中文 SEO 描述，项目路径保持原文。"
+    },
+    {
+      "file": "docs/.vitepress/config.ts",
+      "text": "'基于 <a href=\"https://github.com/tale/headplane\">tale/headplane</a> 的非官方社区维护版，保留 MIT 许可证。'",
+      "reason": "zh-CN locale 的中文来源说明，保留 HTML 链接及原项目名称。"
     }
   ]
 }

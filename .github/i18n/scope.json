@@ -9,15 +9,13 @@
     "shared navigation and components",
     "Machines",
     "Users and account linking",
-    "Access Control and editors"
-  ],
-  "pending": [
+    "Access Control and editors",
     "DNS",
     "Settings",
     "Browser SSH",
-    "complete VitePress documentation",
-    "Docker and deployment acceptance"
+    "complete VitePress documentation"
   ],
+  "pending": ["Docker and deployment acceptance"],
   "uiFiles": [
     "app/components/input.tsx",
     "app/components/menu.tsx",
@@ -92,9 +90,79 @@
     "app/routes/acls/dialogs/named-list.tsx",
     "app/routes/acls/dialogs/ssh-rule.tsx",
     "app/utils/acl-policy.ts",
-    "app/i18n/editor.ts"
+    "app/i18n/editor.ts",
+    "app/routes/dns/components/manage-domains.tsx",
+    "app/routes/dns/components/manage-ns.tsx",
+    "app/routes/dns/components/manage-records.tsx",
+    "app/routes/dns/components/rename-tailnet.tsx",
+    "app/routes/dns/components/toggle-magic.tsx",
+    "app/routes/dns/dialogs/add-ns.tsx",
+    "app/routes/dns/dialogs/add-record.tsx",
+    "app/routes/dns/dns-actions.ts",
+    "app/routes/dns/overview.tsx",
+    "app/routes/settings/agent.tsx",
+    "app/routes/settings/auth-keys/actions.ts",
+    "app/routes/settings/auth-keys/auth-key-row.tsx",
+    "app/routes/settings/auth-keys/dialogs/add-auth-key.tsx",
+    "app/routes/settings/auth-keys/dialogs/expire-auth-key.tsx",
+    "app/routes/settings/auth-keys/overview.tsx",
+    "app/routes/settings/overview.tsx",
+    "app/routes/settings/restrictions/actions.ts",
+    "app/routes/settings/restrictions/dialogs/add-domain.tsx",
+    "app/routes/settings/restrictions/dialogs/add-group.tsx",
+    "app/routes/settings/restrictions/dialogs/add-user.tsx",
+    "app/routes/settings/restrictions/overview.tsx",
+    "app/routes/settings/restrictions/table.tsx",
+    "app/routes/ssh/errors.tsx",
+    "app/routes/ssh/ghostty.client.tsx",
+    "app/routes/ssh/page.tsx",
+    "app/routes/ssh/user-prompt.tsx",
+    "app/routes/ssh/wasm.client.ts",
+    "app/routes/ssh/wasm_js.d.ts",
+    "app/hooks/use-form.ts",
+    "app/i18n/ssh.ts",
+    "app/i18n/agent.ts",
+    "docs/.vitepress/config.ts",
+    "docs/.vitepress/theme/index.ts",
+    "docs/.vitepress/theme-labels.ts"
   ],
   "documents": [
+    {
+      "english": "docs/CHANGELOG.md",
+      "chinese": "docs/zh-CN/CHANGELOG.md"
+    },
+    {
+      "english": "docs/configuration/common-issues.md",
+      "chinese": "docs/zh-CN/configuration/common-issues.md"
+    },
+    {
+      "english": "docs/configuration/index.md",
+      "chinese": "docs/zh-CN/configuration/index.md"
+    },
+    {
+      "english": "docs/configuration/tls.md",
+      "chinese": "docs/zh-CN/configuration/tls.md"
+    },
+    {
+      "english": "docs/CONTRIBUTING.md",
+      "chinese": "docs/zh-CN/CONTRIBUTING.md"
+    },
+    {
+      "english": "docs/development/architecture.md",
+      "chinese": "docs/zh-CN/development/architecture.md"
+    },
+    {
+      "english": "docs/features/acls.md",
+      "chinese": "docs/zh-CN/features/acls.md"
+    },
+    {
+      "english": "docs/features/agent.md",
+      "chinese": "docs/zh-CN/features/agent.md"
+    },
+    {
+      "english": "docs/features/dns.md",
+      "chinese": "docs/zh-CN/features/dns.md"
+    },
     {
       "english": "docs/features/language.md",
       "chinese": "docs/zh-CN/features/language.md"
@@ -104,12 +172,68 @@
       "chinese": "docs/zh-CN/features/machines-bilingual.md"
     },
     {
+      "english": "docs/features/proxy-auth.md",
+      "chinese": "docs/zh-CN/features/proxy-auth.md"
+    },
+    {
+      "english": "docs/features/settings.md",
+      "chinese": "docs/zh-CN/features/settings.md"
+    },
+    {
+      "english": "docs/features/ssh.md",
+      "chinese": "docs/zh-CN/features/ssh.md"
+    },
+    {
+      "english": "docs/features/sso.md",
+      "chinese": "docs/zh-CN/features/sso.md"
+    },
+    {
       "english": "docs/features/users-bilingual.md",
       "chinese": "docs/zh-CN/features/users-bilingual.md"
     },
     {
-      "english": "docs/features/acls.md",
-      "chinese": "docs/zh-CN/features/acls.md"
+      "english": "docs/index.md",
+      "chinese": "docs/zh-CN/index.md"
+    },
+    {
+      "english": "docs/install/docker.md",
+      "chinese": "docs/zh-CN/install/docker.md"
+    },
+    {
+      "english": "docs/install/index.md",
+      "chinese": "docs/zh-CN/install/index.md"
+    },
+    {
+      "english": "docs/install/limited-mode.md",
+      "chinese": "docs/zh-CN/install/limited-mode.md"
+    },
+    {
+      "english": "docs/install/native-mode.md",
+      "chinese": "docs/zh-CN/install/native-mode.md"
+    },
+    {
+      "english": "docs/introduction.md",
+      "chinese": "docs/zh-CN/introduction.md"
+    },
+    {
+      "english": "docs/Nix.md",
+      "chinese": "docs/zh-CN/Nix.md"
+    },
+    {
+      "english": "docs/NixOS-options.md",
+      "chinese": "docs/zh-CN/NixOS-options.md"
+    },
+    {
+      "english": "docs/SECURITY.md",
+      "chinese": "docs/zh-CN/SECURITY.md"
+    },
+    {
+      "english": "CHANGELOG.md",
+      "chinese": "CHANGELOG.zh-CN.md"
+    },
+    {
+      "english": "README.md",
+      "chinese": "README.zh-CN.md"
     }
   ]
 }

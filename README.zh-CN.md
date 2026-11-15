@@ -1,0 +1,36 @@
+# Headplane zh-CN（非官方 fork）
+
+[English](./README.md) · 简体中文
+
+本仓库为社区维护的 [tale/headplane](https://github.com/tale/headplane) 中英双语 fork，**不是 Headplane、Headscale 或 Tailscale 的官方中文版**。保留上游 [MIT 许可证原文](./LICENSE)及原作者版权声明。
+
+当前为 **0.8 发布线**。设备、用户、角色、账号关联、成员下载页、访问控制和编辑器、DNS、设置及浏览器 SSH，以及完整 VitePress 文档均已接入中英切换。Docker 运行和发布验收尚未完成，暂未正式发布完整双语镜像或维护文档站。进度见[语言与维护说明](./docs/zh-CN/features/language.md)。
+
+Headscale 是 Tailscale 控制服务器的自托管实现，默认不带 Web 界面。Headplane 为其提供设备、网络及 ACL 管理界面，参考官方 Tailscale 管理面板的功能与布局。
+
+![Headplane 管理面板（上游英文界面截图）](./docs/assets/preview-light.png)
+
+主要功能包括：
+
+- 管理设备名称、所有者、密钥过期及网络路由。
+- 管理 ACL、标签与用户组。
+- 使用 OpenID Connect（OIDC）登录。
+- 管理 DNS 和 Headscale 配置。
+- 通过 Agent 查看主机详情，并使用浏览器 SSH。
+
+## 部署
+
+参阅[中文安装文档](./docs/zh-CN/install/index.md)。上游文档站为 [headplane.net](https://headplane.net)，其发布产物不代表本 fork 已完成发行。
+
+## 版本
+
+上游自 v0.6.0 起采用[语义化版本](https://semver.org/)。上游预发布构建使用 next 标签，并在发行 PR 测试期间更新。维护 fork 保留相同功能兼容范围；镜像标签应在本仓库正式发布并验证后使用。
+
+## 贡献
+
+欢迎提交问题与改进，参阅[贡献指南](./docs/zh-CN/CONTRIBUTING.md)。汉化问题提交至维护仓库，上游功能问题保留原来源说明。
+
+![ACL（上游英文界面截图）](./docs/assets/acls-light.png)
+![设备管理（上游英文界面截图）](./docs/assets/machine-light.png)
+
+> Copyright (c) 2025 Aarnav Tale

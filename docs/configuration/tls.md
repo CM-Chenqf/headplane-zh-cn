@@ -1,5 +1,9 @@
 # TLS & Certificates
 
+::: info Image source
+Examples use upstream published images. This community bilingual fork has not published its validated image yet. The intended image is `ghcr.io/cm-chenqf/headplane-zh-cn`; use its tags only after runtime and publication acceptance. See [Language and maintenance](/features/language).
+:::
+
 Everything Headplane does with TLS lives on this page: terminating HTTPS
 in-process, trusting private certificate authorities for outbound
 connections, and the interactions with cookies and the bundled Docker

@@ -2,8 +2,10 @@ import acls from "./en/acls";
 import editor from "./en/editor";
 import machines from "./en/machines";
 import release from "./en/release";
+import remaining from "./en/remaining";
 import users from "./en/users";
 export default {
+  ...remaining,
   ...acls,
   ...editor,
   ...users,

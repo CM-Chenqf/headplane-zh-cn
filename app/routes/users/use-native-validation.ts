@@ -1,12 +1,11 @@
 import { useState, type SyntheticEvent } from "react";
 
+import type { MessageKey } from "~/i18n/messages";
 import { useI18n } from "~/i18n/provider";
 
-type ValidationMessage =
-  | "validation.required"
-  | "users.validation.usernameRule"
-  | "users.validation.email"
-  | "users.validation.headscaleUser";
+type ValidationMessage = {
+  [K in MessageKey]: import("~/i18n/messages").MessageArgs<K> extends [] ? K : never;
+}[MessageKey];
 
 // Keep the existing HTML constraints. Store message keys so changing language
 // updates an open form's errors without resetting its uncontrolled fields.

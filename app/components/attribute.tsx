@@ -12,9 +12,16 @@ export interface AttributeProps {
   value: string;
   tooltip?: string;
   isCopyable?: boolean;
+  suppressHydrationWarning?: boolean;
 }
 
-export default function Attribute({ name, value, tooltip, isCopyable }: AttributeProps) {
+export default function Attribute({
+  name,
+  value,
+  tooltip,
+  isCopyable,
+  suppressHydrationWarning,
+}: AttributeProps) {
   const { t } = useI18n();
   return (
     <dl className="group/attr flex items-baseline gap-1 text-sm">
@@ -86,7 +93,9 @@ export default function Attribute({ name, value, tooltip, isCopyable }: Attribut
                 </div>
               ))
             ) : (
-              <div className="truncate">{value}</div>
+              <div className="truncate" suppressHydrationWarning={suppressHydrationWarning}>
+                {value}
+              </div>
             )}
           </div>
         )}

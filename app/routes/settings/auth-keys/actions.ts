@@ -1,5 +1,7 @@
 import { data } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, requestApiContext } from "~/server/context";
 import { isUserPrincipal } from "~/server/web/auth";
 import { getOidcSubject } from "~/server/web/headscale-identity";
@@ -9,6 +11,7 @@ import type { PreAuthKey } from "~/types";
 import type { Route } from "./+types/overview";
 
 export async function authKeysAction({ request, context }: Route.ActionArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
 
@@ -18,7 +21,7 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
   const canGenerateOwn = auth.can(principal, Capabilities.generate_own_authkeys);
 
   if (!canGenerateAny && !canGenerateOwn) {
-    throw data("You do not have permission to manage pre-auth keys", {
+    throw data(t("authKeys.error.permission"), {
       status: 403,
     });
   }
@@ -27,14 +30,14 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
     if (canGenerateAny || !canGenerateOwn) return;
     const [targetUser] = await api.users.list({ id: userId });
     if (!targetUser) {
-      throw data("User not found.", { status: 404 });
+      throw data(t("authKeys.error.user"), { status: 404 });
     }
     const targetSubject = getOidcSubject(targetUser);
     const ownsTarget =
       isUserPrincipal(principal) &&
       (principal.user.headscaleUserId === userId || targetSubject === principal.user.subject);
     if (!ownsTarget) {
-      throw data("You do not have permission to manage this user's pre-auth keys", {
+      throw data(t("authKeys.error.own"), {
         status: 403,
       });
     }
@@ -43,7 +46,7 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
   const action = formData.get("action_id")?.toString();
   if (!action) {
-    throw data("Missing `action_id` in the form data.", {
+    throw data(t("settings.error.action"), {
       status: 400,
     });
   }
@@ -58,7 +61,7 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
         .filter((t) => t.length > 0);
 
       if (!user && aclTags.length === 0) {
-        return data("Must specify either a user or ACL tags.", {
+        return data(t("authKeys.error.userOrTag"), {
           status: 400,
         });
       }
@@ -69,21 +72,21 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
 
       const expiry = formData.get("expiry")?.toString();
       if (!expiry) {
-        return data("Missing `expiry` in the form data.", {
+        return data(t("authKeys.error.expiry"), {
           status: 400,
         });
       }
 
       const reusable = formData.get("reusable")?.toString();
       if (!reusable) {
-        return data("Missing `reusable` in the form data.", {
+        return data(t("authKeys.error.reusable"), {
           status: 400,
         });
       }
 
       const ephemeral = formData.get("ephemeral")?.toString();
       if (!ephemeral) {
-        return data("Missing `ephemeral` in the form data.", {
+        return data(t("authKeys.error.ephemeral"), {
           status: 400,
         });
       }
@@ -98,7 +101,7 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
       date.setDate(date.getDate() + day);
 
       if (day < 1 || Number.isNaN(date.getTime())) {
-        return data("`expiry` must be a whole number of days.", {
+        return data(t("authKeys.error.days"), {
           status: 400,
         });
       }
@@ -118,14 +121,14 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
       const keyId = formData.get("key_id")?.toString();
       const key = formData.get("key")?.toString();
       if (!keyId || !key) {
-        return data("Missing `key_id` or `key` in the form data.", {
+        return data(t("authKeys.error.key"), {
           status: 400,
         });
       }
 
       const user = formData.get("user_id")?.toString();
       if (!user) {
-        return data("Missing `user_id` in the form data.", {
+        return data(t("authKeys.error.userId"), {
           status: 400,
         });
       }
@@ -140,11 +143,11 @@ export async function authKeysAction({ request, context }: Route.ActionArgs) {
         key,
         user: { id: user },
       } as unknown as PreAuthKey);
-      return data("Pre-auth key expired");
+      return data(t("authKeys.success.expired"));
     }
 
     default:
-      return data("Invalid action", {
+      return data(t("settings.error.invalidAction"), {
         status: 400,
       });
   }
