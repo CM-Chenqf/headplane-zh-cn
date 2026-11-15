@@ -1,0 +1,41 @@
+name: Translations
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "release/**"
+  workflow_dispatch:
+
+concurrency:
+  group: i18n-check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Translation completeness and freshness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check translation completeness and freshness
+        run: pnpm i18n:check

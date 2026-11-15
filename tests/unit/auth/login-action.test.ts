@@ -13,9 +13,7 @@ function mockFormData(apiKey?: string): FormData {
 
 // Helper to create mock request
 function mockRequest(formData: FormData): Request {
-  return {
-    formData: () => Promise.resolve(formData),
-  } as unknown as Request;
+  return new Request("http://headplane.test/admin/login", { method: "POST", body: formData });
 }
 
 // Types for test clarity

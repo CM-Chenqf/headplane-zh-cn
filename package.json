@@ -19,7 +19,10 @@
     "docs:preview": "vitepress preview docs",
     "lint": "oxlint",
     "format": "oxfmt",
-    "release": "node --disable-warning=ExperimentalWarning scripts/release.ts"
+    "release": "node --disable-warning=ExperimentalWarning scripts/release.ts",
+    "i18n:check": "node scripts/i18n/check.mjs check",
+    "i18n:review": "node scripts/i18n/check.mjs review",
+    "i18n:release": "node scripts/i18n/check.mjs release"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

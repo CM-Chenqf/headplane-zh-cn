@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "line": "0.8",
+  "upstreamCommit": "05e3ee33f6d3b347013654c69186791347be8bd9",
+  "complete": false,
+  "completed": [
+    "language preferences",
+    "sign-in and SSO notices",
+    "shared navigation and components"
+  ],
+  "pending": [
+    "Machines",
+    "Users and account linking",
+    "Access Control and editors",
+    "DNS",
+    "Settings",
+    "Browser SSH",
+    "complete VitePress documentation",
+    "Docker and deployment acceptance"
+  ],
+  "uiFiles": [
+    "app/root.tsx",
+    "app/components/language-switch.tsx",
+    "app/components/attribute.tsx",
+    "app/components/code-block.tsx",
+    "app/components/dialog.tsx",
+    "app/components/error-banner.tsx",
+    "app/components/number-input.tsx",
+    "app/components/page-error.tsx",
+    "app/components/select.tsx",
+    "app/components/status-banner.tsx",
+    "app/layout/app.tsx",
+    "app/layout/footer.tsx",
+    "app/layout/header.tsx",
+    "app/routes/auth/login/action.ts",
+    "app/routes/auth/login/config-error.tsx",
+    "app/routes/auth/login/logout.tsx",
+    "app/routes/auth/login/oidc-error.tsx",
+    "app/routes/auth/login/page.tsx"
+  ],
+  "documents": [
+    {
+      "english": "docs/features/language.md",
+      "chinese": "docs/zh-CN/features/language.md"
+    }
+  ]
+}

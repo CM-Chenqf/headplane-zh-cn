@@ -2,6 +2,12 @@ name: Docs (release build)
 on:
   # The release workflow starts this for every stable tag.
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build artifacts only, without uploading or deploying docs
+        type: boolean
+        required: true
+        default: true
   # Docs hotfixes for a release line, without a new release.
   push:
     branches:
@@ -9,6 +15,9 @@ on:
     paths:
       - "docs/**"
       - "CHANGELOG.md"
+      - "package.json"
+      - ".github/i18n/scope.json"
+      - ".github/workflows/docs-build.yaml"
 
 concurrency:
   group: docs-build-${{ github.ref }}
@@ -42,17 +51,33 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # A hotfix keeps the label of the release it fixes, since Headplane
-      # itself didn't change.
-      - name: Find the release
+      # Inherited upstream tags do not imply that this fork has published a
+      # release. Incomplete translations must remain downloadable CI artifacts.
+      - name: Determine docs version and publication readiness
         id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
         run: |
-          TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*')
-          VERSION=${TAG#v}
+          VERSION=$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')
+          [[ "$VERSION" =~ ^0\.8\.[0-9]+$ ]] || { echo "Unexpected release/0.8 version: $VERSION"; exit 1; }
+          TAG="v$VERSION"
+          PUBLISH=false
+          if [[ "$DRY_RUN" != true ]] && node scripts/i18n/release-status.mjs; then
+            pnpm i18n:release
+            if [[ "$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '.draft == false and .prerelease == false' 2>/dev/null)" == true ]]; then
+              PUBLISH=true
+            fi
+          fi
           {
             echo "tag=$TAG"
             echo "minor=${VERSION%.*}"
+            echo "publish=$PUBLISH"
           } >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION; publish: $PUBLISH" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$PUBLISH" != true ]]; then
+            echo "Docs will be retained as artifacts only. Publication requires complete translations, an existing stable release in this fork, and dry_run=false." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       # Served at the site root while this release line is the newest.
       - name: Build the root docs
@@ -69,16 +94,27 @@ jobs:
         env:
           MINOR: ${{ steps.release.outputs.minor }}
 
+      - name: Save docs build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-${{ steps.release.outputs.minor }}
+          path: |
+            ${{ runner.temp }}/docs-root.tar.gz
+            ${{ runner.temp }}/docs-archive.tar.gz
+          if-no-files-found: error
+
       - name: Attach the docs to the release
+        if: steps.release.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag }}
         run: |
-          gh release upload "$TAG" --clobber \
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
             "$RUNNER_TEMP/docs-root.tar.gz" \
             "$RUNNER_TEMP/docs-archive.tar.gz"
 
       - name: Publish the docs
+        if: steps.release.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run docs-publish.yaml --ref main
+        run: gh workflow run docs-publish.yaml --repo "$GITHUB_REPOSITORY" --ref main

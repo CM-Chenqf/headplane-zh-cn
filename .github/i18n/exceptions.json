@@ -1,0 +1,86 @@
+{
+  "messages": [
+    {
+      "key": "nav.dns",
+      "reason": "DNS 协议缩写，保留原文。"
+    }
+  ],
+  "literals": [
+    {
+      "file": "app/routes/auth/login/oidc-error.tsx",
+      "text": "sub",
+      "reason": "OIDC 标准声明名称，配置中必须保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/page.tsx",
+      "text": "headscale apikeys create",
+      "reason": "可直接执行的 Headscale 命令，不能翻译。"
+    },
+    {
+      "file": "app/components/error-banner.tsx",
+      "text": "Headplane GitHub",
+      "reason": "项目和代码托管平台专有名称。"
+    },
+    {
+      "file": "app/root.tsx",
+      "text": "content=\"width=device-width, initial-scale=1\"",
+      "reason": "浏览器 viewport 元数据，非显示文案。"
+    },
+    { "file": "app/root.tsx", "text": "\"Headplane\"", "reason": "浏览器标题中的项目专有名称。" },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "headplane",
+      "reason": "项目原有文字标志，保留品牌拼写。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "Headscale",
+      "reason": "链接中的上游项目专有名称。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.machines\"",
+      "reason": "导航资源键，由 t(tab.label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.users\"",
+      "reason": "导航资源键，由 t(tab.label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.policy\"",
+      "reason": "导航资源键，由 t(tab.label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.dns\"",
+      "reason": "导航资源键，由 t(tab.label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.settings\"",
+      "reason": "导航资源键，由 t(tab.label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"theme.system\"",
+      "reason": "主题资源键，由 t(label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"theme.light\"",
+      "reason": "主题资源键，由 t(label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"theme.dark\"",
+      "reason": "主题资源键，由 t(label) 按当前语言翻译。"
+    },
+    {
+      "file": "app/routes/auth/login/config-error.tsx",
+      "text": "headscale.api_key",
+      "reason": "Headplane 配置字段名，必须与配置文件一致。"
+    }
+  ]
+}

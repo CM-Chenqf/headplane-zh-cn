@@ -1,5 +1,7 @@
 import { redirect } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, headscaleContext } from "~/server/context";
 import { headscaleErrorMessage, isDataWithApiError } from "~/server/headscale/api/error-client";
 import log from "~/utils/log";
@@ -7,6 +9,7 @@ import log from "~/utils/log";
 import type { Route } from "./+types/page";
 
 export async function loginAction({ request, context }: Route.LoaderArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const headscale = context.get(headscaleContext);
 
@@ -21,7 +24,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
     );
     return {
       success: false,
-      message: "Missing API key. Please enter your API key.",
+      message: t("login.error.missing"),
+      messageKey: "login.error.missing" as const,
     };
   }
 
@@ -33,7 +37,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
     );
     return {
       success: false,
-      message: "API key cannot be empty. Please enter a valid API key.",
+      message: t("login.error.empty"),
+      messageKey: "login.error.empty" as const,
     };
   }
 
@@ -52,7 +57,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
     if (!lookup) {
       return {
         success: false,
-        message: "API key was not found in the Headscale database",
+        message: t("login.error.notFoundLegacy"),
+        messageKey: "login.error.notFoundLegacy" as const,
       };
     }
 
@@ -60,7 +66,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
       log.error("auth", "Got an API key without an expiration");
       return {
         success: false,
-        message: "API key is malformed (missing expiration). Please generate a new API key.",
+        message: t("login.error.malformed"),
+        messageKey: "login.error.malformed" as const,
       };
     }
 
@@ -68,7 +75,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
     if (expiry.getTime() < Date.now()) {
       return {
         success: false,
-        message: "API key has expired",
+        message: t("login.error.expiredLegacy"),
+        messageKey: "login.error.expiredLegacy" as const,
       };
     }
 
@@ -93,7 +101,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
       ) {
         return {
           success: false,
-          message: "API key is invalid (it may be incorrect or expired)",
+          message: t("login.error.invalidLegacy"),
+          messageKey: "login.error.invalidLegacy" as const,
         };
       }
     }
@@ -106,7 +115,8 @@ export async function loginAction({ request, context }: Route.LoaderArgs) {
     log.debug("auth", "Error details: %o", error);
     return {
       success: false,
-      message: "Error while validating API key (see logs for details)",
+      message: t("login.error.validation"),
+      messageKey: "login.error.validation" as const,
     };
   }
 }

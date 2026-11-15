@@ -24,6 +24,7 @@ export default defineConfig({
         text: "Getting Started",
         items: [
           { text: "What is Headplane?", link: "/introduction" },
+          { text: "Language and maintenance", link: "/features/language" },
           {
             text: "Installation",
             link: "/install",
@@ -74,7 +75,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/tale/headplane" },
+      { icon: "github", link: "https://github.com/CM-Chenqf/headscale-web" },
       { icon: "githubsponsors", link: "https://github.com/sponsors/tale" },
       { icon: "kofi", link: "https://ko-fi.com/atale" },
     ],
