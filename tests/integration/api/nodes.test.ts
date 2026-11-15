@@ -4,7 +4,7 @@ import { describe, expect, test, vi } from "vitest";
 import { setLocale } from "~/i18n/locale.server";
 import { machineAction } from "~/routes/machines/machine-actions";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
-import { isDataWithApiError } from "~/server/headscale/api/error-client";
+import { type HeadscaleAPIError, isDataWithApiError } from "~/server/headscale/api/error-client";
 import { Capabilities } from "~/server/web/roles";
 
 import { getBootstrapClient, getNode, getRuntimeClient, HS_VERSIONS } from "../setup/env";
@@ -140,36 +140,46 @@ describe.for(HS_VERSIONS)("Headscale %s: Users", { concurrent: false }, (version
     expect((await client.nodes.get(workingNodeId)).givenName).toBe(before.givenName);
   });
 
-  test("translated tag failures preserve the actual Headscale diagnostic and HTTP status", async () => {
+  test("tag failures preserve Headscale's actual status and diagnostic in either language", async () => {
     const client = await getRuntimeClient(version);
-    let original: string | undefined;
+    const before = await client.nodes.get(workingNodeId);
+    let original: HeadscaleAPIError | undefined;
     try {
       await client.nodes.setTags(workingNodeId, ["invalid-without-tag-prefix"]);
       throw new Error("Headscale unexpectedly accepted an invalid tag");
     } catch (error) {
-      if (!isDataWithApiError(error) || error.data.statusCode !== 400) throw error;
-      const payload = error.data.data;
-      original =
-        payload && typeof payload === "object" && "message" in payload
-          ? String(payload.message)
-          : error.data.rawData;
+      if (!isDataWithApiError(error)) throw error;
+      original = error.data;
     }
-    expect(original).toBeTruthy();
-    const { context } = actionContext(client);
-    const response = await machineAction({
-      request: await machineRequest(
-        "update_tags",
-        workingNodeId,
-        { tags: "invalid-without-tag-prefix" },
-        "zh-CN",
-      ),
-      context,
-      params: {},
-    } as never);
-    expect(response).toMatchObject({ init: { status: 400 }, data: { success: false } });
-    const message = (response as { data: { error: string } }).data.error;
-    expect(message).toContain("Headscale 拒绝了标签更新（HTTP 400）");
-    expect(message).toContain(original);
+    // These Headscale versions report invalid tag prefixes as gRPC Unknown / HTTP 500.
+    // Keep that upstream response and the transport's existing HTTP 502 wrapper intact.
+    expect(original?.statusCode).toBe(500);
+    expect(original?.data?.message).toBe("tag must start with the string 'tag:'");
+    const { context, liveStore } = actionContext(client);
+    for (const locale of ["en", "zh-CN"] as const) {
+      await expect(
+        machineAction({
+          request: await machineRequest(
+            "update_tags",
+            workingNodeId,
+            { tags: "invalid-without-tag-prefix" },
+            locale,
+          ),
+          context,
+          params: {},
+        } as never),
+      ).rejects.toMatchObject({
+        data: {
+          requestUrl: original?.requestUrl,
+          statusCode: 500,
+          data: original?.data,
+          rawData: expect.stringContaining("tag must start with the string 'tag:'"),
+        },
+        init: { status: 502, statusText: "Bad Gateway" },
+      });
+    }
+    expect(liveStore.refresh).not.toHaveBeenCalled();
+    expect((await client.nodes.get(workingNodeId)).tags).toEqual(before.tags);
   });
 
   test("nodes can be reassigned to another user", async (context) => {
