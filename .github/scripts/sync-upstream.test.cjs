@@ -45,6 +45,8 @@ test("large updates keep reminders below the GitHub body limit", () => {
   const body = pullRequestBody("tale/headplane", "main", "a".repeat(40), paths);
   assert.ok(body.includes("另有 920 个文件"));
   assert.ok(body.includes("不发布镜像"));
+  assert.ok(body.includes("pnpm i18n:check"));
+  assert.ok(body.includes("pnpm i18n:review --message KEY"));
   assert.ok(body.length < 65536);
 });
 
