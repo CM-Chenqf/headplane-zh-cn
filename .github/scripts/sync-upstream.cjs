@@ -2,7 +2,7 @@ const { execFileSync } = require("node:child_process");
 const { readFileSync } = require("node:fs");
 const { resolve } = require("node:path");
 
-const ISSUE_MARKER = "<!-- headscale-web-upstream-sync -->";
+const ISSUE_MARKER = "<!-- headplane-zh-cn-upstream-sync -->";
 const LABEL = "upstream-sync";
 
 function watchedBranch(branch) {

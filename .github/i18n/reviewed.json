@@ -873,7 +873,7 @@
     "validation.required": "b609356db4df000b822a439d80f94f9ffa7f63c5cdbd6de2686ec834315ab793"
   },
   "documents": {
-    "CHANGELOG.md": "d256d86e1bb388872a05700ac01769815fe0b4fd6d7ff4bc4788e19f1942d407",
+    "CHANGELOG.md": "825165a5912d5af41ec144116d19e28b4abacbb29854a2fb8d589e6330d12edb",
     "docs/configuration/api-keys.md": "4f4f5f9825edb87d10d2cff11219de47029f059e029f8f733adb7f9a749adc46",
     "docs/configuration/index.md": "03391cf3a8f82271090706d000d6a6a1cb487d48dd4b5916a9b3a2ab9cf54760",
     "docs/configuration/integrations.mdx": "230d7334fdfd2a39a79e5a10131aa63fc7cba0f9e0d6dec8b0ca979c15d2b1ad",
@@ -881,24 +881,24 @@
     "docs/configuration/reverse-proxy.mdx": "6ad62c12ce6818e8a91c8433e2483a5c872c5116b4708cb82dc11cf0a3fd9554",
     "docs/configuration/sensitive-values.md": "47e2bc1c81fb5bf724f715d978888cf01affed2bdc335987ad2ce522fc642881",
     "docs/configuration/tls.md": "4d8d5c04e2ec504f4203e58c4c49d818bc3be0681b293ce8d69b4cbc203a1d3a",
-    "docs/features/acls-bilingual.mdx": "b524bcf3ef42fd4b8f94d8684f1fe897ca8febc2e4af2f77d2c75606a199bb90",
+    "docs/features/acls-bilingual.mdx": "973d25db811cbe5e6d9c7fbfe020666ef410af616f016edaa1764397f5694aa8",
     "docs/features/acls.mdx": "4b03616a857cbfde20d1f2ebb288da77aa987d2616c7a1e2d8fa7297d9b96693",
     "docs/features/agent.mdx": "ce722b5607f1a86dc1ef2fa9f8f3119be2a9df2a7b5fa9b0606494aafe42ac7c",
-    "docs/features/dns-bilingual.mdx": "928b62c4ab87ac9a56ec223c6d90fc67d7b7b29c5f24774eecaa23785805203f",
-    "docs/features/language.mdx": "42e2a51233283242a45304eaa793617998fd287252cfd71ae715f38d1fe3c7b0",
-    "docs/features/machines-bilingual.mdx": "19fef4a56830260a9b62823a907f2a94d81fd834cb2e6b49bf218bcd8de7ace1",
+    "docs/features/dns-bilingual.mdx": "c031c55aaed369ea741e3b952c87c25f80af93a45a0eead2d30feb64f78615d4",
+    "docs/features/language.mdx": "4317602e4f1e39a71458f979e93f70d451e9a072864df98df30e02e94b05dae1",
+    "docs/features/machines-bilingual.mdx": "fd15f6f2852729248805e17d54fe372a58422b378d221e790a3821cbd687f896",
     "docs/features/meta.json": "ce0d5b08a87ed55721ef6739e09f9f0e81aaa53875147dd0be3eee9ece6889e8",
     "docs/features/proxy-auth.md": "bda8ded0b28700f99dc57407cff51d133c4d4f204c8f36c7867e55a56c84ee8d",
-    "docs/features/settings-bilingual.mdx": "2468369ce61a69d239fc0901ab91bd3b5e6ed04ee9b5ad51fd7aa2397cc020df",
-    "docs/features/ssh-bilingual.mdx": "721cb930b97ed8e5a50d67bf96563b15d402214adccf9d39cf04030bf0b85384",
+    "docs/features/settings-bilingual.mdx": "a8231bb75f11b90d79d6470db413c1913ea0cb06cbf073dcb10320db3861f9be",
+    "docs/features/ssh-bilingual.mdx": "247d490c3cfb95aeca78c1ee03901fea00c6a1da10075620cf0f9e1b8d88a114",
     "docs/features/ssh.mdx": "5e60f1a521fd7a7ed5c018ec71baf5d91736a0cd2889f42ae768f197845c1a80",
     "docs/features/sso.mdx": "d89c329341b36f75faf71a2e75251e732b0a5cdd7416e25d1b98393fc5d54ca1",
-    "docs/features/users-bilingual.mdx": "96f9a9bc0119cf1e1844ac71ea09df168d7bbbc60a81d2217669ca53a8566c40",
+    "docs/features/users-bilingual.mdx": "0cab74a6f26a36dd5baf19b8ac645ec64c497729b4ed3b6424164254d35e394e",
     "docs/features/users-roles.mdx": "53a1cc9ff44f2cf9501981028a4f4cefaf255e6dae3ef0b5f02436e3925e3239",
-    "docs/install/docker.mdx": "240692bfd81cd87e4a6fb1b1e4ce82f659ebe6156c113c8d179791536f6b1361",
+    "docs/install/docker.mdx": "6f33871a5fb699a8664359b955f8b156dee9dc9618af8ac3d92ccf92b2e002f8",
     "docs/install/index.mdx": "50beecb86e57d2e40a049d59625cf4832ed1558f99352d6be0341a6d33140a68",
     "docs/install/meta.json": "3a8d3b278e31f4132e7fafa2ae39456a8faba9b8286d7db7adae6baa8fcf19a3",
-    "docs/install/native-mode.mdx": "561b5ad7250bcf99e5293afdfa8f7fb2e850f7ffe2c931bc024aa5d19aacc636",
+    "docs/install/native-mode.mdx": "f49b3c2023a5d5d15a474d51ea638309a336e9226ce0c75328393e2e7d51d0c8",
     "docs/install/nix.md": "390e867651bb598ee67918842fbd01b38ce7993c5b811e70b67347e5a161d557",
     "docs/introduction.mdx": "89ea2e8e336cbe57ff064530624ea1b5aba9ee836831a4a16f08539e1323cd1e",
     "docs/meta.json": "f4d3c91ffce57db5b30f6206dbf355311815a158b3df5ea323f2afcbdabda489",
@@ -907,7 +907,7 @@
     "docs/reference/nixos-options.md": "80f23df72029b36661c745a97e5401522789cd0379194831ec8e77b90520147f",
     "docs/troubleshooting.mdx": "0981eb5ed739df7736f8385aac12150b31a882a99d96dae5ac4e40d6db8a0cd0",
     "docs/upgrading.mdx": "3320d4fdb24c9f2d73d44ca0477ac49e200f92a8ec9e4f9b0ed052e8d971c3c0",
-    "README.md": "c7e3d2240032115c2f82ebd6868135acfd80522c2c08405bc9783ef9e82c5bcb"
+    "README.md": "5f3389f4045bd8d432f657b224d735bb003925b99127675dfec1d230177266ea"
   },
   "shared": {
     "docs/app/components/architecture.tsx": "c83dea130d9adea45bc15d6f2959f3403a850516b7ac549d96495f3a33791cda",
@@ -939,6 +939,6 @@
     "docs/configuration/compose-examples.ts": "42bdb5b04a2521918e863e617b5aa8cf7b3b7cca4a82b84192f19b1433ac72d1",
     "docs/quickstart-examples.ts": "65f331e89a49b8a9aecf6892a29bc5f8709385719a188c9231a1baf461c92c58",
     "docs/react-router.config.ts": "642f0524edeecd221ebcf65fae28bfa24a6750b4552f22c4c67c78aa9c297f2d",
-    "docs/vite.config.ts": "a4314a2a0253bde358d19387d813974afe0613ae1e5c83b231faaeed8dec9cb5"
+    "docs/vite.config.ts": "96dd41ce701ee94fd1da6c120e8a2c3751a8ac261bcdcb57e425074b78cd42e3"
   }
 }

@@ -1,4 +1,6 @@
-# Headscale Web 双语版本维护
+# Headplane zh-CN 双语版本维护（非官方）
+
+维护仓库为 `CM-Chenqf/headplane-zh-cn`，是基于 [tale/headplane](https://github.com/tale/headplane) 的社区双语 fork，不是 Headplane、Headscale 或 Tailscale 官方中文版。保留上游 `LICENSE` 原文及原作者署名；上游网站、历史发行说明和源码示例仍明确标注来源。
 
 此仓库基于 `tale/headplane`，目标为完整保留上游功能，并提供英文、简体中文界面与文档。当前已完成仓库与自动化基础配置，以及中英切换、登录、公共导航、设备、用户、访问控制、DNS、设置和浏览器 SSH 模块翻译；文档站已接入双语正文、导航、搜索、历史更新日志和升级说明。完整漏译审计、发布线适配与发布验收尚未完成，不要把此阶段的构建称为已正式发布的完整汉化版。
 
@@ -13,19 +15,19 @@
 - 英文资源：`app/i18n/en.ts`；中文资源：`app/i18n/zh-CN.ts`。两者一起更新，类型检查校验键名，单元测试校验句子占位符。
 - 文档已完成：英文保留原 URL，简体中文使用 `/zh-CN/`；首页、侧栏、主题、搜索、版本切换、错误页及文档组件提示跟随语言。全部 28 个文档页面均有中文对应文件，中文历史更新日志位于 `CHANGELOG.zh-CN.md`。命令、配置值、产品标识和原始诊断保留原文，上游界面截图注明为英文截图。
 - 使用及维护说明：`docs/features/language.mdx`；设备、用户、访问控制、DNS、设置和 SSH 操作指南保留原 `*-bilingual.mdx` 地址，并拆分同目录的 `*.zh-CN.mdx` 中文文件。旧地址不变，文档顶部按钮切换语言，搜索按语言隔离。
-- 当前仅在 `main` 建立双语基础，尚未适配 `release/0.8`，尚未发布双语镜像或部署完整中文文档。
-- 待完成：完整漏译审计、精确文档过期检查、`release/0.8` 适配、镜像发布验收和 Cloudflare 部署。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
+- `main` 已接入双语界面、文档和翻译复核检查；`release/0.8` 目前仅完成语言基础、登录与公共界面。尚未发布双语镜像或部署完整中文文档。
+- 待完成：`release/0.8` 业务模块及完整文档适配、完整场景验收、镜像发布验收和 Cloudflare 部署。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
 
 ## 仓库和分支
 
-- 维护仓库：`CM-Chenqf/headscale-web`。
+- 维护仓库：`CM-Chenqf/headplane-zh-cn`。
 - 上游仓库：`tale/headplane`。
-- 原空仓库保留为 `CM-Chenqf/headscale-web-empty`。
+- 原空仓库仍保留为 `CM-Chenqf/headscale-web-empty`，这是历史留存仓库，不是当前维护仓库。
 - 本地 `origin` 指向维护仓库，`upstream` 指向上游。
 - 跟踪上游 `main` 和 `release/X.Y`；兼容范围和测试版本沿用各对应分支，不单独扩大支持承诺。
 - 功能和汉化改动保存在维护分支中，使用合并上游提交的方式升级。不要用上游分支强制覆盖维护分支。
 
-本阶段的基础配置先落到 `main`。已继承的 `release/0.8` 文档工具链与 `main` 不同，需要在对应版本的汉化阶段单独适配发布配置，不直接覆盖成 `main` 的文档站。任何发布分支都要完成双语和发布配置验收后再发版。
+自动化基础配置位于 `main`。`release/0.8` 保留 VitePress 文档工具链及自身的阶段翻译检查，文档构建目前仅保存产物；其余业务模块和完整文档仍待适配，不直接覆盖成 `main` 的文档站。任何发布分支都要完成双语和发布配置验收后再发版。
 
 ## 上游更新和汉化提醒
 
@@ -45,13 +47,13 @@
 
 默认使用仓库的 `GITHUB_TOKEN`。如果上游更新包含 `.github/workflows/` 的变更，而 GitHub 拒绝该令牌推送工作流文件，需要额外配置仅限本仓库的 `UPSTREAM_SYNC_TOKEN` Secret：使用具有 Contents、Pull requests、Issues、Workflows 写入权限的 fine-grained token。不要关闭工作流文件同步来绕过权限错误。使用自定义令牌后创建的 PR，其检查触发规则也应在仓库中实际验证。
 
-此阶段的提醒基于上游提交和文件变更，是翻译工作清单；后续双语基础阶段再加入语言键缺失、英文变更和中文文档过期的精确检查，不能把文件提醒视作完整漏译检测。
+同步提醒基于上游提交和文件变更，提供翻译工作清单。`Translations` 工作流另行检查语言键、英文变更和文档复核指纹；`release/0.8` 的阶段检查仅覆盖已适配范围，不能把阶段检查通过视作完整汉化。
 
 ## Docker 镜像
 
 继续使用上游多阶段 Dockerfile、Go/WASM 模块、Agent、健康检查和 GitHub Actions 发布流程：
 
-- 镜像仓库：`ghcr.io/cm-chenqf/headscale-web`，OCI 仓库路径使用小写。
+- 镜像仓库：`ghcr.io/cm-chenqf/headplane-zh-cn`，OCI 仓库路径使用小写。
 - 架构：`linux/amd64`、`linux/arm64`。
 - 类型：`final` 普通版、`debug-shell` 调试版。
 - 标签：完整版本号、次版本号、`latest`，以及对应的 `-shell` 标签。
@@ -73,8 +75,8 @@
 | -------- | ---------------------------- | ------------------------------------------------------------------- |
 | Secret   | `CF_API_TOKEN`               | 具备目标账号 Cloudflare Pages 编辑权限的 API Token                  |
 | Secret   | `CF_ACCOUNT_ID`              | Cloudflare 账号 ID                                                  |
-| Variable | `CF_PAGES_PROJECT`           | 正式文档项目名，默认 `headscale-web-docs`                           |
-| Variable | `CF_PAGES_BETA_PROJECT`      | 预览文档项目名，默认 `headscale-web-docs-beta`                      |
+| Variable | `CF_PAGES_PROJECT`           | 正式文档项目名，默认 `headplane-zh-cn-docs`                         |
+| Variable | `CF_PAGES_BETA_PROJECT`      | 预览文档项目名，默认 `headplane-zh-cn-docs-beta`                    |
 | Variable | `HEADPLANE_DOCS_ORIGIN`      | 正式文档来源地址，不带末尾斜杠；默认使用正式项目的 `pages.dev` 地址 |
 | Variable | `HEADPLANE_DOCS_BETA_ORIGIN` | 预览文档来源地址，不带末尾斜杠；默认使用预览项目的 `pages.dev` 地址 |
 | Variable | `CF_PAGES_DEPLOY_ENABLED`    | 确认项目及凭据配置完成后设为 `true`，开启部署                       |

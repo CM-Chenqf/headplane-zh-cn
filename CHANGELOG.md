@@ -10,6 +10,7 @@
 
 ## Changes
 
+- The community-maintained localization fork is now named `headplane-zh-cn`. Repository links and future image and documentation destinations use the new name; upstream licensing and attribution are retained, and this is not an official Chinese release.
 - Translation checks now flag missing messages, hardcoded interface text and documentation changes that need Chinese review. The dismissible callout's close action now follows the selected language for screen readers.
 - The documentation site now offers English and Simplified Chinese pages, navigation, search, release history and upgrade notes. Language and version switching keep the current page, query and section, including when opening a link in a new tab.
 - The bilingual fork now translates Browser SSH prompts, connection status, compatibility notices, sign-in notices and error pages into Simplified Chinese, with bilingual troubleshooting documentation. Language changes preserve the existing SSH session and original diagnostics.

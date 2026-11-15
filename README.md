@@ -1,8 +1,11 @@
-# Headplane
+# Headplane zh-CN (unofficial fork)
 
 [简体中文](./README.zh-CN.md) · [Bilingual fork setup](./.github/FORK_SETUP.zh-CN.md)
 
-This is the `CM-Chenqf/headscale-web` bilingual fork of `tale/headplane`.
+This is `CM-Chenqf/headplane-zh-cn`, a community-maintained English and
+Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
+It is not an official Chinese release of Headplane, Headscale, or Tailscale.
+The upstream [MIT license](./LICENSE) and original copyright notices are retained.
 The `main` branch includes English and Simplified Chinese UI and documentation.
 Complete bilingual Docker images and the maintained documentation deployment
 have not been published yet; see the setup guide for current release status.
