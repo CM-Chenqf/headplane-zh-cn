@@ -106,7 +106,7 @@ async function assertUnusedImage(image, tag) {
     "base64",
   );
   const token = await fetch(
-    `https://ghcr.io/token?service=ghcr.io&scope=${encodeURIComponent(`repository:${path}:pull`)}`,
+    `https://ghcr.io/token?service=ghcr.io&scope=${encodeURIComponent(`repository:${path}:pull,push`)}`,
     {
       headers: { Authorization: `Basic ${auth}` },
       signal: AbortSignal.timeout(30_000),
@@ -321,7 +321,12 @@ async function main() {
   const [command, arg, arg2] = process.argv.slice(2);
   const state = validateState(json(".github/fork-release.json"));
   if (command === "info") console.log(JSON.stringify(metadata(state)));
-  else if (command === "preflight") console.log(JSON.stringify(await preflight(state, arg)));
+  else if (command === "image-unused") {
+    const meta = metadata(state);
+    if (![meta.version, `${meta.version}-shell`].includes(arg))
+      throw new Error("Unexpected image version");
+    await assertUnusedImage(meta.image, arg);
+  } else if (command === "preflight") console.log(JSON.stringify(await preflight(state, arg)));
   else if (command === "docs") buildDocs(state, arg);
   else if (command === "bundle") console.log(JSON.stringify(bundle(state, arg, arg2)));
   else if (command === "publish") publish(state, arg, arg2);
@@ -336,7 +341,7 @@ async function main() {
     );
   } else
     throw new Error(
-      "Use info, preflight TAG, docs DIR, bundle DIR DIGEST_DIR, publish DIR LATEST, or tag",
+      "Use info, image-unused VERSION, preflight TAG, docs DIR, bundle DIR DIGEST_DIR, publish DIR LATEST, or tag",
     );
 }
 
