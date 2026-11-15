@@ -4,49 +4,26 @@ import { useState } from "react";
 import ActionDialog from "~/components/action-dialog";
 import Button from "~/components/button";
 import Input from "~/components/input";
+import { useI18n } from "~/i18n/provider";
 import { fieldValidator } from "~/utils/form";
 
-import { type RestrictionType, restrictionValue } from "../schemas";
+import { type RestrictionType, restrictionSchemas } from "../schemas";
 
-const copy = {
-  domain: {
-    title: "Add domain",
-    label: "Domain",
-    description: "Only users with an email address at this domain can sign in through OIDC.",
-    placeholder: "example.com",
-  },
-  group: {
-    title: "Add group",
-    label: "Group",
-    description: "Only members of this OIDC group can sign in.",
-    placeholder: "admin",
-  },
-  user: {
-    title: "Add user",
-    label: "User",
-    description: "Only this OIDC user can sign in.",
-    placeholder: "john_doe",
-  },
-};
-
-const validators = {
-  domain: fieldValidator(restrictionValue.domain),
-  group: fieldValidator(restrictionValue.group),
-  user: fieldValidator(restrictionValue.user),
-};
+const placeholders = { domain: "example.com", group: "admin", user: "john_doe" };
 
 interface AddRestrictionProps {
   type: RestrictionType;
 }
 
 export default function AddRestriction({ type }: AddRestrictionProps) {
+  const { locale, t } = useI18n();
   const [value, setValue] = useState("");
-  const { title, label, description, placeholder } = copy[type];
+  const title = t(`restrictions.${type}.add`);
   const domain = value.trim();
 
   return (
     <ActionDialog
-      description={description}
+      description={t(`restrictions.${type}.addDescription`)}
       fields={{ type }}
       intent="add"
       submitLabel={title}
@@ -60,14 +37,14 @@ export default function AddRestriction({ type }: AddRestrictionProps) {
     >
       <Input
         description={
-          type === "domain" && domain.length > 0 ? `Matches <user>@${domain}` : undefined
+          type === "domain" && domain.length > 0 ? t("restrictions.matches", { domain }) : undefined
         }
-        label={label}
+        label={t(`restrictions.${type}.label`)}
         name="value"
         onChange={setValue}
-        placeholder={placeholder}
+        placeholder={placeholders[type]}
         required
-        validate={validators[type]}
+        validate={fieldValidator(restrictionSchemas(locale)[type])}
       />
     </ActionDialog>
   );

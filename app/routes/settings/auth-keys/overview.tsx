@@ -7,6 +7,9 @@ import Link from "~/components/link";
 import PageError from "~/components/page-error";
 import PageHeader from "~/components/page-header";
 import { Table, TableBody, TableHeader } from "~/components/table";
+import { getLocale } from "~/i18n/locale.server";
+import { translate } from "~/i18n/messages";
+import { Message, useI18n } from "~/i18n/provider";
 import {
   appConfigContext,
   authContext,
@@ -38,7 +41,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const canGenerateAny = auth.can(principal, Capabilities.generate_authkeys);
   const canGenerateOwn = auth.can(principal, Capabilities.generate_own_authkeys);
   if (!canGenerateAny && !canGenerateOwn) {
-    throw data("You don't have permission to do this. Ask your administrator for access.", {
+    throw data(translate(await getLocale(request), "authKeys.noAccess"), {
       status: 403,
     });
   }
@@ -126,10 +129,10 @@ export const action = authKeysAction;
 export const clientAction = toastClientAction;
 
 const STATUS_OPTIONS = [
-  { value: "active", label: "Active" },
-  { value: "expired", label: "Expired" },
-  { value: "reusable", label: "Reusable" },
-  { value: "ephemeral", label: "Ephemeral" },
+  { value: "active", label: "authKeys.active" },
+  { value: "expired", label: "authKeys.expired" },
+  { value: "reusable", label: "authKeys.reusable" },
+  { value: "ephemeral", label: "authKeys.ephemeral" },
 ] as const;
 
 type Status = (typeof STATUS_OPTIONS)[number]["value"];
@@ -148,6 +151,7 @@ export default function Page({
     currentSubject,
   },
 }: Route.ComponentProps) {
+  const { locale, t } = useI18n();
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [status, setStatus] = useState<Status | null>("active");
   const allKeys = keys.flatMap(({ preAuthKeys }) => preAuthKeys);
@@ -155,8 +159,10 @@ export default function Page({
   const userOptions = [
     ...keys
       .filter((k): k is { user: User; preAuthKeys: PreAuthKey[] } => k.user !== null)
-      .map(({ user }) => ({ value: user.id, label: getUserDisplayName(user) })),
-    ...(keys.some(({ user }) => user === null) ? [{ value: TAG_ONLY, label: "Tags only" }] : []),
+      .map(({ user }) => ({ value: user.id, label: getUserDisplayName(user, locale) })),
+    ...(keys.some(({ user }) => user === null)
+      ? [{ value: TAG_ONLY, label: t("authKeys.tagsOnly") }]
+      : []),
   ];
 
   const filteredKeys = useMemo(() => {
@@ -209,65 +215,66 @@ export default function Page({
           ) : undefined
         }
         description={
-          <>
-            Register machines without signing in.{" "}
-            <Link external styled to="https://tailscale.com/kb/1085/auth-keys/">
-              Docs
-            </Link>
-          </>
+          <Message
+            id="authKeys.description"
+            values={{
+              docs: (
+                <Link external styled to="https://tailscale.com/kb/1085/auth-keys/">
+                  {t("common.docs")}
+                </Link>
+              ),
+            }}
+          />
         }
-        title="Auth keys"
+        title={t("authKeys.title")}
       />
-      {!access && (
-        <Callout className="mb-6">
-          Your permissions don't allow creating auth keys. Ask an administrator to create one for
-          you.
-        </Callout>
-      )}
+      {!access && <Callout className="mb-6">{t("authKeys.noPermission")}</Callout>}
       {missing.length > 0 && (
-        <Callout className="mb-6" title="Some keys couldn't be loaded" variant="error">
-          Headplane couldn't fetch the keys for{" "}
-          {missing.map(({ user }) => getUserDisplayName(user)).join(", ")}. Check the server logs
-          for details.
+        <Callout className="mb-6" title={t("authKeys.partialTitle")} variant="error">
+          {t("authKeys.partialDescription", {
+            users: missing.map(({ user }) => getUserDisplayName(user, locale)).join(", "),
+          })}
         </Callout>
       )}
       {allKeys.length === 0 ? (
-        <p className="text-muted text-sm">No auth keys yet.</p>
+        <p className="text-muted text-sm">{t("authKeys.empty")}</p>
       ) : (
         <>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             {userOptions.length > 1 && (
               <FilterDropdown
-                label="User"
+                label={t("authKeys.user")}
                 onChange={setSelectedUser}
                 options={userOptions}
                 value={selectedUser}
               />
             )}
             <FilterDropdown
-              label="Status"
+              label={t("authKeys.status")}
               onChange={(value) => setStatus(value as Status | null)}
-              options={STATUS_OPTIONS}
+              options={STATUS_OPTIONS.map(({ value, label }) => ({ value, label: t(label) }))}
               value={status}
             />
             <span className="text-muted ml-auto text-xs tabular-nums">
-              {filteredKeys.length} {filteredKeys.length === 1 ? "key" : "keys"}
+              {t(filteredKeys.length === 1 ? "authKeys.countOne" : "authKeys.countMany", {
+                count: filteredKeys.length,
+              })}
             </span>
           </div>
           {filteredKeys.length === 0 ? (
             <p className="text-muted border-line border-t py-2.5 text-sm">
-              No keys match these filters.
+              {t("authKeys.noMatches")}
             </p>
           ) : (
             <Table>
               <thead>
                 <tr>
-                  <TableHeader>Key</TableHeader>
-                  <TableHeader>User</TableHeader>
-                  <TableHeader>Expires</TableHeader>
-                  <TableHeader>Created</TableHeader>
+                  <TableHeader>{t("authKeys.key")}</TableHeader>
+                  <TableHeader>{t("authKeys.user")}</TableHeader>
+                  <TableHeader>{t("authKeys.expires")}</TableHeader>
+                  <TableHeader>{t("authKeys.created")}</TableHeader>
                   <TableHeader className="w-20">
-                    <span className="sr-only">Actions</span>
+                    <span className="sr-only">{t("common.actions")}</span>
                   </TableHeader>
                 </tr>
               </thead>
@@ -292,5 +299,6 @@ export default function Page({
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  return <PageError error={error} page="auth keys" />;
+  const { t } = useI18n();
+  return <PageError error={error} page={t("authKeys.page")} />;
 }

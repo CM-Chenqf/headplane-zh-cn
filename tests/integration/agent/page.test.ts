@@ -48,6 +48,19 @@ describe.for(testedVersions())("the agent page on Headscale %s", (version) => {
       enabled: false,
       reason: "Agent requires Headscale 0.28 or newer",
     });
+    expect(
+      await app.call(loader, "/settings/agent", {
+        as: owner,
+        headers: { "Accept-Language": "zh-CN" },
+      }),
+    ).toEqual({ enabled: false, reason: "Agent 需要 Headscale 0.28 或更新版本" });
+    expect(
+      await app.call(action, "/settings/agent", {
+        as: owner,
+        form: {},
+        headers: { "Accept-Language": "zh-CN" },
+      }),
+    ).toEqual({ success: false, error: "Agent 需要 Headscale 0.28 或更新版本" });
   });
 
   test.runIf(version !== "0.27.1")("shows the agent's own machine once it syncs", async () => {
@@ -68,7 +81,11 @@ describe.for(testedVersions())("the agent page on Headscale %s", (version) => {
       syncedAt: expect.any(String),
     });
 
-    const synced = await app.call(action, "/settings/agent", { as: owner, form: {} });
+    const synced = await app.call(action, "/settings/agent", {
+      as: owner,
+      form: {},
+      headers: { "Accept-Language": "zh-CN" },
+    });
     expect(synced).toMatchObject({ success: true });
   });
 });

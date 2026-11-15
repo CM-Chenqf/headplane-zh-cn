@@ -4,6 +4,7 @@ import dns from "./zh-CN/dns";
 import editor from "./zh-CN/editor";
 import errors from "./zh-CN/errors";
 import machines from "./zh-CN/machines";
+import settings from "./zh-CN/settings";
 import users from "./zh-CN/users";
 
 export default {
@@ -11,10 +12,13 @@ export default {
   ...dns,
   ...editor,
   ...machines,
+  ...settings,
   ...errors,
   ...users,
   "common.close": "关闭",
   "common.actions": "操作",
+  "common.decrement": "减少",
+  "common.increment": "增加",
   "common.cancel": "取消",
   "common.done": "完成",
   "common.add": "添加",

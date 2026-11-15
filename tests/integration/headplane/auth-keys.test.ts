@@ -34,15 +34,20 @@ async function tagOnlyKeys() {
   return (await app.api.preAuthKeys.listAll!()).filter((key) => key.aclTags.includes(tag));
 }
 
-function create(as: string, form: Record<string, string | string[]>) {
+function create(as: string, form: Record<string, string | string[]>, locale = "en") {
   return app.call(action, "/settings/auth-keys", {
     as,
+    headers: { "Accept-Language": locale },
     form: { intent: "create", expiry: "90", ...form },
   });
 }
 
-function expire(as: string, form: Record<string, string>) {
-  return app.call(action, "/settings/auth-keys", { as, form: { intent: "expire", ...form } });
+function expire(as: string, form: Record<string, string>, locale = "en") {
+  return app.call(action, "/settings/auth-keys", {
+    as,
+    headers: { "Accept-Language": locale },
+    form: { intent: "expire", ...form },
+  });
 }
 
 async function keysFor(user: User) {
@@ -87,6 +92,38 @@ describe("self-service auth keys", () => {
 
     expect(statusOf(await create(cookie, { user_id: alice.id }))).toBe(200);
     expect(await keysFor(alice)).toHaveLength(1);
+  });
+
+  test("Chinese auth key actions preserve expiry and ownership boundaries against Headscale", async () => {
+    const { cookie: admin } = await app.signIn("admin");
+    const created = await create(
+      admin,
+      { user_id: bob.id, expiry: " 1000 ", reusable: "on", ephemeral: "on", tags: ` ${tag} ` },
+      "zh-CN",
+    );
+    expect(statusOf(created)).toBe(200);
+    const [key] = await keysFor(bob);
+    expect(key).toMatchObject({ reusable: true, ephemeral: true, aclTags: [tag] });
+    expect(Math.round((new Date(key.expiration).getTime() - Date.now()) / 86_400_000)).toBe(1000);
+    // Creation must return a usable key; don't log it in a failed assertion.
+    if (!created || typeof created !== "object" || !("data" in created))
+      throw new Error("Key creation did not return a secret");
+    const secret = created.data as { key?: string };
+    expect(typeof secret.key === "string" && secret.key.length > 0).toBe(true);
+
+    const viewer = await signInAsAlice();
+    const forbidden = await create(viewer, { user_id: bob.id }, "zh-CN");
+    expect(statusOf(forbidden)).toBe(403);
+    expect(forbidden).toMatchObject({ data: { errors: { form: "只能管理自己的认证密钥。" } } });
+    const wrongOwner = await expire(viewer, { user_id: alice.id, key_id: key.id }, "zh-CN");
+    expect(statusOf(wrongOwner)).toBe(404);
+    expect(wrongOwner).toMatchObject({ data: { errors: { form: "此认证密钥已不存在。" } } });
+    expect((await keysFor(bob))[0].expiration).toBe(key.expiration);
+    expect(await expire(admin, { user_id: bob.id, key_id: key.id }, "zh-CN")).toMatchObject({
+      ok: true,
+      message: "认证密钥已过期",
+    });
+    expect(new Date((await keysFor(bob))[0].expiration).getTime()).toBeLessThanOrEqual(Date.now());
   });
 
   test("a viewer can't create a key for someone else", async () => {

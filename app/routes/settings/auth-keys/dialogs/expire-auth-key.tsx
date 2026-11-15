@@ -1,5 +1,6 @@
 import ActionDialog from "~/components/action-dialog";
 import { RemoveButton } from "~/components/section";
+import { useI18n } from "~/i18n/provider";
 import type { PreAuthKey, User } from "~/types";
 
 interface ExpireAuthKeyProps {
@@ -8,15 +9,16 @@ interface ExpireAuthKeyProps {
 }
 
 export default function ExpireAuthKey({ authKey, user }: ExpireAuthKeyProps) {
+  const { t } = useI18n();
   return (
     <ActionDialog
-      description="The key stops working for new devices right away."
+      description={t("authKeys.expireDescription")}
       fields={{ key_id: authKey.id, user_id: user.id }}
       intent="expire"
       isDestructive
-      submitLabel="Expire key"
-      title="Expire this auth key?"
-      trigger={<RemoveButton>Expire</RemoveButton>}
+      submitLabel={t("authKeys.expireKey")}
+      title={t("authKeys.expireTitle")}
+      trigger={<RemoveButton>{t("authKeys.expire")}</RemoveButton>}
     />
   );
 }

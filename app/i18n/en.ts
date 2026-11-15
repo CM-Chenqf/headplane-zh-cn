@@ -3,6 +3,7 @@ import dns from "./en/dns";
 import editor from "./en/editor";
 import errors from "./en/errors";
 import machines from "./en/machines";
+import settings from "./en/settings";
 import users from "./en/users";
 
 export default {
@@ -10,10 +11,13 @@ export default {
   ...dns,
   ...editor,
   ...machines,
+  ...settings,
   ...errors,
   ...users,
   "common.close": "Close",
   "common.actions": "Actions",
+  "common.decrement": "Decrement",
+  "common.increment": "Increment",
   "common.cancel": "Cancel",
   "common.done": "Done",
   "common.add": "Add",
