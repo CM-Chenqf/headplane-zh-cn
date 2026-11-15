@@ -6,7 +6,7 @@
 
 本仓库 `CM-Chenqf/headplane-zh-cn` 是基于上游 [tale/headplane](https://github.com/tale/headplane) 的社区中英双语维护分支，**不是 Headplane、Headscale 或 Tailscale 的官方中文版**。保留上游 [MIT 许可证](./LICENSE)原文及原作者版权声明。
 
-`main` 已包含中英文界面及文档源码；完整双语 Docker 镜像尚未发布，维护文档站尚未部署。`release/0.8` 已完成语言基础、登录、公共界面、设备，以及用户、角色、账号关联和成员下载页，并配有对应双语指南；访问控制、DNS、设置、浏览器 SSH 及完整文档仍待适配。部署前核实[维护指南](./.github/FORK_SETUP.zh-CN.md)中的实际发布状态。
+`main` 已包含中英文界面及文档源码；完整双语 Docker 镜像尚未发布，维护文档站尚未部署。`release/0.8` 已完成语言基础、登录、公共界面、设备、用户、角色、账号关联和成员下载页，以及访问控制的五类可视化编辑器、文件编辑、差异预览及诊断，并配有对应双语指南；DNS、设置、浏览器 SSH 及完整文档仍待适配。部署前核实[维护指南](./.github/FORK_SETUP.zh-CN.md)中的实际发布状态。
 
 <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/preview-dark.png">
