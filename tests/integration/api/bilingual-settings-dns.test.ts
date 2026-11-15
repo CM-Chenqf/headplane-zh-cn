@@ -101,10 +101,13 @@ describe.for(HS_VERSIONS)(
           }
           const created = await authKeysAction(await args(preauth, locale));
           expect(created.data).toMatchObject({ success: true });
+          if (typeof created.data !== "object") throw new Error("Key creation did not succeed");
+          // Headscale 0.28+ lists only the key prefix, not the full creation secret.
+          const listedSecret = bootstrap.capabilities.preAuthKeysHaveStableIds
+            ? `${created.data.key.slice(0, 23)}-***`
+            : created.data.key;
           const keys = await api.preAuthKeys.listForUser(user.id);
-          const key = keys.find(
-            (key) => typeof created.data === "object" && key.key === created.data.key,
-          );
+          const key = keys.find((key) => key.key === listedSecret);
           if (!key) throw new Error("Headscale did not retain the generated key");
           expect(key.ephemeral).toBe(true);
           expect(key.reusable).toBe(false);
@@ -117,8 +120,8 @@ describe.for(HS_VERSIONS)(
               locale,
             ),
           );
-          const expired = (await api.preAuthKeys.listForUser(user.id)).find(
-            (k) => k.key === key.key,
+          const expired = (await api.preAuthKeys.listForUser(user.id)).find((k) =>
+            bootstrap.capabilities.preAuthKeysHaveStableIds ? k.id === key.id : k.key === key.key,
           );
           expect(new Date(expired!.expiration).getTime()).toBeLessThanOrEqual(Date.now());
           const dns = { action_id: "add_ns", ns: "1.1.1.1", split_name: "corp.example.net" };
