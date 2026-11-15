@@ -1,6 +1,6 @@
 # Headscale Web 双语版本维护
 
-此仓库基于 `tale/headplane`，目标为完整保留上游功能，并提供英文、简体中文界面与文档。当前已完成仓库与自动化基础配置，以及中英切换、登录、公共导航、设备、用户、访问控制、DNS 和设置模块翻译；尚未完成全部界面和文档，不要把此阶段的构建称为完整汉化版。
+此仓库基于 `tale/headplane`，目标为完整保留上游功能，并提供英文、简体中文界面与文档。当前已完成仓库与自动化基础配置，以及中英切换、登录、公共导航、设备、用户、访问控制、DNS、设置和浏览器 SSH 模块翻译；尚未完成全部界面和文档，不要把此阶段的构建称为完整汉化版。
 
 ## 双语功能进度
 
@@ -9,10 +9,11 @@
 - 访问控制已完成：访问规则、授权规则、SSH 策略、主机别名、自动批准者、标签和用户组，文件与差异编辑器、查找替换等编辑器提示、HuJSON 语法诊断与行列位置、只读和权限提示及保存结果。策略字段、未知操作、额外配置与上游版本限制保持不变。
 - DNS 已完成：常规设置、Magic DNS、覆盖本地 DNS、全局与分域 DNS 服务器、搜索域、A/AAAA 记录、添加和移除弹窗、排序按钮、表单校验及服务端操作结果。权限、原始配置值、配置文件写入、重启与记录热更新流程保持不变。
 - 设置已完成：认证密钥列表、筛选、创建与过期弹窗、有效期校验、OIDC 域名/用户组/用户限制、Agent 状态与已知不可用原因、同步覆盖情况和诊断说明。本人密钥边界、原始字段及数值、配置写入、重启和 Agent 版本要求保持不变。
+- 浏览器 SSH 已完成：用户名表单、离线页面、版本兼容提醒、连接状态、重新认证提示、错误页和文档按钮。切换语言不会重新申请连接密钥或重建终端；身份限制、临时密钥、远端输出、诊断原文和原有兼容要求保持不变。
 - 英文资源：`app/i18n/en.ts`；中文资源：`app/i18n/zh-CN.ts`。两者一起更新，类型检查校验键名，单元测试校验句子占位符。
-- 使用及维护说明：`docs/features/language.mdx`；设备操作指南：`docs/features/machines-bilingual.mdx`；用户操作指南：`docs/features/users-bilingual.mdx`；访问控制指南：`docs/features/acls-bilingual.mdx`；DNS 指南：`docs/features/dns-bilingual.mdx`；设置指南：`docs/features/settings-bilingual.mdx`，均含中英文说明。
+- 使用及维护说明：`docs/features/language.mdx`；设备操作指南：`docs/features/machines-bilingual.mdx`；用户操作指南：`docs/features/users-bilingual.mdx`；访问控制指南：`docs/features/acls-bilingual.mdx`；DNS 指南：`docs/features/dns-bilingual.mdx`；设置指南：`docs/features/settings-bilingual.mdx`；浏览器 SSH 指南：`docs/features/ssh-bilingual.mdx`，均含中英文说明。
 - 当前仅在 `main` 建立双语基础，尚未适配 `release/0.8`，尚未发布双语镜像或部署完整中文文档。
-- 待完成：浏览器 SSH、完整文档及搜索、完整漏译和文档过期检查。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
+- 待完成：完整文档及搜索、完整漏译和文档过期检查。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
 
 ## 仓库和分支
 

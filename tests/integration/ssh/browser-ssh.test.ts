@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, inject, test } from "vitest";
 
+import { setLocale } from "~/i18n/locale.server";
 import { loader } from "~/routes/ssh/page";
 
 import { startBrowser } from "../../harness/browser-ssh";
@@ -61,11 +62,12 @@ for (const version of testedVersions()) {
     });
 
     // What the page's loader hands the browser for a session.
-    async function sessionFor(machine: string, user: string) {
+    async function sessionFor(machine: string, user: string, englishOverride = false) {
       const result = await app.call(loader, `/ssh/${machine}`, {
-        as: cookie,
+        as: englishOverride ? `${cookie}; ${(await setLocale("en")).split(";")[0]}` : cookie,
         params: { id: machine },
         search: `?user=${user}`,
+        headers: { "Accept-Language": "zh-CN" },
       });
 
       const { node } = result as { node: NonNullable<Awaited<ReturnType<typeof loader>>["node"]> };
@@ -89,7 +91,21 @@ for (const version of testedVersions()) {
 
     test("joins as a temporary machine of the signed-in person", async () => {
       await tailnet.node({ name: "joined", user: "alice@", ssh: true });
-      const session = await sessionFor("joined", "root");
+      const existing = new Set((await tailnet.api.preAuthKeys.listAll!()).map((key) => key.id));
+      const started = Date.now();
+      const session = await sessionFor("joined", "root", true);
+      const issued = Date.now();
+      const created = (await tailnet.api.preAuthKeys.listAll!()).filter(
+        (key) => !existing.has(key.id),
+      );
+      expect(created).toHaveLength(1);
+      const [key] = created;
+      expect(key).toMatchObject({ ephemeral: true, reusable: false, user: { name: "alice@" } });
+      const expiration = new Date(key.expiration).getTime();
+      // Headscale serializes expiry to seconds. Language choice must not alter
+      // the existing ten-minute, single-use, per-person key boundary.
+      expect(expiration).toBeGreaterThanOrEqual(started + 10 * 60_000 - 1000);
+      expect(expiration).toBeLessThanOrEqual(issued + 10 * 60_000);
       await browser.ssh(session);
 
       const machine = (await tailnet.api.nodes.list()).find((n) => n.name === session.hostname);
@@ -128,6 +144,43 @@ for (const version of testedVersions()) {
       },
     );
 
+    test("Chinese SSH prompts and identity failures do not issue session keys", async () => {
+      await tailnet.node({ name: "identity-check", user: "alice@", ssh: true });
+      const apiSession = await app.signInWithApiKey();
+      const unlinked = await app.signIn("admin", { email: "unlinked-ssh@example.com" });
+      const before = await tailnet.api.preAuthKeys.listAll!();
+      const prompt = await app.call(loader, "/ssh/identity-check", {
+        as: cookie,
+        params: { id: "identity-check" },
+        headers: { "Accept-Language": "zh-CN" },
+      });
+      expect(prompt).toMatchObject({ hostname: "identity-check", offline: false, node: undefined });
+      for (const [as, code, status, message] of [
+        [
+          apiSession.cookie,
+          "oidc_required",
+          403,
+          "请通过单点登录使用浏览器 SSH。API 密钥会话没有对应的 Headscale 用户。",
+        ],
+        [
+          unlinked.cookie,
+          "user_not_linked",
+          404,
+          "浏览器 SSH 以所关联的 Headscale 用户身份连接。请联系管理员为当前账号关联 Headscale 用户。",
+        ],
+      ] as const) {
+        const result = await app.call(loader, "/ssh/identity-check", {
+          as,
+          params: { id: "identity-check" },
+          search: "?user=root",
+          headers: { "Accept-Language": "zh-CN" },
+        });
+        expect(statusOf(result)).toBe(status);
+        expect(result).toMatchObject({ data: { code, message } });
+      }
+      expect(await tailnet.api.preAuthKeys.listAll!()).toEqual(before);
+    });
+
     test.for([
       { name: "a machine that doesn't exist", machine: "missing", status: 404 },
       { name: "a machine that isn't connected", machine: "offline", status: 200 },
@@ -142,9 +195,20 @@ for (const version of testedVersions()) {
         as: cookie,
         params: { id: machine },
         search: "?user=root",
+        headers: { "Accept-Language": "zh-CN" },
       });
 
       expect(statusOf(result)).toBe(status);
+      if (status === 404) {
+        expect(result).toMatchObject({
+          data: {
+            code: "node_not_found",
+            message: "没有名为 missing 的设备。设备可能已重命名或移除。",
+          },
+        });
+      } else {
+        expect(result).toMatchObject({ offline: true, node: undefined });
+      }
       expect(await tailnet.api.preAuthKeys.listAll!()).toHaveLength(before.length);
     });
   });

@@ -1,0 +1,198 @@
+---
+title: Browser SSH / 浏览器 SSH
+description: Open and troubleshoot browser SSH sessions in English or Simplified Chinese.
+---
+
+import { versions } from "@/lib/versions";
+
+# Browser SSH / 浏览器 SSH
+
+This guide covers Browser SSH in `CM-Chenqf/headscale-web` on `main`.
+Full interface and documentation translation is still in progress; a complete
+bilingual image has not been released at this stage.
+
+本页介绍 `CM-Chenqf/headscale-web` 的 `main` 分支浏览器 SSH 模块。
+完整界面和文档仍在翻译中，当前阶段尚未发布完整双语镜像。
+
+## 简体中文
+
+### 使用条件
+
+浏览器 SSH 通过 WebAssembly 在浏览器中运行一个临时 Tailscale 节点，
+以当前账号关联的 Headscale 用户身份加入 Tailnet，再通过 Tailscale SSH 连接目标设备。
+
+- 使用 Headscale {versions.headscale.ssh} 或更新版本，并启用 [Headplane Agent](/features/agent)。
+  Headscale {versions.headscale.sshWebsocketBroken} 存在浏览器 WebSocket 兼容问题；
+  使用 {versions.headscale.sshWebsocketFixed} 或更新版本，或使用兼容的旧版本。
+- 在目标设备上运行 `tailscale up --ssh`，启用 Tailscale SSH。
+  普通 SSH 服务不能代替 Tailscale SSH，浏览器不会使用密码或本地私钥登录。
+- 通过[单点登录](/features/sso)或[代理认证](/features/proxy-auth)登录，
+  并[关联 Headscale 用户](/features/users-bilingual)。API 密钥会话无法使用浏览器 SSH。
+- 在 ACL 策略中配置允许访问的网络规则和 `ssh` 规则。
+  SSH 规则决定哪些身份可使用哪些目标系统用户，详见[访问控制](/features/acls-bilingual)。
+- 确保浏览器可访问 Headscale 的公开地址，并正确转发 WebSocket 升级请求。
+  跨域部署时，还需配置 CORS，详见[反向代理](/configuration/reverse-proxy)。
+
+### 建立连接
+
+1. 在页面顶部选择 **简体中文**，在设备菜单中点击 **SSH**。
+2. 在新窗口的 **用户名** 中填写目标设备上的系统用户，例如 `root`。
+   此字段是远端系统用户名，不是 Headscale 用户名或邮箱；必须满足策略中的 SSH 规则。
+3. 点击 **连接**。页面依次显示 **正在加入 Tailnet…** 和 **正在连接到 …**。
+4. 若策略要求重新认证，点击 **登录后继续** 提示中的 **登录** 链接，完成认证后继续会话。
+5. 完成操作后退出远端 Shell 并关闭窗口。
+
+每次连接使用有效期十分钟、不可重复使用的临时认证密钥，所属用户为当前账号关联的 Headscale 用户。
+浏览器临时节点离线后，由 Agent 清理。终端使用 `TERM=xterm-256color`，并自带 JetBrains Mono Nerd Font。
+密钥的十分钟有效期限制用于加入 Tailnet，不代表会话到达十分钟时强制断开。
+
+### 语言与诊断
+
+用户名表单、离线提示、兼容性提醒、连接状态、重新认证提示及错误页均提供中英文本。
+语言偏好与登录页、管理界面共用同一浏览器 Cookie，详见[语言设置](/features/language)。
+切换语言不会重新执行 SSH loader、申请另一枚连接密钥或重建终端。
+
+设备名、用户名、命令、地址和远端终端输出保留原文。
+已知的本地连接错误会显示中文解释，并保留原始详情；其他诊断信息完整保留，便于检索和排查。
+
+### 故障排查
+
+| 提示或现象                                      | 处理方式                                                                                                       |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **浏览器 SSH 不可用**                           | 构建缺少 `hp_ssh.wasm` 或 `wasm_exec.js`。上游官方 Docker 镜像包含这些文件；原生构建使用 `./build.sh --wasm`。 |
+| **浏览器 SSH 需要 Agent**                       | 启用 Headplane Agent，并检查 Agent 的版本和运行状态。                                                          |
+| **浏览器 SSH 需要单点登录**                     | 退出 API 密钥会话，改用单点登录或代理认证。                                                                    |
+| **账号尚未关联**                                | 在 Headscale 中创建对应用户，再由管理员关联账号；使用相同 SSO 身份时也可自动关联。                             |
+| **未找到设备**                                  | 设备可能已重命名或删除。返回设备列表，重新打开 SSH。                                                           |
+| **设备已离线**                                  | 在目标设备启动 Tailscale，确认重新上线后点击 **重试**。                                                        |
+| **加入 Tailnet 失败** 或 **Tailnet 节点已停止** | 查看保留的原始详情，检查公开地址、认证密钥、网络和浏览器控制台。                                               |
+| 会话立即关闭                                    | 检查 SSH 规则是否允许所选系统用户，以及该用户是否实际存在。                                                    |
+
+连接失败或一直等待时，依次检查：
+
+1. 浏览器控制台中若出现 `/ts2021` 的 `405 Method Not Allowed`，升级到
+   Headscale {versions.headscale.sshWebsocketFixed} 或更新版本，或改用兼容版本。
+2. Headscale 的 `server_url` 在非标准 HTTPS 端口下必须包含端口，
+   例如 `https://hs.example.com:8443`，否则嵌入式 DERP 会公布错误端口。
+3. Headplane 的 `headscale.public_url` 必须是浏览器可访问的 Headscale 地址；
+   未设置时使用 `headscale.url`。
+4. 检查 Headscale 前的代理是否转发 WebSocket 升级请求，以及跨域响应是否包含 CORS 头。
+
+遇到 `unable to authenticate, attempted methods [none]`，通常表示连接到了普通 SSH 服务。
+在目标设备启用 Tailscale SSH：
+
+```bash
+tailscale up --ssh
+```
+
+遇到 `failed to look up local user *`，部分 Tailscale 版本会将 `"users": ["*"]`
+解释为名为 `*` 的系统用户。改用明确的用户名或 `autogroup:nonroot`：
+
+```jsonc
+{
+  "action": "accept",
+  "src": ["autogroup:member"],
+  "dst": ["autogroup:self"],
+  "users": ["autogroup:nonroot"],
+}
+```
+
+`"action": "check"` 规则要求重新认证。Headscale {versions.headscale.ssh} 将其视为 `accept`，
+从 {versions.headscale.sshCheck} 开始才会显示重新登录链接。
+界面的文档按钮在双语站点部署前仍指向[上游 SSH 指南](/features/ssh)对应的英文故障排查章节。
+
+## English
+
+### Requirements
+
+Browser SSH runs a temporary Tailscale node in the browser using WebAssembly.
+It joins as the Headscale user linked to the signed-in account and connects
+to the target through Tailscale SSH.
+
+- Run Headscale {versions.headscale.ssh} or newer and enable the
+  [Headplane Agent](/features/agent). Headscale {versions.headscale.sshWebsocketBroken}
+  has a browser WebSocket regression; use {versions.headscale.sshWebsocketFixed}
+  or newer, or a compatible earlier version.
+- Enable Tailscale SSH on the target with `tailscale up --ssh`.
+  An ordinary SSH server is not enough; the browser does not sign in with a
+  password or local private key.
+- Sign in through [SSO](/features/sso) or [proxy authentication](/features/proxy-auth)
+  and [link a Headscale user](/features/users-bilingual).
+  API key sessions cannot use Browser SSH.
+- Allow the connection in both the network policy and its `ssh` rules.
+  SSH rules decide which identities may use each target system user.
+  See [Access Control](/features/acls-bilingual).
+- Make Headscale's public address reachable from the browser. Forward
+  WebSocket upgrades and, for separate domains, provide CORS headers.
+  See [Reverse proxy](/configuration/reverse-proxy).
+
+### Open a session
+
+1. Select **English** in the header and choose **SSH** from a machine's menu.
+2. Enter the target system **Username**, such as `root`, in the new window.
+   This is a remote system user, not a Headscale username or email, and must
+   be allowed by the SSH policy.
+3. Select **Connect**. The page shows **Joining Tailnet…**, then **Connecting to …**.
+4. If the policy requires another sign-in, follow **Sign in** in the
+   **Sign in to continue** notice. The session continues after authentication.
+5. Exit the remote shell and close the window when finished.
+
+Each connection uses a single-use, ephemeral auth key that expires after ten
+minutes and belongs to the account's linked Headscale user. The agent removes
+the temporary browser machine after it goes offline. The terminal uses
+`TERM=xterm-256color` and includes JetBrains Mono Nerd Font.
+The key's ten-minute expiry limits joining the tailnet; it is not a ten-minute
+session timeout.
+
+### Language and diagnostics
+
+The username form, offline page, compatibility notice, connection status,
+sign-in notice and error pages are bilingual. The browser cookie is shared
+with sign-in and dashboard language preferences; see [Language](/features/language).
+Changing language does not revalidate the SSH loader, issue another connection
+key or recreate the terminal.
+
+Machine names, usernames, commands, addresses and remote terminal output keep
+their original spelling. Known local failures include a Chinese explanation
+alongside the original diagnostic; other diagnostics pass through unchanged.
+
+### Troubleshooting
+
+| Notice or symptom                                      | Action                                                                                                                                          |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Browser SSH isn't available**                        | The build is missing `hp_ssh.wasm` or `wasm_exec.js`. Upstream official Docker images include them. For native builds, run `./build.sh --wasm`. |
+| **Browser SSH needs the agent**                        | Enable the Headplane Agent and check its version and status.                                                                                    |
+| **Browser SSH needs SSO**                              | Sign out of the API key session and use SSO or proxy authentication.                                                                            |
+| **Your account isn't linked**                          | Create the corresponding Headscale user and have an admin link the account. Matching SSO identities can also link automatically.                |
+| **Machine not found**                                  | The machine may have been renamed or removed. Open SSH again from the machine list.                                                             |
+| **Machine is offline**                                 | Start Tailscale on the target, wait until it is online, then select **Try again**.                                                              |
+| **Failed to join Tailnet** or **Tailnet node stopped** | Read the original diagnostic and check the public address, auth key, network and browser console.                                               |
+| The session closes immediately                         | Check whether the SSH rules allow the selected system user and whether that user exists.                                                        |
+
+For a failed or stalled connection:
+
+1. If `/ts2021` returns `405 Method Not Allowed` in the browser console, use
+   Headscale {versions.headscale.sshWebsocketFixed} or newer, or a compatible version.
+2. Include the port in Headscale's `server_url` for nonstandard HTTPS ports,
+   such as `https://hs.example.com:8443`, so embedded DERP advertises the right port.
+3. Set Headplane's `headscale.public_url` to the browser-reachable Headscale
+   address. When unset, it uses `headscale.url`.
+4. Check WebSocket upgrade forwarding at Headscale's reverse proxy and CORS
+   headers on cross-domain responses.
+
+`unable to authenticate, attempted methods [none]` usually means the target
+answered with an ordinary SSH server. Enable Tailscale SSH:
+
+```bash
+tailscale up --ssh
+```
+
+For `failed to look up local user *`, some Tailscale versions interpret
+`"users": ["*"]` as a literal user named `*`. Use explicit usernames or
+`autogroup:nonroot`, as in the policy example above.
+
+Rules with `"action": "check"` require another sign-in. Headscale
+{versions.headscale.ssh} treats them as `accept`; sign-in links start with
+{versions.headscale.sshCheck}. Until the bilingual site is deployed, in-app
+documentation buttons still open the matching English troubleshooting section
+in the [upstream SSH guide](/features/ssh).

@@ -5,6 +5,7 @@ import editor from "./zh-CN/editor";
 import errors from "./zh-CN/errors";
 import machines from "./zh-CN/machines";
 import settings from "./zh-CN/settings";
+import ssh from "./zh-CN/ssh";
 import users from "./zh-CN/users";
 
 export default {
@@ -13,6 +14,7 @@ export default {
   ...editor,
   ...machines,
   ...settings,
+  ...ssh,
   ...errors,
   ...users,
   "common.close": "关闭",
