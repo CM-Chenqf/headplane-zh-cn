@@ -4,6 +4,7 @@ import { CircleDot, GitPullRequest, History } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { releaseId, releaseLabel } from "@/lib/changelog";
+import { useDocsLocale } from "@/lib/use-locale";
 
 // Rendered by remark-changelog from CHANGELOG.md.
 
@@ -11,8 +12,9 @@ import { releaseId, releaseLabel } from "@/lib/changelog";
 const stickyTop = "top-[calc(var(--fd-banner-height,0px)+5rem)]";
 
 export function ReleaseList({ versions, children }: { versions: string; children: ReactNode }) {
+  const { locale, t } = useDocsLocale();
   const toc = (JSON.parse(versions) as string[]).map((version) => ({
-    title: releaseLabel(version),
+    title: releaseLabel(version, locale),
     url: `#${releaseId(version)}`,
     depth: 2,
   }));
@@ -26,7 +28,7 @@ export function ReleaseList({ versions, children }: { versions: string; children
         >
           <p className="text-muted inline-flex items-center gap-1.5 text-sm">
             <History className="size-4" />
-            Versions
+            {t("Versions", "版本")}
           </p>
           <TOCScrollArea className="ms-px">
             <TOCItems>
@@ -48,6 +50,7 @@ interface ReleaseProps {
 }
 
 export function Release({ version, date, children }: ReleaseProps) {
+  const { locale, t } = useDocsLocale();
   const isPrerelease = version.includes("-");
   const id = releaseId(version);
 
@@ -58,12 +61,23 @@ export function Release({ version, date, children }: ReleaseProps) {
     >
       <header className="flex flex-wrap items-baseline gap-x-2 gap-y-1 self-start md:sticky md:top-[calc(var(--fd-banner-height,0px)+5rem)] md:flex-col">
         <a className="text-fg text-lg font-semibold tracking-tight" href={`#${id}`}>
-          {releaseLabel(version)}
+          {releaseLabel(version, locale)}
         </a>
-        {date && <time className="text-muted text-sm">{date}</time>}
+        {date && (
+          <time className="text-muted text-sm">
+            {locale === "zh-CN" && !Number.isNaN(Date.parse(`${date} UTC`))
+              ? new Date(`${date} UTC`).toLocaleDateString("zh-CN", {
+                  timeZone: "UTC",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : date}
+          </time>
+        )}
         {isPrerelease && (
           <span className="bg-subtle text-muted border-line inline-flex h-[18px] items-center rounded-sm border px-1.5 text-[11px] font-medium">
-            Beta
+            {t("Beta", "预览版")}
           </span>
         )}
       </header>
@@ -79,13 +93,19 @@ const sectionStyles: Record<string, string> = {
 };
 
 export function ReleaseSection({ title, children }: { title: string; children: ReactNode }) {
+  const { t } = useDocsLocale();
+  const chineseTitles: Record<string, string> = {
+    Upgrading: "升级说明",
+    Changes: "变更",
+    Fixes: "修复",
+  };
   return (
     <div className="release-section">
       <div className="not-prose">
         <h3
           className={`inline-flex h-6 items-center rounded-md border px-2 text-xs font-semibold ${sectionStyles[title] ?? "bg-subtle text-muted border-line"}`}
         >
-          {title}
+          {t(title, chineseTitles[title] ?? title)}
         </h3>
       </div>
       {children}
@@ -94,6 +114,7 @@ export function ReleaseSection({ title, children }: { title: string; children: R
 }
 
 export function Reference({ kind, number }: { kind: "issues" | "pull"; number: string }) {
+  const { t } = useDocsLocale();
   const Icon = kind === "pull" ? GitPullRequest : CircleDot;
 
   return (
@@ -101,7 +122,7 @@ export function Reference({ kind, number }: { kind: "issues" | "pull"; number: s
       <a
         className="bg-accent-subtle text-accent border-accent/25 hover:border-accent/60 ms-1.5 inline-flex h-5 -translate-y-px items-center gap-1 rounded-md border px-1.5 align-middle text-xs font-medium tabular-nums transition-colors [&_svg]:size-3"
         href={`https://github.com/tale/headplane/${kind}/${number}`}
-        title={`${kind === "pull" ? "Pull request" : "Issue"} #${number}`}
+        title={`${kind === "pull" ? t("Pull request", "合并请求") : t("Issue", "问题")} #${number}`}
       >
         <Icon />#{number}
       </a>

@@ -1,0 +1,5 @@
+{
+  "title": "安装",
+  "collapsible": false,
+  "pages": ["docker", "native-mode", "nix"]
+}

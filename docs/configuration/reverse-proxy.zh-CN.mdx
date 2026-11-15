@@ -1,0 +1,115 @@
+---
+title: 反向代理
+description: 在反向代理后通过同一个域名提供 Headplane 和 Headscale。
+---
+
+import { traefikComposeZh } from "./compose-examples";
+
+# 反向代理 [#reverse-proxy]
+
+推荐将两个服务部署在同一域名：`/admin` 转发到 Headplane，其余请求转发到 Headscale。两者可以共用证书，浏览器访问的来源也相同，无需额外 CORS 响应头。
+
+无论使用哪种代理，都需要：
+
+- 将 `/admin` 转发到 Headplane（3000 端口），其余请求转发到 Headscale（8080 端口）。
+- 向 Headscale 转发 WebSocket 升级请求，Tailscale 客户端和[浏览器 SSH](/features/ssh) 都依赖它。
+- 将 Headplane 的 `server.base_url` 设置为公网 URL，例如 `https://headscale.example.com`。[SSO](/features/sso) 使用它生成回调地址。
+
+代理提供 HTTPS 时，保留 `server.cookie_secure: true` 默认值。只有通过明文 HTTP 访问时才设为 `false`，否则登录状态无法保持。
+
+## Caddy
+
+Caddy 无需额外配置即可转发 WebSocket 升级请求：
+
+```caddyfile
+headscale.example.com {
+    # 可选：将根路径访问者重定向到 Headplane
+    redir / /admin/
+
+    handle /admin* {
+        reverse_proxy localhost:3000
+    }
+
+    handle {
+        reverse_proxy localhost:8080
+    }
+}
+```
+
+## nginx
+
+nginx 需要 `map` 块来转发 WebSocket 升级请求：
+
+```nginx
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name headscale.example.com;
+
+    ssl_certificate /path/to/fullchain.pem;
+    ssl_certificate_key /path/to/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+    }
+
+    location = /admin {
+        return 301 /admin/;
+    }
+
+    location /admin/ {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## Traefik
+
+使用 Traefik 的 Docker 提供商时，通过容器标签配置路由。在 `traefik` 服务中补充证书配置。Traefik 无需额外配置即可转发 WebSocket 升级请求。
+
+<DynamicCodeBlock lang="yaml" code={traefikComposeZh} />
+
+## 分离域名 [#separate-domains]
+
+Headplane 和 Headscale 也可使用不同域名，例如 `headplane.example.com` 和 `headscale.example.com`。除[浏览器 SSH](/features/ssh) 外，其他功能用法相同。浏览器 SSH 直接从浏览器连接 Headscale：WebSocket 连接不受 CORS 限制，但首先需要通过普通跨域请求获取 Headscale 公钥。因此 Headscale 的响应必须带有 `Access-Control-Allow-Origin`，值为 Headplane 的来源。在 Caddy 中：
+
+```caddyfile
+headscale.example.com {
+    reverse_proxy localhost:8080
+
+    header Access-Control-Allow-Origin "https://headplane.example.com"
+}
+```
+
+在 nginx 中，将 `add_header Access-Control-Allow-Origin "https://headplane.example.com" always;` 加入 Headscale 对应的 `location`。
+
+## 自定义路径 [#a-different-path]
+
+如需将 Headplane 放在 `/admin` 之外的路径（例如 `/tools/headplane`），设置 `server.base_path` 并重启：
+
+```yaml
+server:
+  base_path: "/tools/headplane"
+```
+
+路径必须以斜杠开头，不能以斜杠结尾，也不能是 `/`。将上例中的 `/admin` 替换为新路径，转发时保留该前缀。`server.base_url` 中不应包含该路径。使用 [SSO](/features/sso) 时，在新路径下注册回调地址。会话与路径绑定，修改路径会使所有人退出登录。
+
+## 不使用代理提供 HTTPS [#serving-https-without-a-proxy]
+
+Headplane 可以自行终止 TLS，适合无代理的单机部署。参阅 [TLS 与证书](/configuration/tls#tls-termination)。

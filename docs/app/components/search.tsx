@@ -11,8 +11,11 @@ import {
   type SharedProps,
 } from "fumadocs-ui/components/dialog/search";
 
+import { useDocsLocale } from "@/lib/use-locale";
+
 export default function DocsSearchDialog(props: SharedProps) {
-  const search = useStaticSearch({ from: `${import.meta.env.BASE_URL}api/search` });
+  const { locale } = useDocsLocale();
+  const search = useStaticSearch({ from: `${import.meta.env.BASE_URL}api/search`, locale });
 
   return (
     <SearchDialog {...search} {...props}>

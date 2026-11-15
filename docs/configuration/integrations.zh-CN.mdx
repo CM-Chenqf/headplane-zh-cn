@@ -1,0 +1,140 @@
+---
+title: 集成
+description: 允许 Headplane 修改 Headscale 的 DNS 和登录限制，并通过重启应用变更。
+---
+
+import { dockerComposeZh } from "./compose-examples";
+import restrictionsLight from "../assets/restrictions-light.png";
+import restrictionsDark from "../assets/restrictions-dark.png";
+
+# 集成 [#integrations]
+
+Headscale 的 DNS 设置与 OIDC 登录限制保存在自身配置文件中，不通过 API 提供。Headplane 要显示或修改这些设置，必须能访问该文件。应用变更需要重启 Headscale，集成使 Headplane 能自行完成重启。
+
+## 不同部署方式的能力 [#what-each-setup-can-do]
+
+设备、用户、认证密钥和 ACL 通过 Headscale API 管理，在所有部署方式下均可使用。其余功能取决于 Headplane 的访问权限：
+
+| 部署方式                | DNS 设置与登录限制                  |
+| ----------------------- | ----------------------------------- |
+| 无法访问 Headscale 配置 | 不显示                              |
+| 配置文件以只读方式挂载  | DNS 设置只读，登录限制隐藏          |
+| 配置可写，但未启用集成  | 写入文件，下次重启 Headscale 时生效 |
+| 配置可写且启用集成      | Headplane 重启 Headscale，立即应用  |
+
+登录限制修改 Headscale `oidc` 下的 `allowed_domains`、`allowed_groups` 和 `allowed_users`。只有 Headscale 通过 OIDC 认证用户时才显示。
+
+<Figure
+  alt="Headplane 中的登录限制"
+  light={restrictionsLight}
+  dark={restrictionsDark}
+  caption="按邮箱域名限制 Headscale 登录（上游英文界面截图）"
+/>
+
+无法访问配置文件的部署过去称为受限模式（Limited Mode），适合 Headscale 位于另一台主机的场景。[Agent](/features/agent)、[浏览器 SSH](/features/ssh) 和 [SSO](/features/sso) 均不依赖配置文件访问。
+
+## 共享 Headscale 配置文件 [#sharing-headscales-config-file]
+
+将 `headscale.config_path` 指向 Headplane 可访问的 Headscale `config.yaml`。容器部署时填写 Headplane 容器内路径。修改需要文件写入权限，保存时会保留注释。
+
+```yaml
+headscale:
+  config_path: "/etc/headscale/config.yaml"
+```
+
+从下面选择一种集成来应用变更。同时启用多种集成会使它们全部停用，并在日志中记录错误。
+
+:::info[为什么需要重启？]
+Headscale 收到 `SIGHUP` 时只重新加载 ACL 策略。`config.yaml` 中的其他设置仅在启动时读取，因此修改后必须完整重启。
+:::
+
+## DNS 记录 [#dns-records]
+
+DNS 记录是例外：Headplane 只通过 Headscale 的 `dns.extra_records_path` 指定的 JSON 文件编辑记录。Headscale 会监视该文件，修改后立即生效，无需集成或重启。
+
+```yaml
+# Headscale 的 config.yaml
+dns:
+  extra_records_path: /var/lib/headscale/extra-records.json
+```
+
+文件中保存 DNS 记录的 JSON 数组：
+
+```json
+[{ "name": "grafana.example.com", "type": "A", "value": "100.64.0.3" }]
+```
+
+路径来自 Headscale 配置，该文件必须允许 Headplane 写入。若文件在 Headplane 容器内的路径不同，使用 `headscale.dns_records_path` 指定容器内路径。设置了 `dns_records_path`，但 Headscale 配置中没有 `extra_records_path` 时，Headplane 会拒绝启动。
+
+直接列在 Headscale `dns.extra_records` 中的记录是只读的。将其移到 JSON 文件后才能从 Headplane 管理。
+
+## Docker
+
+适用于 Headscale 运行在 Docker 容器中的场景。集成通过 Docker API 重启容器，再等待 Headscale 恢复。需要：
+
+- 将 Headscale 配置文件挂载到两个容器。
+- Docker socket，或允许列出容器并发送 `POST` 请求的 socket 代理，例如 [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy)（`CONTAINERS=1` 和 `POST=1`）。
+- 用于定位 Headscale 容器的标识，默认标签为 `me.tale.headplane.target=headscale`。
+
+<DynamicCodeBlock lang="yaml" code={dockerComposeZh} />
+
+在 Headplane 配置中启用集成：
+
+```yaml
+integration:
+  docker:
+    enabled: true
+    # 以下为默认值，仅供参考
+    container_label: "me.tale.headplane.target=headscale"
+    socket: "unix:///var/run/docker.sock"
+```
+
+也可通过 `container_name` 按名称选择容器，该选项优先于标签。远程 Docker 守护进程使用 `tcp://` 形式的 `socket` 地址，不支持 HTTPS。
+
+支持 Docker API 1.24（Docker Engine 1.12）及更新版本，包括 Podman 的 Docker 兼容 socket。
+
+## Kubernetes
+
+适用于 Headplane 作为 sidecar 与 Headscale 运行在同一 Pod 的场景。两个容器共享进程命名空间，Headplane 通过 `SIGTERM` 停止 Headscale，由 kubelet 重启容器，再等待服务恢复。
+
+Pod 需要：
+
+- `shareProcessNamespace: true`。
+- 将 Headscale 配置保存在两个容器共享的可写卷中。ConfigMap 挂载只读，应先通过 init 容器等方式复制到可写卷。
+- Headplane 与 Headscale 使用同一用户运行，或为 Headplane 添加 `KILL` capability，使其可以发送信号。
+- 通过 Downward API 向 Headplane 传入 Pod 名称。
+
+```yaml
+spec:
+  shareProcessNamespace: true
+  containers:
+    - name: headplane
+      image: ghcr.io/tale/headplane:latest
+      env:
+        - name: HEADPLANE_INTEGRATION__KUBERNETES__POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+```
+
+```yaml
+integration:
+  kubernetes:
+    enabled: true
+```
+
+启动时 Headplane 通过 Kubernetes API 检查 Pod 是否共享进程命名空间。其服务账号需要命名空间内 Pod 的 `get` 权限。设置 `integration.kubernetes.validate_manifest: false` 可跳过检查，也不再需要该权限。
+
+## proc
+
+适用于 Headplane 与 Headscale 直接运行在同一 Linux 主机上的场景。每次变更时，Headplane 在 `/proc` 中找到 `headscale serve` 进程，发送 `SIGTERM` 停止它，再等待新进程恢复健康。
+
+必须由外部服务负责重启 Headscale。Headscale 自带的 systemd unit 和 NixOS 模块均设置 `Restart=always`。没有进程监督器时，第一次修改后 Headscale 会一直停止，Headplane 会报告服务未恢复。
+
+发送信号也需要权限：让两者使用同一用户运行，或让 Headplane 以 root 运行。
+
+```yaml
+integration:
+  proc:
+    enabled: true
+```

@@ -1,12 +1,13 @@
 import { Menu } from "@base-ui/react/menu";
 import { Check, ChevronDown } from "lucide-react";
-import { useLocation } from "react-router";
 
 import { betaOrigin, docsBuild, pageOn, stableOrigin, useReleases } from "@/lib/releases";
+import { useDocsDestination, useDocsLocale } from "@/lib/use-locale";
 
 // Switches to the same page in another version's docs.
 export default function VersionPicker({ className = "" }: { className?: string }) {
-  const { pathname } = useLocation();
+  const destination = useDocsDestination();
+  const { t } = useDocsLocale();
   const releases = useReleases();
   if (!docsBuild.channel) {
     return null;
@@ -14,10 +15,10 @@ export default function VersionPicker({ className = "" }: { className?: string }
 
   const isBeta = docsBuild.channel === "beta";
   const items = [
-    { label: "Beta", href: pageOn(betaOrigin, "/", pathname), isCurrent: isBeta },
+    { label: t("Beta", "预览版"), href: pageOn(betaOrigin, "/", destination), isCurrent: isBeta },
     ...releases.map((release, index) => ({
-      label: index === 0 ? `${release.version} (latest)` : release.version,
-      href: pageOn(stableOrigin, release.path, pathname),
+      label: index === 0 ? `${release.version} (${t("latest", "最新")})` : release.version,
+      href: pageOn(stableOrigin, release.path, destination),
       isCurrent: !isBeta && release.version === docsBuild.version,
     })),
   ];
@@ -26,7 +27,7 @@ export default function VersionPicker({ className = "" }: { className?: string }
   if (!isBeta && !items.some((item) => item.isCurrent)) {
     items.push({
       label: docsBuild.version,
-      href: pageOn("", import.meta.env.BASE_URL, pathname),
+      href: pageOn("", import.meta.env.BASE_URL, destination),
       isCurrent: true,
     });
   }
@@ -36,7 +37,7 @@ export default function VersionPicker({ className = "" }: { className?: string }
       <Menu.Trigger
         className={`text-muted hover:bg-hover hover:text-fg data-popup-open:bg-hover data-popup-open:text-fg focus-visible:outline-accent inline-flex h-8 items-center gap-1 rounded-md px-2 text-[13px] font-medium focus-visible:outline-2 ${className}`}
       >
-        {isBeta ? "Beta" : docsBuild.version}
+        {isBeta ? t("Beta", "预览版") : docsBuild.version}
         <ChevronDown className="size-3.5" />
       </Menu.Trigger>
       <Menu.Portal>

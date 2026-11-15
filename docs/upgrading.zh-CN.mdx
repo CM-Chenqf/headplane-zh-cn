@@ -1,0 +1,16 @@
+---
+title: 升级
+description: 从旧版本升级 Headplane 时需要调整的配置。
+---
+
+import UpgradeNotes from "@/components/upgrade-notes";
+
+# 升级 [#upgrading]
+
+大多数升级只需要更新镜像或重新构建。下列版本还需要管理员进行额外操作，内容摘自[更新日志](/changelog)中各版本的升级说明。跨版本升级时，从旧到新依次完成旧版本与目标版本之间的全部步骤。
+
+升级前备份 `server.data_path` 指定的目录，默认为 `/var/lib/headplane`。Headplane 的数据库保存在该目录中。
+
+如果只希望获取补丁更新，避免意外切换到新的次版本，将 Docker 镜像固定到次版本标签，例如 `ghcr.io/tale/headplane:0.8`。此处仍为上游镜像示例；本仓库双语版本的发布状态见[语言与维护说明](/features/language)。
+
+<UpgradeNotes />

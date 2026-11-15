@@ -10,13 +10,16 @@ import Header, { iconButtonClass } from "@/components/header";
 import { useMDXComponents } from "@/components/mdx";
 import Sidebar from "@/components/sidebar";
 import { upgradeToc } from "@/components/upgrade-notes";
+import { docsRoute } from "@/lib/i18n";
 import { docs, source } from "@/lib/source";
+import { useDocsLocale } from "@/lib/use-locale";
 
 import type { Route } from "./+types/docs";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const slugs = params["*"].split("/").filter((slug) => slug.length > 0);
-  const page = source.getPage(slugs);
+  const { locale, path } = docsRoute(`/${params["*"]}`);
+  const slugs = path.split("/").filter((slug) => slug.length > 0);
+  const page = source.getPage(slugs, locale);
   if (!page) {
     throw new Response("Not found", { status: 404 });
   }
@@ -25,8 +28,8 @@ export async function loader({ params }: Route.LoaderArgs) {
     path: page.path,
     title: page.data.title,
     description: page.data.description,
-    pageTree: await source.serializePageTree(source.getPageTree()),
-    extraToc: page.path === "upgrading.mdx" ? upgradeToc() : [],
+    pageTree: await source.serializePageTree(source.getPageTree(locale)),
+    extraToc: /^upgrading(?:\.zh-CN)?\.mdx$/.test(page.path) ? upgradeToc(locale) : [],
   };
 }
 
@@ -58,10 +61,14 @@ function Content({ path, extraToc }: { path: string; extraToc: TOCItemType[] }) 
 }
 
 function DocsHeader() {
+  const { t } = useDocsLocale();
   return (
     <Header
       menu={
-        <SidebarTrigger aria-label="Navigation" className={`${iconButtonClass} md:hidden`}>
+        <SidebarTrigger
+          aria-label={t("Navigation", "导航")}
+          className={`${iconButtonClass} md:hidden`}
+        >
           <Menu />
         </SidebarTrigger>
       }

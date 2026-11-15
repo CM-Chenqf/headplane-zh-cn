@@ -1,89 +1,40 @@
 ---
-title: Language / 语言
-description: Choose English or Simplified Chinese in the bilingual fork.
+title: Language and maintenance
+description: Choose a language and maintain the bilingual fork.
 ---
 
-# Language / 语言
+# Language and maintenance
 
-This feature belongs to the `CM-Chenqf/headscale-web` fork. Translation is being
-delivered in stages; this is not yet a fully translated release.
+This feature belongs to the `CM-Chenqf/headscale-web` fork on `main`. A complete bilingual image has not been published, the bilingual documentation site has not been deployed, and the `release/0.8` line has not yet been adapted. Build and release status must be checked before deploying the fork.
 
-## English
+## Interface language
 
-Select **简体中文** or **English** in the sign-in page header or the dashboard
-header. The selection is saved in the `headplane_locale` browser cookie for one
-year. It applies before and after sign-in and does not change the account,
-permissions, Headscale configuration, or other browsers.
+Select **简体中文** or **English** in the sign-in or dashboard header. The selection is saved in the `headplane_locale` browser cookie for one year and applies before and after sign-in. It does not change the account, permissions, Headscale configuration or other browsers.
 
-On the first visit, the `Accept-Language` browser preference selects English or
-Simplified Chinese. Chinese language variants use Simplified Chinese. Other
-languages fall back to English. Clear the `headplane_locale` cookie to follow
-the browser preference again.
+On the first visit, `Accept-Language` selects English or Simplified Chinese. Chinese language variants use Simplified Chinese; unsupported languages fall back to English. Clear `headplane_locale` to follow the browser preference again.
 
-The current stage translates sign-in, sign-out, API key validation, SSO errors,
-the shared navigation, theme choices, relative times, date tooltips, and machine
-key expiry notices. The Machines list, details, filters, dialogs, validation,
-action results and shared error pages are also translated. See
-[Machines / 设备管理](/features/machines-bilingual) for a bilingual usage guide.
-The Users page, roles, account links, ownership transfer, groups, form errors,
-post-login link screen and member connection guide are translated as well. See
-[Users / 用户管理](/features/users-bilingual).
-Access Control rules, grants, SSH policy rules, hosts, auto approvers, tags,
-groups, file/diff editors, syntax diagnostics and action results are translated.
-See [Access Control / 访问控制](/features/acls-bilingual).
-DNS settings, nameservers, split DNS, search domains, records, dialogs,
-validation and action results are translated. See [DNS / DNS 管理](/features/dns-bilingual).
-Settings navigation, auth keys, OIDC sign-in restrictions, Agent status,
-validation and action results are translated. See [Settings / 设置管理](/features/settings-bilingual).
-Browser SSH prompts, connection status, compatibility notices, sign-in notices
-and error pages are translated. See [Browser SSH / 浏览器 SSH](/features/ssh-bilingual).
-The HTML language and page description follow the selection
-on the server. The rest of the dashboard and the documentation site are still
-being translated. Documentation links continue to open the upstream English
-site until the bilingual documentation site is ready.
+Sign-in, shared navigation, Machines, Users, Access Control, DNS, Settings and Browser SSH support both languages. These include forms, validation, action results, connection notices, shared errors, dates and relative times. See the [Machines](/features/machines-bilingual), [Users](/features/users-bilingual), [Access Control](/features/acls-bilingual), [DNS](/features/dns-bilingual), [Settings](/features/settings-bilingual) and [Browser SSH](/features/ssh-bilingual) guides.
 
-Configuration keys, API fields, commands, product names and diagnostic logs keep
-their original spelling. Changing language does not change the time zone.
+Configuration keys, API fields, commands, product names, user-provided values, remote terminal output and original diagnostics retain their spelling. Chinese errors include explanations alongside original diagnostic details. Changing language does not change the time zone or recreate an SSH session.
 
-## 简体中文
+## Documentation language
 
-在登录页或管理界面的顶部选择 **简体中文** 或 **English**。
-选择结果通过浏览器的 `headplane_locale` Cookie 保存一年，登录前后均有效，
-不会更改账号、权限、Headscale 配置或其他浏览器的语言。
+Choose **中文** or **EN** in the documentation header. English keeps the original URLs; Chinese pages live under `/zh-CN/`. Archived builds keep their version prefix, for example `/0.8/zh-CN/install/docker`. Switching language keeps the current page, query and fragment. Documentation language follows the URL independently of the application cookie.
 
-首次访问时，按浏览器的 `Accept-Language` 语言偏好选择英文或简体中文。
-中文语言变体统一使用简体中文，其他不支持的语言回退到英文。
-清除 `headplane_locale` Cookie 后恢复跟随浏览器语言。
+Navigation, page content, search results, release history and upgrade notes follow the selected language. Search uses the real bilingual index and filters by language. Chinese headings retain the English reference anchors where the source pages use them. Screenshots reused from upstream are labeled as English screenshots; they are not Chinese interface captures.
 
-当前阶段已覆盖登录、退出、API 密钥校验、SSO 错误提示、公共导航、主题选项、
-相对时间、日期提示和设备密钥过期提示；设备列表、详情、筛选、弹窗、校验、操作结果及公共错误页也已覆盖。
-设备模块的中英操作说明见[设备管理](/features/machines-bilingual)。
-用户列表、角色、账号关联、所有权转移、用户组、表单错误、登录后关联页及成员设备接入指引也已覆盖，
-详见[用户管理](/features/users-bilingual)。
-访问控制中的访问规则、授权规则、SSH 策略规则、主机别名、自动批准者、标签与用户组、
-文件及差异编辑器、语法诊断和操作结果也已覆盖，详见[访问控制](/features/acls-bilingual)。
-DNS 设置、全局与分域 DNS 服务器、搜索域、记录、弹窗、校验及操作结果也已覆盖，详见[DNS 管理](/features/dns-bilingual)。
-设置导航、认证密钥、OIDC 登录限制、Agent 状态、表单校验和操作结果也已覆盖，详见[设置管理](/features/settings-bilingual)。
-浏览器 SSH 的用户名表单、连接状态、兼容性提醒、重新认证提示及错误页也已覆盖，详见[浏览器 SSH](/features/ssh-bilingual)。
-服务端生成的 HTML 语言及页面描述也会同步切换。
-其他管理页面和完整文档仍在翻译中。双语文档站点上线前，界面中的文档链接仍指向上游英文站点。
+In-app documentation buttons continue to open the upstream English site until the maintained documentation site is deployed. Installation examples that use upstream images or flakes are explicitly identified; they do not imply those artifacts contain this fork's translations.
 
-配置键、API 字段、命令、产品名称和诊断日志保留原文。切换语言不会更改时区。
+## Maintaining interface translations
 
-## Maintaining translations / 维护翻译
+Add English messages in `app/i18n/en.ts` and Simplified Chinese in `app/i18n/zh-CN.ts`. Module resources such as `en/machines.ts` and `zh-CN/machines.ts` are re-exported there. TypeScript checks message keys; unit tests check matching interpolation placeholders.
 
-Add English source messages in `app/i18n/en.ts` and Simplified Chinese in
-`app/i18n/zh-CN.ts`. Module resources such as `en/machines.ts` and
-`zh-CN/machines.ts` are re-exported there. TypeScript checks message keys; unit tests check matching
-interpolation placeholders. Use `useI18n()` in React and `getLocale(request)`
-with `translate()` in server actions. Use `Message` for sentences containing
-inline code or styled names, so the whole sentence can be reordered safely.
-Pass the selected locale to the time formatters. Keep request languages isolated;
-never store the current user's language in a process-wide variable.
+Use `useI18n()` in React and `getLocale(request)` with `translate()` in server actions. Use `Message` for sentences with inline code or styled names so the whole sentence can be reordered. Pass the locale to time formatters. Keep request languages isolated; do not store a user's language in a process-wide variable.
 
-英文资源位于 `app/i18n/en.ts`，简体中文位于 `app/i18n/zh-CN.ts`。
-设备等模块的资源分别放在 `en/machines.ts` 和 `zh-CN/machines.ts`，由上述入口汇总。
-两份资源必须一起更新，保留相同占位符。React 使用 `useI18n()`，
-服务端操作使用 `getLocale(request)` 和 `translate()`。
-包含命令或带样式名称的句子使用 `Message`，避免拼接句子片段。
-时间格式化函数显式传入语言，不使用进程级变量保存当前用户语言。
+## Maintaining documentation
+
+Keep English source files and their `.zh-CN.md` or `.zh-CN.mdx` counterparts together. Each folder's `meta.json` and `meta.zh-CN.json` define navigation. Use site-path links such as `/install/docker`; the renderer applies the language and React Router adds any version prefix. Keep commands, identifiers and configuration values unchanged. Version values come from `docs/app/lib/versions.ts`.
+
+Use `[#english-anchor]` on translated headings to retain inbound links and language-switch fragments. Update both `CHANGELOG.md` and `CHANGELOG.zh-CN.md`, preserving version headings, dates, references and the `Upgrading`, `Changes`, `Fixes` section markers used by the release parser. The renderer translates those section labels.
+
+Upstream updates open synchronization PRs and a tracking Issue with translation work. Those reminders do not prove that all changed prose has been translated. Review the diff and rerun checks before merging. Precise stale-translation checks, release-line adaptation, Docker publication and Cloudflare deployment remain separate acceptance steps. Deployment configuration is documented in `.github/FORK_SETUP.zh-CN.md` in the repository.

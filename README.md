@@ -1,5 +1,12 @@
 # Headplane
 
+[简体中文](./README.zh-CN.md) · [Bilingual fork setup](./.github/FORK_SETUP.zh-CN.md)
+
+This is the `CM-Chenqf/headscale-web` bilingual fork of `tale/headplane`.
+The `main` branch includes English and Simplified Chinese UI and documentation.
+Complete bilingual Docker images and the maintained documentation deployment
+have not been published yet; see the setup guide for current release status.
+
 > A feature-complete web UI for [Headscale](https://headscale.net)
 
 <picture>

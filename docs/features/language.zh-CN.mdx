@@ -1,0 +1,40 @@
+---
+title: 语言与维护说明
+description: 选择显示语言并维护双语版本。
+---
+
+# 语言与维护说明 [#language-and-maintenance]
+
+此功能属于 `CM-Chenqf/headscale-web` 的 `main` 分支。完整双语镜像尚未发布，双语文档站尚未部署，`release/0.8` 也尚未完成适配。部署维护版本前，需要核实构建和发布状态。
+
+## 界面语言 [#interface-language]
+
+在登录页或管理界面顶部选择 **简体中文** 或 **English**。偏好保存在浏览器的 `headplane_locale` Cookie 中，有效期一年，登录前后均有效，不改变账号、权限、Headscale 配置或其他浏览器。
+
+首次访问按 `Accept-Language` 选择英文或简体中文。中文语言变体统一使用简体中文，其他不支持的语言回退到英文。清除 `headplane_locale` 后恢复跟随浏览器语言。
+
+登录、公共导航、设备、用户、访问控制、DNS、设置和浏览器 SSH 均已支持两种语言，包括表单、校验、操作结果、连接提示、公共错误、日期和相对时间。用法见[设备](/features/machines-bilingual)、[用户](/features/users-bilingual)、[访问控制](/features/acls-bilingual)、[DNS](/features/dns-bilingual)、[设置](/features/settings-bilingual)和[浏览器 SSH](/features/ssh-bilingual)操作指南。
+
+配置键、API 字段、命令、产品名称、用户输入值、远端终端输出和原始诊断保留原文。中文错误会附带解释及原始诊断详情。切换语言不会改变时区，也不会重建 SSH 会话。
+
+## 文档语言 [#documentation-language]
+
+在文档页顶部选择 **中文** 或 **EN**。英文保留原有 URL，中文使用 `/zh-CN/` 前缀。历史版本保留版本前缀，例如 `/0.8/zh-CN/install/docker`。切换语言保留当前页面、查询参数和锚点。文档语言由 URL 决定，与应用 Cookie 独立。
+
+导航、正文、搜索结果、更新日志和升级说明随语言切换。搜索使用真实双语索引，并按当前语言筛选。原文使用锚点的页面，其中文标题保留对应英文引用锚点。沿用上游的截图明确标注为英文截图，不冒充中文界面截图。
+
+维护文档站部署前，应用内文档按钮继续指向上游英文站。安装示例使用上游镜像或 flake 时会说明来源，不代表这些上游产物包含本仓库翻译。
+
+## 维护界面翻译 [#maintaining-interface-translations]
+
+英文资源位于 `app/i18n/en.ts`，简体中文位于 `app/i18n/zh-CN.ts`。模块资源（例如 `en/machines.ts` 和 `zh-CN/machines.ts`）由这两个入口汇总。TypeScript 检查消息键，单元测试校验插值占位符是否一致。
+
+React 使用 `useI18n()`，服务端操作使用 `getLocale(request)` 和 `translate()`。包含行内代码或带样式名称的句子使用 `Message`，确保整句能按语言重排。时间格式化函数显式传入语言。不使用进程级变量保存用户语言，避免请求间互相影响。
+
+## 维护文档 [#maintaining-documentation]
+
+英文文件与对应 `.zh-CN.md` 或 `.zh-CN.mdx` 放在同一目录。各目录的 `meta.json` 和 `meta.zh-CN.json` 管理导航。站内链接写作 `/install/docker`：渲染器添加语言，React Router 添加历史版本前缀。命令、标识符和配置值保持不变，版本值统一来自 `docs/app/lib/versions.ts`。
+
+中文标题使用 `[#english-anchor]` 保留外部引用及切换语言后的锚点。同步更新 `CHANGELOG.md` 和 `CHANGELOG.zh-CN.md`，保留版本标题、日期、引用及发布解析器使用的 `Upgrading`、`Changes`、`Fixes` 结构标记，由渲染器翻译这些标签。
+
+上游更新会创建同步 PR 和跟踪 Issue，列出翻译工作。提醒不等于所有变更正文均已翻译，合并前仍需审阅差异并重新验证。精确过期检查、发布线适配、Docker 发布和 Cloudflare 部署是后续独立验收步骤。仓库内 `.github/FORK_SETUP.zh-CN.md` 说明了部署配置。

@@ -3,11 +3,13 @@ import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { Monitor, Moon, Search, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Fragment, type ReactNode, useSyncExternalStore } from "react";
-import { Link, useLocation } from "react-router";
+import { Link } from "react-router";
 
 import LogoMark from "@/components/logo-mark";
 import VersionPicker from "@/components/version-picker";
+import { localizedPath } from "@/lib/i18n";
 import { docsBuild } from "@/lib/releases";
+import { useDocsDestination, useDocsLocale } from "@/lib/use-locale";
 
 export const iconButtonClass =
   "text-muted hover:bg-hover hover:text-fg inline-flex size-8 shrink-0 items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&_svg]:size-4";
@@ -27,20 +29,20 @@ const links = [
 ];
 
 export default function Header({ menu }: { menu?: ReactNode }) {
-  const { pathname } = useLocation();
-  const isChangelog = pathname.startsWith("/changelog");
+  const destination = useDocsDestination();
+  const { locale, path, t, href } = useDocsLocale();
+  const isChangelog = path.startsWith("/changelog");
 
   return (
     <header className="bg-surface border-line sticky top-[var(--fd-banner-height,0px)] z-30 h-13 border-b [contain:inline-size] [grid-area:header]">
       <div className="flex h-full items-center gap-x-5 px-4 md:px-6">
-        <Link className="flex items-center gap-x-2" to="/">
+        <Link className="flex items-center gap-x-2" to={href("/")}>
           <LogoMark className="size-[18px] shrink-0" />
           <span className="text-sm font-semibold tracking-tight">headplane</span>
         </Link>
         <nav className="hidden items-center gap-x-0.5 text-[13px] font-medium md:flex">
           {links.map((link) => {
-            const isActive =
-              link.to === "/changelog" ? isChangelog : pathname !== "/" && !isChangelog;
+            const isActive = link.to === "/changelog" ? isChangelog : path !== "/" && !isChangelog;
 
             return (
               <Link
@@ -50,15 +52,23 @@ export default function Header({ menu }: { menu?: ReactNode }) {
                     : "text-muted hover:text-fg rounded-md px-2.5 py-1.5"
                 }
                 key={link.to}
-                to={link.to}
+                to={href(link.to)}
               >
-                {link.label}
+                {link.to === "/changelog" ? t("Changelog", "更新日志") : t("Docs", "文档")}
               </Link>
             );
           })}
         </nav>
         <div className="ml-auto flex items-center gap-x-1">
           <SearchButton />
+          <Link
+            aria-label={t("Switch to Simplified Chinese", "切换为英文")}
+            className="text-muted hover:bg-hover hover:text-fg shrink-0 rounded-md px-2 py-1.5 text-xs"
+            lang={locale === "en" ? "zh-CN" : "en"}
+            to={localizedPath(destination, locale === "en" ? "zh-CN" : "en")}
+          >
+            {locale === "en" ? "中文" : "EN"}
+          </Link>
           <VersionPicker className="max-sm:hidden" />
           <a
             aria-label="GitHub"
@@ -76,6 +86,9 @@ export default function Header({ menu }: { menu?: ReactNode }) {
 }
 
 function ThemePicker() {
+  const { t } = useDocsLocale();
+  const themeLabel = (label: string) =>
+    t(label, label === "Light" ? "浅色" : label === "Dark" ? "深色" : "跟随系统");
   const { theme, setTheme } = useTheme();
 
   // The stored choice only exists in the browser, so prerendered HTML shows none selected.
@@ -94,16 +107,16 @@ function ThemePicker() {
   return (
     <>
       <button
-        aria-label={`Theme: ${current.label}`}
+        aria-label={`${t("Theme", "主题")}: ${themeLabel(current.label)}`}
         className={`${iconButtonClass} sm:hidden`}
         onClick={() => setTheme(next.value)}
-        title={`Theme: ${current.label}`}
+        title={`${t("Theme", "主题")}: ${themeLabel(current.label)}`}
         type="button"
       >
         <current.Icon />
       </button>
       <div
-        aria-label="Theme"
+        aria-label={t("Theme", "主题")}
         className="border-line hidden h-8 items-center gap-0.5 rounded-md border p-0.5 sm:flex"
         role="radiogroup"
       >
@@ -113,12 +126,12 @@ function ThemePicker() {
           return (
             <button
               aria-checked={isActive}
-              aria-label={label}
+              aria-label={themeLabel(label)}
               className={`${themeOptionClass} ${isActive ? "bg-hover text-fg" : "text-muted hover:text-fg"}`}
               key={value}
               onClick={() => setTheme(value)}
               role="radio"
-              title={label}
+              title={themeLabel(label)}
               type="button"
             >
               <Icon />
@@ -131,6 +144,7 @@ function ThemePicker() {
 }
 
 function SearchButton() {
+  const { t } = useDocsLocale();
   const { enabled, hotKey, dialogHandle } = useSearchContext();
   if (!enabled) {
     return null;
@@ -139,7 +153,7 @@ function SearchButton() {
   return (
     <>
       <Dialog.Trigger
-        aria-label="Search"
+        aria-label={t("Search", "搜索")}
         className={`${iconButtonClass} md:hidden`}
         handle={dialogHandle}
       >
@@ -150,7 +164,7 @@ function SearchButton() {
         handle={dialogHandle}
       >
         <Search className="size-4" />
-        Search docs
+        {t("Search docs", "搜索文档")}
         <kbd className="border-line text-faint ml-auto rounded border px-1 font-sans text-xs">
           {hotKey.map((key, index) => (
             <Fragment key={index}>{key.display}</Fragment>

@@ -8,7 +8,6 @@ const versionPattern = /\{versions\.([\w.]+)\}/g;
 // Fumadocs indexes the page source, so `{versions.x}` expressions would show up
 // raw in results without filling them in here.
 const server = createFromSource(source, {
-  language: "english",
   async buildIndex(page) {
     const { headings, contents } = await page.data.structuredData();
     return {

@@ -1,96 +1,20 @@
 ---
-title: Settings / 设置管理
-description: Manage auth keys, OIDC sign-in restrictions and the Headplane Agent in English or Simplified Chinese.
+title: Settings guide
+description: Manage auth keys, sign-in restrictions and the Agent.
 ---
 
 import { versions } from "@/lib/versions";
 
-# Settings / 设置管理
+<span id="设置操作指南" />
 
-This guide covers the bilingual Settings module in `CM-Chenqf/headscale-web`
-on `main`. Full interface and documentation translation is still in progress;
-a complete bilingual image has not been released at this stage.
+# Settings guide
 
-本页介绍 `CM-Chenqf/headscale-web` 的 `main` 分支设置管理模块。
-完整界面和文档仍在翻译中，当前阶段尚未发布完整双语镜像。
+This guide describes `CM-Chenqf/headscale-web` on `main`. A complete bilingual image has not been published. See [Language and maintenance](/features/language) for release status.
 
-## 简体中文
+<span id="english" />
+<span id="简体中文" />
 
-### 认证密钥
-
-在顶部选择 **简体中文**，打开 **设置 → 认证密钥**。
-认证密钥用于让设备接入 Tailnet，无需交互式登录；它与用于访问 Headscale API 的 API 密钥不同。
-所有者、管理员、网络管理员和 IT 管理员可管理密钥；审计员和查看者只能管理已关联的本人 Headscale 用户的密钥。
-成员无权访问此页面。账号尚未关联时，创建弹窗会说明原因并禁用提交，需先完成[账号关联](/features/users-bilingual)。
-
-1. 点击 **创建密钥**。
-2. 选择设备所属的 **用户**。具备管理权限时，可启用 **仅标签密钥**，改为至少添加一个标签。
-   标签前缀 `tag:` 会自动补齐；用户标识、标签及命令保持原文。
-3. 填写 **有效期（天）**，范围为 1 到 365,000 天，默认 90 天。
-4. 按需启用 **可重复使用**，允许多台设备使用此密钥接入；启用 **临时** 时，设备离线后会被移除。
-5. 提交后立即复制密钥，或复制弹窗中的 `tailscale up` 命令。关闭创建成功弹窗后，完整密钥不会再次显示。
-
-有效期提交值必须为不含分组符和单位的整数。数字输入框可按所选语言显示分组格式，
-但提交时始终使用原始数字；服务端会拒绝 `365,000`、`365.000`、`90 days` 等原始表单值。
-
-列表默认筛选 **有效** 密钥，按创建时间从新到旧排列。可按用户和状态筛选，
-查看可重复使用、一次性、已使用及临时标记、过期时间和创建时间。
-“有效”与“已过期”沿用上游规则，按过期时间判断；已使用状态另行显示。
-支持全量密钥列表的 Headscale 会显示仅标签密钥；不支持或全量请求失败时，沿用按用户加载的回退方式。
-部分用户密钥加载失败时，保留已加载的结果并显示提示，详情查看服务端日志。
-
-对仍有效、尚可使用且归属于用户的密钥，点击 **使其过期** 并确认。
-过期后将立即无法用于接入新设备，不会断开已接入设备。
-仅标签密钥的过期按钮可用性沿用上游行为。本人密钥权限在服务端校验，修改请求中的用户或密钥标识不能绕过。
-
-### 登录限制
-
-**设置 → 登录限制** 仅在 Headscale 配置可写且已配置 OIDC 时显示。
-Headplane 必须能读取并写入 `headscale.config_path` 指向的 Headscale YAML 文件。
-所有者、管理员和 IT 管理员可以修改；其他具有用户读取权限的角色只能查看，成员无权查看。
-无可用 OIDC 配置时，直接访问该地址会提示未配置 OIDC。
-
-分别在 **邮箱域名**、**用户组** 和 **用户** 中添加或移除条目：
-
-- 邮箱域名填写 `example.com` 这样的域名，不能填写 URL 或邮箱地址。
-- 用户组和用户填写身份提供商返回的原始值，大小写及内容不会被翻译。
-- 每个列表为空时，该类条件不限制登录。删除最后一个条目前，弹窗会明确说明将放开该类限制。
-- 重复条目、无效输入和已被移除的条目会显示错误，不写入配置。
-
-限制分别写入 `oidc.allowed_domains`、`oidc.allowed_groups` 和 `oidc.allowed_users`，
-Headscale 与 Headplane 均会执行。编辑已有列表时，配置注释和其他设置保持原样。
-Headscale 需要重启才能应用更改；配置一个[集成](/configuration/integrations)可自动重启。
-未配置集成时，页面显示重启提醒。若提示“设置已保存，但 Headscale 重启后未恢复运行”，
-说明配置已经写入，并未回滚；先检查 Headscale 日志并恢复服务，再继续操作。
-
-### Agent 状态
-
-打开 **设置 → Agent**。Agent 需要 Headscale {versions.headscale.agent} 或更新版本、
-有效的 `headscale.api_key`，并在 Headplane 配置中启用：
-
-```yaml
-integration:
-  agent:
-    enabled: true
-```
-
-镜像和 NixOS 模块已包含 Agent；原生安装需提供二进制文件。
-完整配置、状态目录和 ACL 可见性规则见 [Headplane Agent](/features/agent)。
-本页用于查看状态和触发同步，不提供修改 Agent 配置的表单。
-具有设备读取权限的角色均可查看并点击 **立即同步**；成员无权访问。
-
-未启用、缺少 API 密钥、Headscale 版本不满足要求或初始化失败时，页面显示相应原因。
-启用后显示同步状态、连续失败次数、上次同步时间、同步间隔和进程启动时间，
-以及 Agent 自身设备、地址和 Tailscale 版本。
-等待批准时，使用页面上的 **在此批准** 链接完成 Tailnet 注册。
-
-**同步覆盖情况** 显示上次同步获取了多少台其他设备的信息，不包含 Agent 自身。
-缺失设备保留之前获取的详情和时间，通常是因为设备离线或 ACL 限制。
-Headscale 暂时无法列出设备时，相关列表显示 **不可用**，同步状态仍会保留。
-中文错误说明附带原始诊断，未知诊断也保留原文，便于与日志核对。
-切换语言只改变界面、日期和提示，不会更改配置、权限、同步间隔或设备数据。
-
-## English
+<span id="认证密钥" />
 
 ### Auth keys
 
@@ -121,6 +45,8 @@ key; machines already registered remain connected. The availability of expiry
 for tag-only keys follows upstream behavior. Self-service ownership is checked
 on the server against the actual user's keys, including when form IDs are changed.
 
+<span id="登录限制" />
+
 ### Sign-in restrictions
 
 **Settings → Sign-in restrictions** appears with a writable Headscale YAML file
@@ -141,11 +67,13 @@ and Headplane enforce them. Restart Headscale to apply changes, or configure an
 the page shows a restart notice. A “Saved, but Headscale didn't come back” error
 means the YAML was written, without rollback. Inspect logs and restore service.
 
+<span id="agent-状态" />
+
 ### Agent status
 
 The Agent requires Headscale {versions.headscale.agent} or newer, a valid
 `headscale.api_key` and the `integration.agent.enabled: true` configuration shown
-above. Docker images and the NixOS module include the binary; native installs
+in the examples below. Docker images and the NixOS module include the binary; native installs
 must provide it. Follow [Headplane Agent](/features/agent) for configuration,
 persistent state and ACL visibility. The status page displays configuration
 results and triggers syncs; it does not edit the Agent configuration.
@@ -163,3 +91,11 @@ by ACLs. When the machine list cannot be fetched, it shows **Unavailable** while
 keeping sync status visible. Chinese explanations retain original diagnostics,
 including unknown errors. Language selection does not change permissions,
 configuration, intervals or machine data.
+
+### Configuration examples
+
+```yaml
+integration:
+  agent:
+    enabled: true
+```

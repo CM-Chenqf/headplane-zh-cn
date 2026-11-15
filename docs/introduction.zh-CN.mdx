@@ -1,0 +1,68 @@
+---
+title: 简介
+description: Headplane 是什么？
+---
+
+import previewLight from "./assets/preview-light.png";
+import previewDark from "./assets/preview-dark.png";
+import dnsLight from "./assets/dns-light.png";
+import dnsDark from "./assets/dns-dark.png";
+import machineLight from "./assets/machine-light.png";
+import machineDark from "./assets/machine-dark.png";
+import routesLight from "./assets/routes-light.png";
+import routesDark from "./assets/routes-dark.png";
+
+# Headplane 是什么？ [#what-is-headplane]
+
+[Headscale](https://headscale.net) 是 Tailscale 控制服务器的自托管实现，使 Tailscale 客户端能够在不使用 Tailscale 服务器的情况下组成专用网络。Headscale 本身不提供 Web 界面；Headplane 为它提供了一个参考 Tailscale 管理控制台设计的 Web 界面。
+
+<Figure
+  alt="Headplane 管理面板"
+  light={previewLight}
+  dark={previewDark}
+  caption="Headplane 管理面板（上游英文界面截图）"
+/>
+
+Headplane 可以管理：
+
+- **设备**：重命名、更换所有者、批准子网路由和出口节点、管理标签，以及使设备过期或移除设备。
+- **用户和认证密钥**：包括每个人在 Headplane 中的操作权限。
+- **访问控制**：通过可视化界面或文件编辑 ACL 策略。
+- **DNS**：tailnet 名称、Magic DNS、DNS 服务器、搜索域和解析记录。
+
+<Figure
+  alt="在 Headplane 中批准设备路由"
+  light={routesLight}
+  dark={routesDark}
+  caption="批准子网路由和出口节点（上游英文界面截图）"
+/>
+
+<Figure
+  alt="Headplane 的 DNS 管理"
+  light={dnsLight}
+  dark={dnsDark}
+  caption="DNS 管理（上游英文界面截图）"
+/>
+
+Headplane 还补充了 Headscale 本身没有的功能：
+
+- 通过任意 OpenID Connect 提供商或反向代理实现**单点登录**，并为每个人分配角色。
+- 无需安装客户端，即可通过**浏览器 SSH** 连接 tailnet 内的设备。
+- 使用 **Headplane Agent** 显示每台设备的 Tailscale 版本、操作系统和连接状态。
+
+<Figure
+  alt="Headplane 的设备管理"
+  light={machineLight}
+  dark={machineDark}
+  caption="设备管理（上游英文界面截图）"
+/>
+
+## 连接方式 [#how-it-connects]
+
+Headplane 是与 Headscale 配套运行的独立服务。它通过三种方式连接 Headscale，每种方式启用界面中的一部分功能：
+
+<Architecture />
+
+只有 API 是必需的。访问 Headscale 配置文件的方式见[集成](/configuration/integrations)，Agent 的用法见 [Agent 文档](/features/agent)。
+
+从新服务器开始部署时，按照[快速开始](/quickstart)操作；为已有 Headscale 添加 Headplane 时，参阅[安装](/install)。

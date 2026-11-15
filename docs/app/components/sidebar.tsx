@@ -14,6 +14,7 @@ import { createPageTreeRenderer } from "fumadocs-ui/components/sidebar/page-tree
 import type { ComponentProps } from "react";
 
 import VersionPicker from "@/components/version-picker";
+import { useDocsLocale } from "@/lib/use-locale";
 
 // Matches the settings nav in the app (app/routes/settings/layout.tsx).
 const itemClass =
@@ -65,9 +66,10 @@ const PageTree = createPageTreeRenderer({
 });
 
 function SidebarLinks() {
+  const { t } = useDocsLocale();
   return (
     <SidebarViewport>
-      <nav className="flex flex-col gap-0.5 py-2">
+      <nav aria-label={t("Documentation", "文档导航")} className="flex flex-col gap-0.5 py-2">
         <PageTree />
       </nav>
     </SidebarViewport>
@@ -75,11 +77,12 @@ function SidebarLinks() {
 }
 
 function SidebarFooter({ hasVersionPicker = false }: { hasVersionPicker?: boolean }) {
+  const { t } = useDocsLocale();
   return (
     <div className="border-line text-faint flex items-center gap-x-3 border-t px-5 py-3 text-xs">
       {hasVersionPicker && <VersionPicker className="mr-auto -ml-2" />}
       <a className="hover:text-fg" href="https://github.com/sponsors/tale">
-        Sponsor
+        {t("Sponsor", "赞助上游")}
       </a>
       <a className="hover:text-fg" href="https://ko-fi.com/atale">
         Ko-fi

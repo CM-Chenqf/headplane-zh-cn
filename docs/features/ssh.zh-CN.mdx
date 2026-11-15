@@ -1,0 +1,129 @@
+---
+title: 浏览器 SSH
+description: 从浏览器连接 tailnet 内任意设备的 SSH 会话。
+---
+
+import { versions } from "@/lib/versions";
+import sshBtop from "../assets/ssh-btop.png";
+import sshFastfetch from "../assets/ssh-fastfetch.png";
+import sshPromptLight from "../assets/ssh-prompt-light.png";
+import sshPromptDark from "../assets/ssh-prompt-dark.png";
+
+# 浏览器 SSH [#browser-ssh]
+
+<Figure
+  alt="通过浏览器 SSH 运行 btop"
+  src={sshBtop}
+  caption={
+    <>
+      通过浏览器 SSH 运行 <code>btop</code>
+    </>
+  }
+/>
+
+浏览器 SSH 可直接从 Headplane 打开 tailnet 内设备的终端，无需安装客户端。每个会话都会在浏览器中运行独立的临时 Tailscale 节点，加入 tailnet 后通过 Tailscale SSH 连接设备。
+
+## 前提条件 [#requirements]
+
+- Headscale {versions.headscale.ssh} 或更新版本，但不包括存在兼容问题的 {versions.headscale.sshWebsocketBroken}。
+- 目标设备通过 `tailscale up --ssh` 启用 Tailscale SSH。普通 SSH 服务无法替代，因为浏览器使用 Tailscale 身份认证，不使用密码或本地私钥。
+- 已启用 [Headplane Agent](/features/agent)。
+- 账号已关联 Headscale 用户，会话以该用户身份连接。因此必须通过 [SSO](/features/sso) 或[代理认证](/features/proxy-auth)登录；API 密钥会话不能使用浏览器 SSH。
+- 浏览器能够访问 Headscale，代理已转发 WebSocket 升级请求。不同域名部署时还需 CORS 响应头，参阅[反向代理](/configuration/reverse-proxy)。
+
+## 打开会话 [#opening-a-session]
+
+在已启用 Tailscale SSH 的设备上选择 **SSH**。会话在新窗口打开，并要求输入远端 Linux 用户名。
+
+<Figure
+  alt="浏览器 SSH 用户名输入框"
+  light={sshPromptLight}
+  dark={sshPromptDark}
+  caption="选择登录用户（上游英文界面截图）"
+/>
+
+## 工作原理 [#how-it-works]
+
+1. 浏览器加载编译为 WebAssembly 的 Tailscale 客户端，使用属于当前 Headscale 用户的预认证密钥加入 tailnet。
+2. 客户端通过 tailnet 连接目标设备，目标设备上的 Tailscale SSH 检查 ACL 策略中的 `ssh` 规则，确定是否允许该身份以指定 Linux 用户登录。
+3. 终端由基于 Ghostty 的 [restty](https://restty.pages.dev) 模拟器渲染。会话使用 `TERM=xterm-256color`，内置 JetBrains Mono Nerd Font，无需额外配置即可显示图标。
+
+临时设备离线后，由 Agent 清理。
+
+<Figure
+  alt="fastfetch 显示 Nerd Font 图标"
+  src={sshFastfetch}
+  caption={
+    <>
+      <code>fastfetch</code> 显示 Nerd Font 图标
+    </>
+  }
+/>
+
+## 故障排查 [#troubleshooting]
+
+### SSH 不可用 [#ssh-not-available]
+
+**错误原文：** "This build of Headplane doesn't include browser SSH."
+
+构建缺少 WebAssembly 文件 `hp_ssh.wasm` 和 `wasm_exec.js`。上游官方 Docker 镜像包含它们。原生安装的 `./build.sh` 默认构建全部组件，除非使用标志只选择了其他部分；`./build.sh --wasm` 只构建 WebAssembly 模块。
+
+### 需要 Agent [#agent-required]
+
+**错误原文：** "Turn on the Headplane agent to use browser SSH."
+
+浏览器 SSH 需要 Agent 加入 tailnet 并清理会话临时节点，参阅 [Headplane Agent](/features/agent)。
+
+### 需要 OIDC 身份 [#oidc-required]
+
+**错误原文：** "Sign in with SSO to use browser SSH."
+
+会话以当前账号关联的 Headscale 用户身份连接。API 密钥会话没有该身份，应改用 SSO 或代理认证登录。
+
+### 用户未关联 [#user-not-linked]
+
+**错误原文：** "Browser SSH connects as your Headscale user."
+
+账号尚未关联 Headscale 用户。如果 Headscale 也使用 SSO，从设备登录 Headscale 后会创建用户，Headplane 随后自动关联。其他情况由管理员在**用户**页面完成关联，参阅[手动关联](/features/users-roles#linking-by-hand)。
+
+### 设备不存在 [#node-not-found]
+
+**错误原文：** "There's no machine named …"
+
+Headscale 中没有 URL 所指名称的设备。设备可能已重命名或移除，返回设备列表重新打开会话。
+
+### 设备离线 [#node-offline]
+
+Headplane 在启动会话前检查设备连接状态。离线时显示错误页，设备重新上线后点击**重试**。
+
+### 连接失败或一直等待 [#connection-fails-or-hangs]
+
+- 浏览器控制台中 **`/ts2021` 返回 `405 Method Not Allowed`**：通常是 Headscale {versions.headscale.sshWebsocketBroken} 的兼容问题，升级到 {versions.headscale.sshWebsocketFixed} 或更新版本。
+- **Headscale 配置中的 `server_url`**：使用非 443 端口时必须包含端口，例如 `https://hs.example.com:8443`，嵌入式 DERP 会从此地址获取对外公布的端口。
+- **Headplane 的 `headscale.public_url`**：这是浏览器连接地址，未设置时使用 `headscale.url`，必须为浏览器可访问的 Headscale 公网 URL。
+- **Headscale 前的代理**：必须转发 WebSocket 升级请求。
+- **不同域名部署**：Headscale 响应缺少 CORS 头时，浏览器控制台会显示跨域错误。
+
+### "unable to authenticate, attempted methods [none]"
+
+目标返回的是普通 SSH 服务而非 Tailscale SSH。运行 `tailscale up --ssh` 启用 Tailscale SSH。
+
+### "failed to look up local user \*"
+
+部分 Tailscale 版本将 SSH 规则中的 `"users": ["*"]` 解释为名为 `*` 的用户。改用 `autogroup:nonroot` 或明确的用户名：
+
+```jsonc
+// 修改前
+{ "action": "accept", "src": ["autogroup:member"], "dst": ["autogroup:self"], "users": ["*"] }
+
+// 修改后
+{ "action": "accept", "src": ["autogroup:member"], "dst": ["autogroup:self"], "users": ["autogroup:nonroot"] }
+```
+
+### 登录后继续 [#sign-in-to-continue]
+
+使用 `"action": "check"` 的 SSH 规则要求在打开会话前再次登录。Headplane 在终端上方显示**登录**链接，认证完成后继续连接。Headscale {versions.headscale.ssh} 将 `check` 当作 `accept`，因此重新认证从 {versions.headscale.sshCheck} 开始生效。
+
+### 会话立即关闭 [#the-session-closes-right-away]
+
+ACL 策略中的 `ssh` 规则不允许当前身份使用所选 Linux 用户，或该用户在目标设备上不存在。

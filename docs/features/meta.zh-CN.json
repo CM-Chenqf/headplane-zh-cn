@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "users-roles",
+    "sso",
+    "proxy-auth",
+    "acls",
+    "agent",
+    "ssh",
+    "language",
+    "machines-bilingual",
+    "users-bilingual",
+    "acls-bilingual",
+    "dns-bilingual",
+    "settings-bilingual",
+    "ssh-bilingual"
+  ]
+}

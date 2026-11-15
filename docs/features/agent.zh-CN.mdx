@@ -1,0 +1,70 @@
+---
+title: Headplane Agent
+description: 显示设备的 Tailscale 版本和操作系统，并启用浏览器 SSH。
+---
+
+import { versions } from "@/lib/versions";
+import agentLight from "../assets/agent-light.png";
+import agentDark from "../assets/agent-dark.png";
+
+# Headplane Agent
+
+Headplane Agent 是 Headplane 在 tailnet 中运行的轻量 Tailscale 节点。Headscale API 不提供设备的 Tailscale 版本或操作系统，Agent 因此从自己的网络视图中读取这些信息，默认每三分钟刷新一次。[浏览器 SSH](/features/ssh) 也依赖 Agent。
+
+<Figure
+  alt="Headplane 设置中的 Agent 状态"
+  light={agentLight}
+  dark={agentDark}
+  caption="设置 → Agent 显示连接状态（上游英文界面截图）"
+/>
+
+## 启用 [#turning-it-on]
+
+Agent 需要 Headscale {versions.headscale.agent} 或更新版本，以及用于创建自身预认证密钥的 [`headscale.api_key`](/configuration/api-keys#the-servers-key)。满足条件后启用：
+
+```yaml
+integration:
+  agent:
+    enabled: true
+```
+
+Docker 镜像和 NixOS 模块已包含 Agent。原生安装时，将 `build/hp_agent` 复制到 `/usr/libexec/headplane/agent`，或通过 `integration.agent.executable_path` 指向产物。
+
+重启后，Agent 以 `headplane-agent` 名称出现在设备列表中，并带有 `tag:headplane-agent` 标签。**设置 → Agent**显示连接状态。如果 Headscale 要求批准新设备，Headplane 会使用 API 密钥批准 Agent；批准失败时，该页面也会显示批准链接。
+
+## 访问规则 [#access-rules]
+
+Agent 只能看到与它互为对等节点的设备。ACL 策略允许两个设备至少在一个方向通信时，Headscale 将它们设为对等节点。因此默认允许全部访问的策略下，Agent 能看到所有设备；更严格的策略下，不可见设备不会显示版本或操作系统。
+
+要让 Agent 看到所有设备，声明其标签并添加允许设备访问 Agent 的规则。Agent 不监听任何端口，因此这条规则不会在任一端开放服务：
+
+```json
+{
+  "tagOwners": {
+    "tag:headplane-agent": []
+  },
+  "acls": [{ "action": "accept", "src": ["*"], "dst": ["tag:headplane-agent:*"] }]
+}
+```
+
+Headscale 会拒绝引用未在 `tagOwners` 声明的标签的规则，因此两部分都需要。自定义 `host_name` 时，标签相应变为 `tag:<host_name>`。
+
+## 状态数据 [#state]
+
+Agent 将 Tailscale 状态保存在 `integration.agent.work_dir`，默认为 `/var/lib/headplane/agent`，使其重启后仍是同一台设备。Docker 部署时，该路径已位于数据卷中。状态不可用时，Agent 会重新注册并移除旧设备；如果整个目录丢失，旧设备会留在列表中，需手动移除。
+
+## 选项 [#options]
+
+| 选项              | 默认值                         | 说明                                     |
+| ----------------- | ------------------------------ | ---------------------------------------- |
+| `host_name`       | `headplane-agent`              | Agent 设备名及标签名                     |
+| `cache_ttl`       | `180000`                       | 设备详情刷新间隔，单位毫秒               |
+| `work_dir`        | `/var/lib/headplane/agent`     | Agent 状态保存目录                       |
+| `executable_path` | `/usr/libexec/headplane/agent` | Agent 可执行文件                         |
+| `tailscale_netns` | `true`                         | 参阅[容器网络问题处理](#troubleshooting) |
+
+## 故障排查 [#troubleshooting]
+
+- **Agent 无法启动**：日志会说明原因，常见原因是缺少 `headscale.api_key`、Headscale 低于 {versions.headscale.agent}，或 `executable_path` 下没有可执行文件。
+- **部分设备没有版本或系统信息**：ACL 策略阻止它们成为 Agent 的对等节点，参阅[访问规则](#access-rules)。
+- **容器内 Agent 无法连接 Headscale**：容器移除全部 capabilities 且连接多个网络时，Agent 可能使用默认网络发起连接，而未遵循容器路由。若容器内本来可以访问 Headscale，设置 `integration.agent.tailscale_netns: false`。其他场景保留启用状态，因为在容器外它能避免 Agent 流量经 Tailscale 回环。

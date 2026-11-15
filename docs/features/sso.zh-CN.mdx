@@ -1,0 +1,160 @@
+---
+title: 单点登录
+description: 通过 OpenID Connect 提供商登录 Headplane。
+---
+
+import linkLight from "../assets/link-light.png";
+import linkDark from "../assets/link-dark.png";
+
+# 单点登录 [#single-sign-on]
+
+单点登录允许通过 Authentik、Keycloak、Google 等 OpenID Connect（OIDC）提供商登录 Headplane。每个人都有独立的 Headplane 账号和[角色](/features/users-roles)，并与其 Headscale 用户关联。
+
+如果反向代理已负责认证，可使用[代理认证](/features/proxy-auth)，避免再次登录。
+
+## 配置 [#setting-it-up]
+
+除 `oidc` 配置段外，SSO 还需要：
+
+- `server.base_url`：Headplane 的公网 URL，例如 `https://headscale.example.com`。
+- `headscale.api_key`：代表已登录用户访问 Headscale 的长期有效密钥，参阅 [API 密钥](/configuration/api-keys#the-servers-key)。
+
+### 1. 创建客户端 [#1-create-a-client]
+
+在身份提供商中创建 OIDC 客户端，并注册以下重定向 URI，其前缀为 `server.base_url`：
+
+```
+https://headscale.example.com/admin/oidc/callback
+```
+
+使用自定义 [`server.base_path`](/configuration/reverse-proxy#a-different-path) 时，将 `/admin` 替换为该路径。
+
+如果 Headscale 已通过同一提供商登录，在 Headscale 的现有客户端中添加此 URI，无需另建客户端。共用客户端可让提供商在两边返回相同用户 ID，从而使 Headplane 自动关联 Headscale 用户。
+
+### 2. 配置 Headplane [#2-configure-headplane]
+
+将客户端信息加入 Headplane 配置：
+
+```yaml
+oidc:
+  issuer: "https://idp.example.com"
+  client_id: "headplane"
+  client_secret: "<client secret>"
+```
+
+Headplane 通过 issuer 下的 `/.well-known/openid-configuration` 发现端点。常见提供商的 issuer 地址见[提供商](#providers)。如需避免在配置文件中直接保存密钥，使用 `client_secret_path`，参阅[敏感值](/configuration/sensitive-values)。
+
+### 3. 登录 [#3-sign-in]
+
+重启 Headplane，在登录页选择**使用 SSO 继续**。第一个登录的人成为所有者，因此完成配置的人应先登录，再分享地址。
+
+默认登录页同时显示 API 密钥表单与 SSO。设置 `oidc.disable_api_key_login: true` 后，会直接跳转到身份提供商；只有退出登录后或 SSO 不可用时才显示密钥表单。
+
+## 提供商 [#providers]
+
+支持任意 OIDC 提供商。常见 issuer 地址如下：
+
+| 提供商    | Issuer                                                |
+| --------- | ----------------------------------------------------- |
+| Authelia  | `https://auth.example.com`                            |
+| Authentik | `https://authentik.example.com/application/o/<slug>/` |
+| Google    | `https://accounts.google.com`                         |
+| Entra ID  | `https://login.microsoftonline.com/<tenant-id>/v2.0`  |
+| Kanidm    | `https://idm.example.com/oauth2/openid/<client-name>` |
+| Keycloak  | `https://keycloak.example.com/realms/<realm>`         |
+| Pocket ID | `https://id.example.com`                              |
+
+部分提供商需要额外设置：
+
+- **Entra ID** 为同一用户在不同应用注册中分配不同 ID，因此尤其应与 Headscale 共用客户端。参阅[共用或分离客户端](#same-client-or-separate-clients)。
+- **Kanidm** 默认要求 PKCE，设置 `oidc.use_pkce: true`。
+- **没有 `sub` 声明的提供商**（例如飞书/Lark）需要配置 `oidc.subject_claims`，参阅[其他选项](#other-options)。
+
+## 与 Headscale 用户的匹配方式 [#how-accounts-match-headscale-users]
+
+账号关联方式见[用户与角色](/features/users-roles#linking-to-headscale-users)。对于 SSO 账号，Headplane 按顺序尝试：
+
+1. **Subject**：Headscale 保存 OIDC 用户的 `provider_id`，例如 `https://idp.example.com/3d6f6e3f-...`。取最后一个路径段，与账号 subject 比较。账号 subject 来自 `sub` 声明，或 `oidc.subject_claims` 中第一个存在的声明。
+2. **邮箱**：subject 未匹配时，将 ID token 或提供商 `userinfo` 端点返回的邮箱，与 Headscale 用户邮箱比较。
+
+通过 `headscale users create` 创建的用户没有 `provider_id`，因此只能按邮箱匹配。创建时添加邮箱：
+
+```sh
+headscale users create alice --email alice@example.com
+```
+
+### 共用或分离客户端 [#same-client-or-separate-clients]
+
+Headscale 和 Headplane 共用 OIDC 客户端最可靠，因为 subject 始终相同。
+
+使用独立客户端时，部分提供商（尤其是 Entra ID）会向不同客户端返回不同 subject。首次登录需要回退到邮箱匹配，因此两边必须都有邮箱。关联一旦建立就会保存，后续登录无需再次匹配。
+
+如果使用不同客户端，且提供商不返回邮箱，就完全无法自动匹配。用户仍可登录，但完成账号关联前，不能为自己创建认证密钥，也不能使用浏览器 SSH。
+
+### 无法匹配时 [#when-nothing-matches]
+
+没有匹配 Headscale 用户的账号保持未关联。所有者、管理员和 IT 管理员登录后会看到**关联账号**页面，可选择自己的 Headscale 用户。其他人需要由这些角色从**用户**页面代为关联。具体步骤见[手动关联](/features/users-roles#linking-by-hand)。
+
+<Figure
+  alt="关联账号页面"
+  light={linkLight}
+  dark={linkDark}
+  caption="首次登录后选择 Headscale 用户（上游英文界面截图）"
+/>
+
+## 从身份提供商分配角色 [#roles-from-the-identity-provider]
+
+新账号默认为成员。设置 `oidc.default_role` 可为新 SSO 账号指定其他初始角色：
+
+```yaml
+oidc:
+  # admin、network_admin、it_admin、auditor、viewer 或 member
+  default_role: "viewer"
+```
+
+适用于 Headscale 已限制登录范围（例如指定邮箱域名），且所有获准登录的人都应能查看 Headplane 的场景。
+
+如需按人分配角色，将 `oidc.role_claim` 指向提供商返回的声明。其值可以是 `"admin"` 这样的 Headplane 角色字符串，或包含角色的数组。在 Keycloak、Authentik 中可将用户组或客户端角色映射到该声明。
+
+```yaml
+oidc:
+  role_claim: "headplane_role"
+```
+
+有效的角色声明优先于 `default_role`，并在每次登录时重新应用，因此提供商侧的角色变更会在下次登录时同步。`default_role` 仅在创建账号时应用。两者都不能授予或移除所有者角色。
+
+## 同时退出身份提供商 [#signing-out-of-the-provider]
+
+默认退出仅结束 Headplane 会话，身份提供商仍保留登录状态。设置 `oidc.use_end_session: true` 后，退出时还会跳转到提供商退出页，再返回 Headplane。
+
+```yaml
+oidc:
+  use_end_session: true
+```
+
+提供商必须允许返回地址，否则退出后会报错。在客户端允许的退出后重定向 URI 中添加 `https://headscale.example.com/admin/login?s=logout`，或通过 `oidc.post_logout_redirect_uri` 指定其他地址。如果提供商未在发现文档中公布退出端点，设置 `oidc.end_session_endpoint`。
+
+## 其他选项 [#other-options]
+
+| 选项                         | 用途                                                                                                                   |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `use_pkce`                   | 启用部分提供商要求的 PKCE，仅支持 `S256` 方法。                                                                        |
+| `scope`                      | 请求其他 scope，默认为 `openid email profile`。                                                                        |
+| `subject_claims`             | 未返回 `sub` 时按顺序尝试其他声明。飞书/Lark 可用 `["open_id", "email"]`。                                             |
+| `extra_params`               | 为授权请求添加查询参数，例如 `prompt: login`。                                                                         |
+| `token_endpoint_auth_method` | 强制使用 `client_secret_basic` 或 `client_secret_post`，否则自动检测。                                                 |
+| `profile_picture_source`     | 设为 `gravatar`，使用 Gravatar 而非提供商头像。                                                                        |
+| `allow_weak_rsa_keys`        | 允许使用小于 2048 位 RSA 密钥签名的 ID token。这会降低验证强度，只应作为等待提供商轮换密钥期间的临时措施。             |
+| `authorization_endpoint`     | 与 `token_endpoint`、`userinfo_endpoint`、`jwks_endpoint` 一起手动指定端点，用于无自动发现或需要覆盖发现结果的提供商。 |
+
+## 故障排查 [#troubleshooting]
+
+登录页显示问题概述，Headplane 日志提供细节。以下保留英文错误供对照：
+
+- **"Single sign-on is unavailable"**：无法连接 issuer。检查地址是否正确，以及 Headplane 服务器或容器能否访问。下次登录会重试。
+- **"Single sign-on is misconfigured"**：页面会列出原因，通常是 `headscale.api_key` 无效或过期（参阅[轮换密钥](/configuration/api-keys#rotating-the-servers-key)），或提供商不支持自动发现，需要手动指定端点。
+- **提供商提示重定向 URI 错误**：注册地址必须与 `server.base_url` 加 `/admin/oidc/callback` 完全一致，包括协议。自定义 `server.base_path` 时替换 `/admin`。
+- **错误提及 `code_verifier` 或 PKCE**：提供商要求 PKCE，设置 `oidc.use_pkce: true`。
+- **"The SSO provider did not return a valid user identifier"**：提供商没有返回 `sub`。通过 `oidc.subject_claims` 指定稳定声明；只有邮箱保证不会变化时才回退到 `email`。
+- **登录后返回登录页**：浏览器丢弃了会话 Cookie，参阅[登录后没有变化](/troubleshooting#signing-in-does-nothing)。
+- **登录后没有设备**：账号尚未关联 Headscale 用户，参阅[匹配方式](#how-accounts-match-headscale-users)。

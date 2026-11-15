@@ -1,0 +1,50 @@
+---
+title: 故障排查
+description: Headplane 常见问题的处理方法。
+---
+
+import loginBannerLight from "./assets/login-banner-light.png";
+import loginBannerDark from "./assets/login-banner-dark.png";
+
+# 故障排查 [#troubleshooting]
+
+先检查 Headplane 日志。大多数问题都会留下错误记录，设置 `HEADPLANE_DEBUG_LOG=true` 可增加细节。特定功能的问题见对应页面：
+
+- [单点登录](/features/sso#troubleshooting)
+- [浏览器 SSH](/features/ssh#troubleshooting)
+
+## Headplane 无法启动 [#headplane-wont-start]
+
+Headplane 在启动时校验配置，出错后会退出并指出原因。以下保留日志原文，便于检索：
+
+- **"The configuration is missing required fields or has invalid values"**：下方会列出有问题的字段。`headscale.url` 和 `server.cookie_secret` 必填，Cookie 密钥必须恰好为 32 个字符。
+- **"Both … and …\_path are set"**：[敏感值](/configuration/sensitive-values)与对应 `_path` 只能设置一个。
+- **"The secret file specified in … could not be accessed"**：`_path` 指定的文件不存在，或 Headplane 无法读取。
+- **"Could not resolve environment variable"**：`_path` 中引用的 `${NAME}` 环境变量未设置。
+
+## 登录后没有变化 [#signing-in-does-nothing]
+
+<Figure
+  alt="登录警告横幅"
+  light={loginBannerLight}
+  dark={loginBannerDark}
+  caption="Headplane 在登录页提示可能的配置问题（上游英文界面截图）"
+/>
+
+如果登录后又回到登录页，通常是浏览器丢弃了 Headplane Cookie。让 `server.cookie_secure` 与实际访问方式匹配：HTTPS 使用 `true`，明文 HTTP 使用 `false`。位于 HTTPS 反向代理后时，保留 `true`。
+
+## 导航中没有 DNS [#dns-is-missing-from-the-navigation]
+
+Headplane 无法读取 Headscale 配置文件。检查 `headscale.config_path` 是否已设置，并指向 Headplane 可见的实际文件；容器运行时应使用容器内路径。参阅[集成](/configuration/integrations)。
+
+## 修改只能在重启 Headscale 后生效 [#changes-only-take-effect-after-restarting-headscale]
+
+没有可用集成时，DNS 和登录限制页面会显示此提示。可能是未启用集成，也可能是启用的集成未通过启动检查。后一种情况会在日志中提示集成不可用，具体原因位于该提示之前。各集成所需条件见[集成](/configuration/integrations)。
+
+## 提示 Headscale 重启后未恢复 [#headscale-didnt-come-back-after-restarting]
+
+对应原文为 "Headscale didn't come back after restarting"。变更已保存，但 Headscale 未在超时前恢复健康。先检查 Headscale 自身日志，因为刚保存的变更可能导致其无法启动。使用 proc 或 Kubernetes 集成时，还需确认有组件负责重启进程，例如设置了 `Restart=always` 的 systemd unit 或 kubelet。
+
+## 无法编辑 DNS 记录 [#dns-records-cant-be-edited]
+
+Headplane 只能编辑 Headscale `dns.extra_records_path` 文件中的记录，且需要文件写入权限。直接位于 `dns.extra_records` 中的记录是只读的。参阅 [DNS 记录](/configuration/integrations#dns-records)。
