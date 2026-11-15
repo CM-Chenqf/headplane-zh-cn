@@ -148,7 +148,7 @@ async function main() {
     );
     if (!scope.complete)
       console.log(
-        `Release/0.8 localization is INCOMPLETE. Pending: ${scope.pending.join(", ")}. This check does not approve publication.`,
+        `Stable publication acceptance is INCOMPLETE. Pending: ${scope.pending.join(", ")}. This check does not approve publication.`,
       );
   }
 }
