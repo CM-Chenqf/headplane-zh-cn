@@ -806,7 +806,7 @@
   },
   "documents": {
     "CHANGELOG.md": "ba1ee5174613acf8766ef8a29a6cfafd4afc5eebbec97a10f281b9cbba50d292",
-    "docs/CHANGELOG.md": "1b7fb365a48f815836c3fe911f8debfe67ffe8a08573b933eb34a25801caab15",
+    "docs/CHANGELOG.md": "1bbed891adf170220dff22b6bae01589733b470f50e6e2f3816c103ae97e8ce5",
     "docs/configuration/common-issues.md": "6ae48554aa4f0c0755102963b0c9a1d9e8ae04d482c38cf9253c091c40ce22eb",
     "docs/configuration/index.md": "1aa30ce04d3ade08d2b50810136c78dbbbbd54d451ff10ae9366e1e3e63b1cf1",
     "docs/configuration/tls.md": "3967e5a30d5eef9054693f2e313843f38b3a8ed015bf8ba87e52248e40d40ccb",
