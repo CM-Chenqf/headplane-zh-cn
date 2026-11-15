@@ -91,6 +91,7 @@ Token 仅存入 GitHub Secrets，不写入仓库，也不在聊天中提供。
 
 ```bash
 node --test .github/scripts/sync-upstream.test.cjs
+pnpm i18n:check
 pnpm test:unit
 pnpm typecheck
 pnpm docs:build
@@ -98,10 +99,12 @@ pnpm docs:build
 
 路由、认证、Headscale API 等功能变更，还要按 `AGENTS.md` 运行相关集成测试。镜像构建、发布、Cloudflare 部署需要分别查看各工作流结果，不能只凭配置文件存在就视为成功。
 
+`Translations` 工作流检查消息、文档配对及翻译复核指纹。英文单独更新同样会要求复核；检查只读，不会自动放行。确认中文语义、命令及配置值后，使用 `pnpm i18n:review --message KEY` 或 `pnpm i18n:review --file ENGLISH_PATH` 记录指定项，再运行检查。参数可重复，文档对使用英文路径。只改共享文档代码时也需确认内联双语文案。完整范围和限制见 `.github/I18N_AUDIT.zh-CN.md`；要求强制阻止未通过的 PR 合并时，将 `Translation completeness and freshness` 配为分支保护必需检查。
+
 ## 后续阶段
 
-1. 中英切换与登录样板已完成，继续按模块扩展语言资源。
-2. 翻译全部界面、表单校验、服务端可见错误、时间与 SSH 提示。
+1. 登录、公共导航、设备、用户、访问控制、DNS、设置及浏览器 SSH 双语已接入；继续进行场景验收。
+2. 界面、表单校验、服务端可见错误、时间及 SSH 提示已有双语资源；保留原始诊断和远端输出。
 3. 双语文档路由、导航、搜索、全部正文和历史日志已接入；截图沿用上游英文图并说明来源，中文截图可后续更新。
-4. 加入精确漏译检查及中文文档过期检查。
+4. 漏译扫描、文档配对、翻译复核指纹及 CI 已接入；每次上游同步按检查结果逐项核对中文。
 5. 验证上游支持的兼容版本、两种镜像及两个架构，再发布完整双语版本。

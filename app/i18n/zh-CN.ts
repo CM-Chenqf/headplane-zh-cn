@@ -18,6 +18,7 @@ export default {
   ...errors,
   ...users,
   "common.close": "关闭",
+  "common.dismiss": "关闭提示",
   "common.actions": "操作",
   "common.decrement": "减少",
   "common.increment": "增加",

@@ -17,6 +17,7 @@ export default {
   ...errors,
   ...users,
   "common.close": "Close",
+  "common.dismiss": "Dismiss",
   "common.actions": "Actions",
   "common.decrement": "Decrement",
   "common.increment": "Increment",

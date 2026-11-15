@@ -27,7 +27,7 @@ In-app documentation buttons continue to open the upstream English site until th
 
 ## Maintaining interface translations
 
-Add English messages in `app/i18n/en.ts` and Simplified Chinese in `app/i18n/zh-CN.ts`. Module resources such as `en/machines.ts` and `zh-CN/machines.ts` are re-exported there. TypeScript checks message keys; unit tests check matching interpolation placeholders.
+Add English messages in `app/i18n/en.ts` and Simplified Chinese in `app/i18n/zh-CN.ts`. Module resources such as `en/machines.ts` and `zh-CN/machines.ts` are re-exported there. TypeScript checks message keys; unit tests and the translation check validate matching interpolation placeholders.
 
 Use `useI18n()` in React and `getLocale(request)` with `translate()` in server actions. Use `Message` for sentences with inline code or styled names so the whole sentence can be reordered. Pass the locale to time formatters. Keep request languages isolated; do not store a user's language in a process-wide variable.
 
@@ -37,4 +37,25 @@ Keep English source files and their `.zh-CN.md` or `.zh-CN.mdx` counterparts tog
 
 Use `[#english-anchor]` on translated headings to retain inbound links and language-switch fragments. Update both `CHANGELOG.md` and `CHANGELOG.zh-CN.md`, preserving version headings, dates, references and the `Upgrading`, `Changes`, `Fixes` section markers used by the release parser. The renderer translates those section labels.
 
-Upstream updates open synchronization PRs and a tracking Issue with translation work. Those reminders do not prove that all changed prose has been translated. Review the diff and rerun checks before merging. Precise stale-translation checks, release-line adaptation, Docker publication and Cloudflare deployment remain separate acceptance steps. Deployment configuration is documented in `.github/FORK_SETUP.zh-CN.md` in the repository.
+## Checking translation updates
+
+Run `pnpm i18n:check` before committing. The **Translations** workflow runs the same check for pull requests and pushes to maintained branches. It checks missing or empty messages, placeholders, paired documentation, navigation order, release markers and common hardcoded UI messages, including accessible labels, object labels, toasts and `ActionError` text.
+
+Review fingerprints in `.github/i18n/reviewed.json` cover each English/Chinese message pair, document pair and shared documentation source. Changing only English still requires review. A shared documentation code change is a review reminder; it does not necessarily mean its Chinese text is wrong. The check never updates these records.
+
+Review the diff, translate any changed meaning, preserve commands and configuration values, then record only the reviewed entries:
+
+```bash
+pnpm i18n:review --message common.dismiss
+pnpm i18n:review --file docs/install/docker.mdx
+pnpm i18n:review --file docs/app/components/header.tsx
+pnpm i18n:check
+```
+
+Use the English path for document pairs; options can be repeated. Reviewing one entry does not approve other changes. Deleted sources require removing the corresponding Chinese file and explicitly reviewing the old English path or message key to remove its record. Apply formatting before reviewing. The initial `--initialize` option refuses to replace an existing baseline.
+
+Technical names and examples are listed in `.github/i18n/exceptions.json` with an exact message key or file and code text, plus a reason. Unused exceptions fail the check. Review new exceptions individually; do not bypass failures with broad exclusions or refresh all fingerprints without reviewing translations.
+
+Static checks cannot prove translation quality or follow every dynamic string, third-party component or remote terminal message. Manually review source changes and both language flows; original server diagnostics remain untranslated alongside Chinese explanations. The audit scope is documented in `.github/I18N_AUDIT.zh-CN.md`.
+
+Upstream updates open synchronization PRs and a tracking Issue with translation work and these review commands. Reminders do not complete translation or prevent merging by themselves; configure required status checks in GitHub branch protection if needed. Release-line adaptation, Docker publication and Cloudflare deployment remain separate acceptance steps. Deployment configuration is documented in `.github/FORK_SETUP.zh-CN.md` in the repository.

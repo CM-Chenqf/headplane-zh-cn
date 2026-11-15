@@ -27,7 +27,7 @@ description: 选择显示语言并维护双语版本。
 
 ## 维护界面翻译 [#maintaining-interface-translations]
 
-英文资源位于 `app/i18n/en.ts`，简体中文位于 `app/i18n/zh-CN.ts`。模块资源（例如 `en/machines.ts` 和 `zh-CN/machines.ts`）由这两个入口汇总。TypeScript 检查消息键，单元测试校验插值占位符是否一致。
+英文资源位于 `app/i18n/en.ts`，简体中文位于 `app/i18n/zh-CN.ts`。模块资源（例如 `en/machines.ts` 和 `zh-CN/machines.ts`）由这两个入口汇总。TypeScript 检查消息键，单元测试和翻译检查校验插值占位符是否一致。
 
 React 使用 `useI18n()`，服务端操作使用 `getLocale(request)` 和 `translate()`。包含行内代码或带样式名称的句子使用 `Message`，确保整句能按语言重排。时间格式化函数显式传入语言。不使用进程级变量保存用户语言，避免请求间互相影响。
 
@@ -37,4 +37,25 @@ React 使用 `useI18n()`，服务端操作使用 `getLocale(request)` 和 `trans
 
 中文标题使用 `[#english-anchor]` 保留外部引用及切换语言后的锚点。同步更新 `CHANGELOG.md` 和 `CHANGELOG.zh-CN.md`，保留版本标题、日期、引用及发布解析器使用的 `Upgrading`、`Changes`、`Fixes` 结构标记，由渲染器翻译这些标签。
 
-上游更新会创建同步 PR 和跟踪 Issue，列出翻译工作。提醒不等于所有变更正文均已翻译，合并前仍需审阅差异并重新验证。精确过期检查、发布线适配、Docker 发布和 Cloudflare 部署是后续独立验收步骤。仓库内 `.github/FORK_SETUP.zh-CN.md` 说明了部署配置。
+## 检查翻译更新 [#checking-translation-updates]
+
+提交前运行 `pnpm i18n:check`。**Translations** 工作流会在 PR 和维护分支推送时运行同一检查，覆盖缺失或空白消息、占位符、文档配对、导航顺序、发布结构标记及常见硬编码界面文案，包括无障碍标签、对象标签、Toast 和 `ActionError` 消息。
+
+`.github/i18n/reviewed.json` 分别记录中英文消息对、文档对及共享文档源码的复核指纹。只修改英文也会要求复核。共享文档代码变化是复核提醒，并不代表中文一定有错。检查命令不会更新记录。
+
+先审阅差异、翻译发生变化的含义，并保留命令及配置值，再仅记录已核对的项目：
+
+```bash
+pnpm i18n:review --message common.dismiss
+pnpm i18n:review --file docs/install/docker.mdx
+pnpm i18n:review --file docs/app/components/header.tsx
+pnpm i18n:check
+```
+
+文档对使用英文源文件路径；参数可重复。复核一项不会放行其他改动。源文件删除时，同时删除对应中文文件，再对旧英文路径或消息键执行复核以移除记录。格式化应在复核前完成。初始化参数 `--initialize` 拒绝覆盖已有基线。
+
+技术名称和示例在 `.github/i18n/exceptions.json` 中记录，必须有确切消息键，或确切文件与代码文本，并说明理由。失效例外会导致检查失败。新增例外需逐项审阅，不用宽泛排除或未经核对的全量刷新绕过失败。
+
+静态检查不能证明翻译质量，也无法追踪全部动态字符串、第三方组件或远端终端消息。仍需人工检查源码差异和两种语言的操作流程；原始服务端诊断继续保留，并附中文解释。检查范围见 `.github/I18N_AUDIT.zh-CN.md`。
+
+上游更新会创建同步 PR 和跟踪 Issue，列出翻译工作及上述复核命令。提醒不会自动完成翻译，本身也不阻止合并；需要强制门禁时，在 GitHub 分支保护中配置必需状态检查。发布线适配、Docker 发布和 Cloudflare 部署仍是后续独立验收步骤。仓库内 `.github/FORK_SETUP.zh-CN.md` 说明了部署配置。

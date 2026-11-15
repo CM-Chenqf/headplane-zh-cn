@@ -10,6 +10,7 @@
 
 ## Changes
 
+- Translation checks now flag missing messages, hardcoded interface text and documentation changes that need Chinese review. The dismissible callout's close action now follows the selected language for screen readers.
 - The documentation site now offers English and Simplified Chinese pages, navigation, search, release history and upgrade notes. Language and version switching keep the current page, query and section, including when opening a link in a new tab.
 - The bilingual fork now translates Browser SSH prompts, connection status, compatibility notices, sign-in notices and error pages into Simplified Chinese, with bilingual troubleshooting documentation. Language changes preserve the existing SSH session and original diagnostics.
 - The bilingual fork now translates Settings, auth keys, OIDC sign-in restrictions, Agent status, validation and action results into Simplified Chinese, with bilingual usage documentation and original diagnostic details preserved.

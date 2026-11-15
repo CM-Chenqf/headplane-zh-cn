@@ -1,0 +1,500 @@
+{
+  "messages": [
+    {
+      "key": "acls.hostPlaceholder",
+      "reason": "示例主机标识 office，保持可直接输入的技术示例。"
+    },
+    {
+      "key": "agent.page",
+      "reason": "Headplane Agent 组件名称，保留产品名称。"
+    },
+    {
+      "key": "agent.title",
+      "reason": "Headplane Agent 组件名称，保留产品名称。"
+    },
+    {
+      "key": "dns.magic",
+      "reason": "Magic DNS 功能名称，保留产品用语。"
+    },
+    {
+      "key": "dns.title",
+      "reason": "DNS 协议缩写。"
+    },
+    {
+      "key": "nav.dns",
+      "reason": "DNS 协议缩写。"
+    }
+  ],
+  "literals": [
+    {
+      "file": "app/components/tags/TailscaleSSH.tsx",
+      "text": "text=\"SSH\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.dns\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.machines\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.policy\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.settings\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"nav.users\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"theme.dark\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"theme.light\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "\"theme.system\"",
+      "reason": "翻译资源键；导航或主题选项在渲染时通过 t(label) 翻译。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "headplane",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/layout/header.tsx",
+      "text": "Headscale",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/root.tsx",
+      "text": "\"Headplane\"",
+      "reason": "viewport 机器配置或页面标题中的产品名称。"
+    },
+    {
+      "file": "app/root.tsx",
+      "text": "content=\"width=device-width, initial-scale=1\"",
+      "reason": "viewport 机器配置或页面标题中的产品名称。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "placeholder=\"group:eng\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "placeholder=\"tag:web:80,443\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "placeholder=\"tcp\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/acl-rule.tsx",
+      "text": "tag:web:80,443",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/auto-approver.tsx",
+      "text": "placeholder=\"tag:router\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/grant.tsx",
+      "text": "placeholder=\"group:eng\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/grant.tsx",
+      "text": "placeholder=\"tag:router\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/grant.tsx",
+      "text": "placeholder=\"tag:web\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/grant.tsx",
+      "text": "placeholder=\"tcp:443\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/named-list.tsx",
+      "text": "\"alice@\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/named-list.tsx",
+      "text": "\"group:ops\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/named-list.tsx",
+      "text": "placeholder={`${copy.prefix}example`}",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"12h\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"autogroup:nonroot\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"group:ops\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/dialogs/ssh-rule.tsx",
+      "text": "placeholder=\"tag:server\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/overview.tsx",
+      "text": "database",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/overview.tsx",
+      "text": "file",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/acls/overview.tsx",
+      "text": "policy.mode",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/config-error.tsx",
+      "text": "headscale.api_key",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/oidc-error.tsx",
+      "text": "sub",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/page.tsx",
+      "text": "headscale apikeys create",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/page.tsx",
+      "text": "placeholder=\"hskey-api-…\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/shell.tsx",
+      "text": "GitHub",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/auth/login/shell.tsx",
+      "text": "headplane",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/components/manage-records.tsx",
+      "text": "dns.extra_records",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/components/manage-records.tsx",
+      "text": "dns.extra_records_path",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/components/rename-tailnet.tsx",
+      "text": "placeholder=\"ts.net\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-domain.tsx",
+      "text": "placeholder=\"corp.example.com\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-ns.tsx",
+      "text": "placeholder=\"example.com\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-record.tsx",
+      "text": "\"A\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-record.tsx",
+      "text": "\"AAAA\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/dns/dialogs/add-record.tsx",
+      "text": "placeholder=\"test.example.com\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/home.tsx",
+      "text": "`tailscale up --login-server=${server}`",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/home.tsx",
+      "text": "curl -fsSL https://tailscale.com/install.sh | sh",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/components/machine-filters.tsx",
+      "text": "\"expiry.expired\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/machines/components/machine-filters.tsx",
+      "text": "\"machines.exitNode\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/machines/components/machine-filters.tsx",
+      "text": "\"machines.offline\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/machines/components/machine-filters.tsx",
+      "text": "\"machines.online\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/machines/components/machine-filters.tsx",
+      "text": "\"machines.subnetRouter\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/machines/components/machine-row.tsx",
+      "text": "\"MagicDNS\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/components/menu.tsx",
+      "text": "SSH",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/new.tsx",
+      "text": "`tailscale up --login-server=${data.server}`",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/new.tsx",
+      "text": "placeholder=\"hskey-authreq-XXXXXXXXXXXXXXXXXXXXXXXX\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/tags.tsx",
+      "text": "placeholder=\"tag:server\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/dialogs/tags.tsx",
+      "text": "tagOwners",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/machines/overview.tsx",
+      "text": "[name].",
+      "reason": "Magic DNS 名称模式示例，保留占位符和域名点号。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/dialogs/add-auth-key.tsx",
+      "text": "`tailscale up --login-server=${url} --authkey ${key}`",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/dialogs/add-auth-key.tsx",
+      "text": "placeholder=\"tag:server\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/overview.tsx",
+      "text": "\"authKeys.active\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/overview.tsx",
+      "text": "\"authKeys.ephemeral\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/overview.tsx",
+      "text": "\"authKeys.expired\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/settings/auth-keys/overview.tsx",
+      "text": "\"authKeys.reusable\"",
+      "reason": "翻译资源键；渲染筛选项时通过 t(option.label) 翻译。"
+    },
+    {
+      "file": "app/routes/ssh/page.tsx",
+      "text": "/ts2021",
+      "reason": "诊断引用的原始路径和 HTTP 状态文本，周围解释已翻译。"
+    },
+    {
+      "file": "app/routes/ssh/page.tsx",
+      "text": "405 Method Not Allowed",
+      "reason": "诊断引用的原始路径和 HTTP 状态文本，周围解释已翻译。"
+    },
+    {
+      "file": "app/routes/users/dialogs/create-user.tsx",
+      "text": "placeholder=\"name@example.com\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/users/dialogs/user-groups.tsx",
+      "text": "groups",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "app/routes/users/dialogs/user-groups.tsx",
+      "text": "placeholder=\"group:example\"",
+      "reason": "配置键、协议名称或可直接执行的技术示例，保留原文。"
+    },
+    {
+      "file": "docs/app/components/architecture.tsx",
+      "text": "Headplane",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "\"Changelog\"",
+      "reason": "链接英文名称；实际导航标签在渲染时按路径通过 t() 翻译。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "\"Dark\"",
+      "reason": "英文主题名称在渲染时由 themeLabel() 翻译；共享源码变动必须重新复核。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "\"Docs\"",
+      "reason": "链接英文名称；实际导航标签在渲染时按路径通过 t() 翻译。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "\"Light\"",
+      "reason": "英文主题名称在渲染时由 themeLabel() 翻译；共享源码变动必须重新复核。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "\"System\"",
+      "reason": "英文主题名称在渲染时由 themeLabel() 翻译；共享源码变动必须重新复核。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "aria-label=\"GitHub\"",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "aria-label={`${t(\"Theme\", \"主题\")}: ${themeLabel(current.label)}`}",
+      "reason": "属性中的 Theme 与主题名称分别通过 t() 和 themeLabel() 翻译。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "headplane",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/components/header.tsx",
+      "text": "title={`${t(\"Theme\", \"主题\")}: ${themeLabel(current.label)}`}",
+      "reason": "属性中的 Theme 与主题名称分别通过 t() 和 themeLabel() 翻译。"
+    },
+    {
+      "file": "docs/app/components/release.tsx",
+      "text": "title={`${kind === \"pull\" ? t(\"Pull request\", \"合并请求\") : t(\"Issue\", \"问题\")} #${number}`}",
+      "reason": "整个属性表达式已按语言调用 t()，末尾为 PR 或 Issue 编号。"
+    },
+    {
+      "file": "docs/app/components/sidebar.tsx",
+      "text": "Ko-fi",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/components/version-banner.tsx",
+      "text": "Headplane",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/components/version-banner.tsx",
+      "text": "main",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/root.tsx",
+      "text": "content=\"width=device-width, initial-scale=1\"",
+      "reason": "浏览器 viewport 机器配置，不能翻译。"
+    },
+    {
+      "file": "docs/app/routes/changelog.tsx",
+      "text": "`${isChinese ? \"更新日志\" : \"Changelog\"} | Headplane`",
+      "reason": "页面标题已按 isChinese 切换中英文；后缀为产品名称。"
+    },
+    {
+      "file": "docs/app/routes/docs.tsx",
+      "text": "`${loaderData.title} | Headplane`",
+      "reason": "loaderData.title 来自对应语言文档；后缀为产品名称。"
+    },
+    {
+      "file": "docs/app/routes/home.tsx",
+      "text": "\"Browser SSH\"",
+      "reason": "英文功能标题与 chineseTitle 成对保存，渲染时调用 t(feature.title, feature.chineseTitle)。"
+    },
+    {
+      "file": "docs/app/routes/home.tsx",
+      "text": "\"Headplane\"",
+      "reason": "产品、服务或分支名称，保留原文。"
+    },
+    {
+      "file": "docs/app/routes/home.tsx",
+      "text": "\"Headscale settings\"",
+      "reason": "英文功能标题与 chineseTitle 成对保存，渲染时调用 t(feature.title, feature.chineseTitle)。"
+    },
+    {
+      "file": "docs/app/routes/home.tsx",
+      "text": "\"Machine details\"",
+      "reason": "英文功能标题与 chineseTitle 成对保存，渲染时调用 t(feature.title, feature.chineseTitle)。"
+    },
+    {
+      "file": "docs/app/routes/home.tsx",
+      "text": "\"Single sign-on\"",
+      "reason": "英文功能标题与 chineseTitle 成对保存，渲染时调用 t(feature.title, feature.chineseTitle)。"
+    },
+    {
+      "file": "docs/app/routes/home.tsx",
+      "text": "Headplane",
+      "reason": "产品、服务或分支名称，保留原文。"
+    }
+  ]
+}
