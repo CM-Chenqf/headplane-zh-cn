@@ -205,7 +205,14 @@ describe.for(HS_VERSIONS)("Headscale %s: Users", { concurrent: false }, (version
     try {
       original = (await api.policy.get()).policy;
     } catch (error) {
-      if (!isDataWithApiError(error) || error.data.statusCode !== 404) throw error;
+      // All supported releases report a missing database policy as gRPC
+      // Unknown / HTTP 500, wrapped by our transport as HTTP 502.
+      if (
+        !isDataWithApiError(error) ||
+        error.data.statusCode !== 500 ||
+        error.data.data?.message !== "loading ACL from database: acl policy not found"
+      )
+        throw error;
       original = "{}";
     }
     const user = await api.users.create({ name: "hp-groups-action" });
