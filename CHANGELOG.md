@@ -10,6 +10,7 @@
 
 ## Changes
 
+- The bilingual fork now translates Browser SSH prompts, connection status, compatibility notices, sign-in notices and error pages into Simplified Chinese, with bilingual troubleshooting documentation. Language changes preserve the existing SSH session and original diagnostics.
 - The bilingual fork now translates Settings, auth keys, OIDC sign-in restrictions, Agent status, validation and action results into Simplified Chinese, with bilingual usage documentation and original diagnostic details preserved.
 - The bilingual fork now translates DNS settings, nameservers, split DNS, search domains, records, validation and action results into Simplified Chinese, with bilingual usage documentation.
 - The bilingual fork now translates Access Control rules, tags, groups, policy editors, syntax diagnostics and save results into Simplified Chinese, with bilingual usage documentation.

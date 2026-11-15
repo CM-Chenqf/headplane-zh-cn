@@ -1,8 +1,10 @@
+import { Form as ValidatedForm } from "@base-ui/react/form";
 import { Form } from "react-router";
 
 import Button from "~/components/button";
 import Input from "~/components/input";
 import Link from "~/components/link";
+import { Message, useI18n } from "~/i18n/provider";
 import Shell from "~/routes/auth/login/shell";
 
 import { SSH_DOCS_URL } from "./errors";
@@ -12,14 +14,12 @@ interface UserPromptProps {
 }
 
 export default function UserPrompt({ hostname }: UserPromptProps) {
+  const { t } = useI18n();
   return (
-    <Shell
-      description="Pick the user to sign in as. Your policy's SSH rules decide which ones are allowed."
-      title={`Connect to ${hostname}`}
-    >
-      <Form
+    <Shell description={t("ssh.prompt.description")} title={t("ssh.prompt.title", { hostname })}>
+      <ValidatedForm
         className="flex flex-col gap-3"
-        method="GET"
+        render={<Form method="GET" />}
         onSubmit={(e) => {
           const formData = new FormData(e.currentTarget);
           const username = formData.get("user");
@@ -36,17 +36,28 @@ export default function UserPrompt({ hostname }: UserPromptProps) {
           window.location.assign(url.toString());
         }}
       >
-        <Input autoComplete="off" label="Username" name="user" required spellCheck={false} />
+        <Input
+          autoComplete="off"
+          label={t("ssh.prompt.username")}
+          name="user"
+          required
+          spellCheck={false}
+        />
         <Button className="w-full" type="submit" variant="primary">
-          Connect
+          {t("ssh.prompt.connect")}
         </Button>
-      </Form>
+      </ValidatedForm>
       <p className="text-muted mt-6 text-sm">
-        Can't connect? See{" "}
-        <Link external styled to={`${SSH_DOCS_URL}#troubleshooting`}>
-          troubleshooting
-        </Link>
-        .
+        <Message
+          id="ssh.prompt.troubleshooting"
+          values={{
+            link: (
+              <Link external styled to={`${SSH_DOCS_URL}#troubleshooting`}>
+                {t("ssh.prompt.troubleshootingLink")}
+              </Link>
+            ),
+          }}
+        />
       </p>
     </Shell>
   );

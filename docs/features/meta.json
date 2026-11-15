@@ -11,6 +11,7 @@
     "users-bilingual",
     "acls-bilingual",
     "dns-bilingual",
-    "settings-bilingual"
+    "settings-bilingual",
+    "ssh-bilingual"
   ]
 }

@@ -4,6 +4,7 @@ import editor from "./en/editor";
 import errors from "./en/errors";
 import machines from "./en/machines";
 import settings from "./en/settings";
+import ssh from "./en/ssh";
 import users from "./en/users";
 
 export default {
@@ -12,6 +13,7 @@ export default {
   ...editor,
   ...machines,
   ...settings,
+  ...ssh,
   ...errors,
   ...users,
   "common.close": "Close",

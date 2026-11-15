@@ -1,0 +1,41 @@
+import type en from "../en/ssh";
+
+export default {
+  "ssh.prompt.title": "连接到 {hostname}",
+  "ssh.prompt.description": "选择登录目标设备的用户。允许使用哪些用户由策略中的 SSH 规则决定。",
+  "ssh.prompt.username": "用户名",
+  "ssh.prompt.connect": "连接",
+  "ssh.prompt.troubleshooting": "无法连接？请查看{link}。",
+  "ssh.prompt.troubleshootingLink": "故障排查",
+  "ssh.offline.title": "{hostname} 已离线",
+  "ssh.offline.description": "此设备当前未连接到 Tailnet。请在设备上启动 Tailscale 后重试。",
+  "ssh.retry": "重试",
+  "ssh.compatibility.title": "Headscale {version} 的浏览器 SSH 不可用",
+  "ssh.compatibility.description":
+    "Headscale 0.29 的测试版至 0.29.1 会拒绝 Tailscale 浏览器/WASM 客户端的 {path} WebSocket 请求，并返回 {status}。请将 Headscale 升级至 0.29.2 或更新版本，或使用 Headscale 0.28.x。",
+  "ssh.status.joining": "正在加入 Tailnet…",
+  "ssh.status.connecting": "正在连接到 {hostname}…",
+  "ssh.status.stopped": "Tailnet 节点已停止：{error}",
+  "ssh.status.failed": "加入 Tailnet 失败：{error}",
+  "ssh.diagnostic.shutdown": "意外关闭",
+  "ssh.diagnostic.authRejected": "Headscale 拒绝了认证密钥",
+  "ssh.diagnostic.original": "{description}。原始详情：{message}",
+  "ssh.signIn.title": "登录后继续",
+  "ssh.signIn.description": "{hostname} 要求重新登录后才能建立会话。{signIn}",
+  "ssh.signIn.link": "登录",
+  "ssh.terminal": "{username}@{hostname} 的 SSH 终端",
+  "ssh.docs": "阅读文档",
+  "ssh.return": "返回 Headplane",
+  "ssh.error.wasm.title": "浏览器 SSH 不可用",
+  "ssh.error.wasm.description": "此 Headplane 构建未包含浏览器 SSH。",
+  "ssh.error.agent.title": "浏览器 SSH 需要 Agent",
+  "ssh.error.agent.description": "请启用 Headplane Agent 后使用浏览器 SSH。",
+  "ssh.error.oidc.title": "浏览器 SSH 需要单点登录",
+  "ssh.error.oidc.description":
+    "请通过单点登录使用浏览器 SSH。API 密钥会话没有对应的 Headscale 用户。",
+  "ssh.error.node.title": "未找到设备",
+  "ssh.error.node.description": "没有名为 {hostname} 的设备。设备可能已重命名或移除。",
+  "ssh.error.user.title": "账号尚未关联",
+  "ssh.error.user.description":
+    "浏览器 SSH 以所关联的 Headscale 用户身份连接。请联系管理员为当前账号关联 Headscale 用户。",
+} satisfies Record<keyof typeof en, string>;
