@@ -14,7 +14,10 @@ import { Form } from "react-router";
 import Button from "~/components/button";
 import Input from "~/components/input";
 import TableList from "~/components/table-list";
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
+
+import { useNativeValidation } from "../../users/use-native-validation";
 
 interface Props {
   searchDomains: string[];
@@ -23,6 +26,8 @@ interface Props {
 }
 
 export default function ManageDomains({ searchDomains, isDisabled, magic }: Props) {
+  const { t } = useI18n();
+  const validation = useNativeValidation();
   const [activeId, setActiveId] = useState<number | string | null>(null);
   const [localDomains, setLocalDomains] = useState(searchDomains);
 
@@ -32,12 +37,31 @@ export default function ManageDomains({ searchDomains, isDisabled, magic }: Prop
 
   return (
     <div className="flex w-full flex-col sm:w-2/3">
-      <h1 className="mb-4 text-2xl font-medium">Search Domains</h1>
-      <p className="mb-4">
-        Set custom DNS search domains for your Tailnet. When using Magic DNS, your tailnet domain is
-        used as the first search domain.
-      </p>
+      <h1 className="mb-4 text-2xl font-medium">{t("dns.searchDomains")}</h1>
+      <p className="mb-4">{t("dns.searchDescription")}</p>
       <DndContext
+        accessibility={{
+          screenReaderInstructions: { draggable: t("dns.dragInstructions") },
+          announcements: {
+            onDragStart: ({ active }) =>
+              t("dns.dragPicked", {
+                domain: localDomains[Number(active.id) - 1] ?? String(active.id),
+              }),
+            onDragOver: ({ active, over }) =>
+              over
+                ? t("dns.dragOver", {
+                    domain: localDomains[Number(active.id) - 1] ?? String(active.id),
+                    position: Number(over.id),
+                    count: localDomains.length,
+                  })
+                : undefined,
+            onDragEnd: ({ active }) =>
+              t("dns.dragDropped", {
+                domain: localDomains[Number(active.id) - 1] ?? String(active.id),
+              }),
+            onDragCancel: () => t("dns.dragCancelled"),
+          },
+        }}
         collisionDetection={closestCorners}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
         onDragEnd={(event) => {
@@ -103,18 +127,22 @@ export default function ManageDomains({ searchDomains, isDisabled, magic }: Prop
                     "border-none font-mono p-0 text-sm",
                     "rounded-none focus:ring-0 w-full ml-1",
                   )}
+                  {...validation.field("domain", "validation.invalid")}
                   required
-                  label="Search Domain"
+                  label={t("dns.searchDomain")}
                   labelHidden
                   name="domain"
-                  placeholder="Search Domain"
+                  placeholder={t("dns.searchDomain")}
                   type="text"
                 />
                 <Button
-                  className={cn("px-2 py-1 rounded-md", "text-blue-500 dark:text-blue-400")}
+                  className={cn(
+                    "shrink-0 whitespace-nowrap px-2 py-1 rounded-md",
+                    "text-blue-500 dark:text-blue-400",
+                  )}
                   type="submit"
                 >
-                  Add
+                  {t("common.add")}
                 </Button>
               </Form>
             </TableList.Item>
@@ -133,6 +161,7 @@ interface DomainProps {
 }
 
 function Domain({ domain, id, isDragging, isDisabled }: DomainProps) {
+  const { t } = useI18n();
   const {
     attributes,
     listeners,
@@ -140,7 +169,7 @@ function Domain({ domain, id, isDragging, isDisabled }: DomainProps) {
     transform,
     transition,
     isDragging: isSortableDragging,
-  } = useSortable({ id });
+  } = useSortable({ id, disabled: isDisabled, attributes: { roleDescription: t("dns.dragRole") } });
 
   return (
     <TableList.Item
@@ -159,6 +188,7 @@ function Domain({ domain, id, isDragging, isDisabled }: DomainProps) {
           <GripVertical
             {...attributes}
             {...listeners}
+            aria-label={t("dns.dragDomain", { domain })}
             className="rounded-md p-0.5 outline-hidden focus:ring-3"
           />
         )}
@@ -169,11 +199,14 @@ function Domain({ domain, id, isDragging, isDisabled }: DomainProps) {
           <input name="action_id" type="hidden" value="remove_domain" />
           <input name="domain" type="hidden" value={domain} />
           <Button
-            className={cn("px-2 py-1 rounded-md", "text-red-500 dark:text-red-400")}
+            className={cn(
+              "shrink-0 whitespace-nowrap px-2 py-1 rounded-md",
+              "text-red-500 dark:text-red-400",
+            )}
             disabled={isDisabled}
             type="submit"
           >
-            Remove
+            {t("common.remove")}
           </Button>
         </Form>
       )}

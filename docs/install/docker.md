@@ -6,6 +6,10 @@ outline: [2, 3]
 
 # Docker Installation
 
+::: info Image source
+Examples use upstream published images. This community bilingual fork has not published its validated image yet. The intended image is `ghcr.io/cm-chenqf/headplane-zh-cn`; use its tags only after runtime and publication acceptance. See [Language and maintenance](/features/language).
+:::
+
 ::: tip
 If you are not looking to deploy with Docker, follow the
 [**Native Mode**](./native-mode.md) deployment guide.

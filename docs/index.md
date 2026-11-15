@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Headplane"
-  tagline: "A full-featured admin interface for Headscale"
+  tagline: "Headscale admin interface · unofficial community bilingual fork"
   image:
     src: "/logo.svg"
     alt: "Headplane"
@@ -15,7 +15,7 @@ hero:
       link: "/install"
       theme: "alt"
     - text: "GitHub"
-      link: "https://github.com/tale/headplane"
+      link: "https://github.com/CM-Chenqf/headplane-zh-cn"
       theme: "alt"
 
 features:

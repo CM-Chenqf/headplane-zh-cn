@@ -4,6 +4,7 @@ import { Form } from "react-router";
 
 import Button from "~/components/button";
 import TableList from "~/components/table-list";
+import { useI18n } from "~/i18n/provider";
 import cn from "~/utils/cn";
 
 interface RestrictionProps {
@@ -14,10 +15,17 @@ interface RestrictionProps {
 }
 
 export default function RestrictionTable({ children, type, values, isDisabled }: RestrictionProps) {
+  const { t } = useI18n();
   return (
     <div className="w-full sm:w-2/3">
       <h2 className="mt-8 text-2xl font-medium">
-        Permitted {type.charAt(0).toUpperCase() + type.slice(1)}s
+        {t(
+          type === "domain"
+            ? "restrictions.domain.title"
+            : type === "group"
+              ? "restrictions.group.title"
+              : "restrictions.user.title",
+        )}
       </h2>
       <TableList className="my-4">
         {values.length > 0 ? (
@@ -25,7 +33,9 @@ export default function RestrictionTable({ children, type, values, isDisabled }:
             <TableList.Item key={`${type}-${value}`}>
               {type === "domain" ? (
                 <p>
-                  <span className="text-mist-600 dark:text-mist-300">{"<user>"}</span>
+                  <span className="text-mist-600 dark:text-mist-300">
+                    {t("restrictions.userPlaceholder")}
+                  </span>
                   <span className="font-bold">@</span>
                   <span>{value}</span>
                 </p>
@@ -40,7 +50,7 @@ export default function RestrictionTable({ children, type, values, isDisabled }:
                   disabled={isDisabled}
                   type="submit"
                 >
-                  Remove
+                  {t("common.remove")}
                 </Button>
               </Form>
             </TableList.Item>
@@ -48,7 +58,15 @@ export default function RestrictionTable({ children, type, values, isDisabled }:
         ) : (
           <TableList.Item className="flex flex-col items-center gap-2.5 py-4 opacity-70">
             {iconForType(type)}
-            <p className="text-center font-semibold">All {type}s are permitted to authenticate.</p>
+            <p className="text-center font-semibold">
+              {t(
+                type === "domain"
+                  ? "restrictions.domain.empty"
+                  : type === "group"
+                    ? "restrictions.group.empty"
+                    : "restrictions.user.empty",
+              )}
+            </p>
           </TableList.Item>
         )}
       </TableList>

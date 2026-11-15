@@ -16,7 +16,7 @@ Headscale 将访问控制列表（ACL）存储为单个 HuJSON 策略。“访�
 通过 Web 界面写入策略，需要在 Headscale 配置中使用数据库策略模式：
 
 ```yaml
-# Headscale config.yaml
+# Headscale 的 config.yaml
 policy:
   mode: database
 ```

@@ -3,8 +3,10 @@ import acls from "./zh-CN/acls";
 import editor from "./zh-CN/editor";
 import machines from "./zh-CN/machines";
 import release from "./zh-CN/release";
+import remaining from "./zh-CN/remaining";
 import users from "./zh-CN/users";
 export default {
+  ...remaining,
   ...acls,
   ...editor,
   ...users,

@@ -2,6 +2,8 @@
 
 ## Changes
 
+- The community-maintained 0.8 fork now supports English and Simplified Chinese for DNS, Settings and Browser SSH, plus the complete VitePress documentation, navigation, search and historical changelog. Language changes preserve form drafts and SSH sessions. Docker runtime and publication acceptance remain pending; no image, release or documentation deployment is enabled by this change.
+
 - The community-maintained 0.8 fork now supports English and Simplified Chinese for Access Control, its five visual editors, policy files, diff and search controls, validation and diagnostics, with a bilingual guide. Switching languages preserves drafts, and policy fields, unknown actions, permissions and supported Headscale versions retain their original behavior. Full localization and publication acceptance remain incomplete.
 
 - The community-maintained 0.8 fork now supports English and Simplified Chinese for users, roles, ownership transfer, account linking, policy groups and the member download page, with localized form validation and a bilingual guide. Original authentication, permissions, form fields and Headscale support are preserved; full localization and publication acceptance remain incomplete.
@@ -10,6 +12,8 @@
 - This fork's 0.8 release line can switch English and Simplified Chinese for sign-in, SSO notices, shared navigation and common controls. Other pages and the full documentation are still being adapted; publication remains disabled until adaptation and acceptance are complete.
 
 ## Fixes
+
+- Read-only DNS settings now disable the local DNS override switch.
 
 - Select fields now expose their translated labels to assistive technology, including the SSH policy action selector.
 

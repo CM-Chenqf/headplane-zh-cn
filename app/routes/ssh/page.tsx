@@ -1,11 +1,15 @@
 import { Loader2, WifiOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { data, isRouteErrorResponse, type ShouldRevalidateFunction } from "react-router";
 
 import Button from "~/components/button";
 import Card from "~/components/card";
 import Code from "~/components/code";
+import LanguageSwitch from "~/components/language-switch";
 import StatusBanner from "~/components/status-banner";
+import { getLocale } from "~/i18n/locale.server";
+import { Message, useI18n } from "~/i18n/provider";
+import { sshStatus, type SSHConnectionStatus } from "~/i18n/ssh";
 import {
   agentsContext,
   appConfigContext,
@@ -29,6 +33,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
 };
 
 export async function loader({ request, params, context, url }: Route.LoaderArgs) {
+  const errors = sshErrors(await getLocale(request));
   const agents = context.get(agentsContext);
   const config = context.get(appConfigContext);
   const headscale = context.get(headscaleContext);
@@ -47,16 +52,16 @@ export async function loader({ request, params, context, url }: Route.LoaderArgs
   }
 
   if (missing.length > 0) {
-    throw data(sshErrors.wasm_missing, 405);
+    throw data(errors.wasm_missing, 405);
   }
 
   if (agents.state !== "enabled") {
-    throw data(sshErrors.agent_required, 400);
+    throw data(errors.agent_required, 400);
   }
 
   const { principal, api } = await getRequestApi(request);
   if (principal.kind === "api_key") {
-    throw data(sshErrors.oidc_required, 403);
+    throw data(errors.oidc_required, 403);
   }
 
   const hostname = params.id;
@@ -65,7 +70,7 @@ export async function loader({ request, params, context, url }: Route.LoaderArgs
   const nodes = await api.nodes.list();
   const node = nodes.find((n) => n.givenName === hostname);
   if (!node) {
-    throw data(sshErrors.node_not_found(hostname), 404);
+    throw data(errors.node_not_found(hostname), 404);
   }
 
   if (!node.online) {
@@ -89,7 +94,7 @@ export async function loader({ request, params, context, url }: Route.LoaderArgs
     : findHeadscaleUserBySubject(users, principal.user.subject, principal.profile.email);
 
   if (!hsUser) {
-    throw data(sshErrors.user_not_linked, 404);
+    throw data(errors.user_not_linked, 404);
   }
 
   const preAuthKey = await api.preAuthKeys.create({
@@ -144,7 +149,25 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export default function Page({ loaderData }: Route.ComponentProps) {
+export default function Page(props: Route.ComponentProps) {
+  return (
+    <>
+      <SSHLanguageSwitch />
+      <SSHPage {...props} />
+    </>
+  );
+}
+
+function SSHLanguageSwitch() {
+  return (
+    <div className="fixed right-4 bottom-4 z-[70] rounded-lg bg-white/95 shadow-sm dark:bg-mist-900/95">
+      <LanguageSwitch />
+    </div>
+  );
+}
+
+function SSHPage({ loaderData }: Route.ComponentProps) {
+  const { t } = useI18n();
   const { hostname, username, offline, node, compatibilityWarning } = loaderData;
 
   if (offline) {
@@ -154,14 +177,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div className="flex h-screen w-screen items-center justify-center bg-black">
           <Card className="w-screen" variant="flat">
             <div className="flex items-center justify-between gap-4">
-              <Card.Title>Node Offline</Card.Title>
+              <Card.Title>{t("ssh.offline.title", { hostname })}</Card.Title>
               <WifiOff className="mb-2 h-6 w-6 text-red-500" />
             </div>
-            <Card.Text>
-              <Code>{hostname}</Code> is not currently connected to the Tailnet.
-            </Card.Text>
+            <Card.Text>{t("ssh.offline.description")}</Card.Text>
             <Button className="mt-8 w-full" onClick={() => window.location.reload()}>
-              Retry Connection
+              {t("ssh.retry")}
             </Button>
           </Card>
         </div>
@@ -191,17 +212,19 @@ function BrowserSSHCompatibilityBanner({
 }: {
   warning: { version: string } | null | undefined;
 }) {
+  const { t } = useI18n();
   if (!warning) return null;
 
   return (
     <div className="fixed inset-x-4 top-4 z-[60] mx-auto max-w-2xl">
       <StatusBanner
         variant="warning"
-        title={`Browser SSH is broken on Headscale ${warning.version}`}
+        title={t("ssh.compatibility.title", { version: warning.version })}
       >
-        Headscale 0.29 beta releases through 0.29.1 reject Tailscale's browser/WASM{" "}
-        <Code>/ts2021</Code> WebSocket request with <Code>405 Method Not Allowed</Code>. Upgrade
-        Headscale to 0.29.2 or newer, or use Headscale 0.28.x.
+        <Message
+          id="ssh.compatibility.description"
+          values={{ path: <Code>/ts2021</Code>, status: <Code>405 Method Not Allowed</Code> }}
+        />
       </StatusBanner>
     </div>
   );
@@ -216,9 +239,11 @@ function SSHConsole({
   username: string;
   node: { ipAddress: string; controlURL: string; preAuthKey: string; ephemeralHostname: string };
 }) {
+  const { locale, t } = useI18n();
+  const onConnected = useCallback(() => setConnected(true), []);
   const [ipn, setIpn] = useState<IPN | null>(null);
   const [connected, setConnected] = useState(false);
-  const [status, setStatus] = useState("Joining Tailnet…");
+  const [status, setStatus] = useState<SSHConnectionStatus>({ kind: "joining" });
 
   useEffect(() => {
     let cancelled = false;
@@ -228,17 +253,20 @@ function SSHConsole({
       authKey: node.preAuthKey,
       hostname: node.ephemeralHostname,
       onPanic: (error) => {
-        if (!cancelled) setStatus(`Tailnet node stopped: ${error}`);
+        if (!cancelled) setStatus({ kind: "stopped", error });
       },
     }).then(
       (instance) => {
         if (cancelled) return;
-        setStatus(`Connecting to ${hostname}…`);
+        setStatus({ kind: "connecting" });
         setIpn(instance);
       },
       (error: unknown) => {
         if (cancelled) return;
-        setStatus(`Failed to join Tailnet: ${error instanceof Error ? error.message : error}`);
+        setStatus({
+          kind: "failed",
+          error: error instanceof Error ? error.message : String(error),
+        });
       },
     );
 
@@ -248,12 +276,16 @@ function SSHConsole({
   }, [node, hostname]);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-black">
+    <div
+      role="region"
+      aria-label={t("ssh.terminal", { username, hostname })}
+      className="fixed inset-0 flex flex-col bg-black"
+    >
       {!connected && (
         <div className="absolute inset-0 z-50 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="size-8 animate-spin text-mist-200" />
-            <p className="text-sm text-mist-400">{status}</p>
+            <p className="text-sm text-mist-400">{sshStatus(status, hostname, locale)}</p>
           </div>
         </div>
       )}
@@ -263,7 +295,7 @@ function SSHConsole({
           ipn={ipn}
           username={username}
           ipAddress={node.ipAddress}
-          onConnected={() => setConnected(true)}
+          onConnected={onConnected}
         />
       )}
     </div>
@@ -278,12 +310,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
-      <SSHErrorBoundary
-        title={routeError.title}
-        message={routeError.message}
-        anchor={routeError.anchor}
-      />
-    </div>
+    <>
+      <SSHLanguageSwitch />
+      <div className="flex h-screen w-screen items-center justify-center">
+        <SSHErrorBoundary {...routeError} />
+      </div>
+    </>
   );
 }

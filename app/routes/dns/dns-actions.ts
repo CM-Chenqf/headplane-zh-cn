@@ -1,5 +1,7 @@
 import { data } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import {
   authContext,
   headscaleConfigContext,
@@ -11,6 +13,7 @@ import { Capabilities } from "~/server/web/roles";
 import type { Route } from "./+types/overview";
 
 export async function dnsAction({ request, context }: Route.ActionArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const headscale = context.get(headscaleContext);
   const headscaleConfig = context.get(headscaleConfigContext);
@@ -48,7 +51,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       ]);
 
       await integration?.onConfigChange(headscale);
-      return { message: "Tailnet renamed successfully" };
+      return { message: t("dns.success.renamed") };
     }
     case "toggle_magic": {
       const newState = formData.get("new_state")?.toString();
@@ -64,7 +67,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       ]);
 
       await integration?.onConfigChange(headscale);
-      return { message: "Magic DNS state updated successfully" };
+      return { message: t("dns.success.magic") };
     }
     case "remove_ns": {
       const config = headscaleConfig.getDNSConfig();
@@ -97,7 +100,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       }
 
       await integration?.onConfigChange(headscale);
-      return { message: "Nameserver removed successfully" };
+      return { message: t("dns.success.nsRemoved") };
     }
     case "add_ns": {
       const config = headscaleConfig.getDNSConfig();
@@ -130,7 +133,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       }
 
       await integration?.onConfigChange(headscale);
-      return { message: "Nameserver added successfully" };
+      return { message: t("dns.success.nsAdded") };
     }
     case "remove_domain": {
       const config = headscaleConfig.getDNSConfig();
@@ -148,7 +151,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       ]);
 
       await integration?.onConfigChange(headscale);
-      return { message: "Domain removed successfully" };
+      return { message: t("dns.success.domainRemoved") };
     }
     case "add_domain": {
       const config = headscaleConfig.getDNSConfig();
@@ -167,7 +170,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       ]);
 
       await integration?.onConfigChange(headscale);
-      return { message: "Domain added successfully" };
+      return { message: t("dns.success.domainAdded") };
     }
     case "remove_record": {
       const recordName = formData.get("record_name")?.toString();
@@ -189,7 +192,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       }
 
       await integration?.onConfigChange(headscale);
-      return { message: "DNS record removed successfully" };
+      return { message: t("dns.success.recordRemoved") };
     }
     case "add_record": {
       const recordName = formData.get("record_name")?.toString().trim();
@@ -211,7 +214,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       }
 
       await integration?.onConfigChange(headscale);
-      return { message: "DNS record added successfully" };
+      return { message: t("dns.success.recordAdded") };
     }
     case "override_dns": {
       const override = formData.get("override_dns")?.toString();
@@ -228,7 +231,7 @@ export async function dnsAction({ request, context }: Route.ActionArgs) {
       ]);
 
       await integration?.onConfigChange(headscale);
-      return { message: "DNS override updated successfully" };
+      return { message: t("dns.success.override") };
     }
     default:
       return data({ success: false }, 400);

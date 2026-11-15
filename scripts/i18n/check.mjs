@@ -12,6 +12,7 @@ import {
   literalProblems,
   reviewSelected,
 } from "./core.ts";
+import { readDocumentSource } from "./documents.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(resolve(root, path), "utf8");
@@ -111,9 +112,12 @@ async function main() {
     if (!existsSync(resolve(root, pair.english)) || !existsSync(resolve(root, pair.chinese)))
       problems.push(`${pair.english}: missing English or Chinese document`);
     else {
-      const chinese = read(pair.chinese);
+      const chinese = readDocumentSource(root, pair.chinese);
       if (!/\p{Script=Han}/u.test(chinese)) problems.push(`${pair.chinese}: untranslated document`);
-      current.documents[pair.english] = fingerprint(read(pair.english), chinese);
+      current.documents[pair.english] = fingerprint(
+        readDocumentSource(root, pair.english),
+        chinese,
+      );
     }
   }
   for (const file of scope.uiFiles) current.shared[file] = fingerprint(read(file));

@@ -5,6 +5,10 @@ description: Install Headplane in Limited Mode.
 
 # Limited Mode
 
+::: info Image source
+Examples use upstream published images. This community bilingual fork has not published its validated image yet. The intended image is `ghcr.io/cm-chenqf/headplane-zh-cn`; use its tags only after runtime and publication acceptance. See [Language and maintenance](/features/language).
+:::
+
 ::: warning
 **Limited Mode is not recommended for production use.**
 Please consider using one of the other installation methods for a production
@@ -20,7 +24,7 @@ advanced features, making it suitable for local testing and development.
 
 - Docker (and optionally Docker Compose)
 - Headscale version 0.27.0 or later installed and running
-- A [completed configuration file](/index.md#configuration) for Headplane.
+- A [completed configuration file](./index.md#configuration) for Headplane.
 
 ## Installation
 
@@ -37,8 +41,8 @@ docker run -d \
     -p 3000:3000 \
     -v /path/to/your/config.yaml:/etc/headplane/config.yaml \
     -v /path/to/data/storage:/var/lib/headplane \
-    --name headplane
-    --restart unless-stopped
+    --name headplane \
+    --restart unless-stopped \
     ghcr.io/tale/headplane:latest
 ```
 

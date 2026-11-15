@@ -42,8 +42,8 @@ Clone the Headplane repository, install dependencies, and build the project:
 
 ```bash
 # You can optionally checkout a specific release tag.
-git clone https://github.com/tale/headplane.git
-cd headplane
+git clone --branch release/0.8 https://github.com/CM-Chenqf/headplane-zh-cn.git
+cd headplane-zh-cn
 ./build.sh
 ```
 
@@ -242,8 +242,8 @@ while building Headplane via the `__INTERNAL_PREFIX` environment variable.
 
 ```bash
 # Example for /headplane prefix
-git clone https://github.com/tale/headplane.git
-cd headplane
+git clone --branch release/0.8 https://github.com/CM-Chenqf/headplane-zh-cn.git
+cd headplane-zh-cn
 # Set the prefix here
 __INTERNAL_PREFIX=/headplane ./build.sh
 ```
