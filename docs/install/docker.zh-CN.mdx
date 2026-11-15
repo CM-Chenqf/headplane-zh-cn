@@ -1,0 +1,69 @@
+---
+title: Docker
+description: 使用 Docker 安装 Headplane。
+---
+
+# Docker
+
+Docker 镜像是推荐的 Headplane 运行方式，内含预先构建的 Web 界面、[Agent](/features/agent) 和[浏览器 SSH](/features/ssh) 模块。
+
+:::note[镜像来源]
+本页示例使用上游已发布镜像。完整双语镜像尚未发布；维护仓库的目标镜像地址为 `ghcr.io/cm-chenqf/headscale-web`，应在正式发布并完成验证后使用相应标签。发布进度见[语言与维护说明](/features/language)。
+:::
+
+## 前提条件 [#prerequisites]
+
+- Docker 和 Docker Compose。
+- Headscale 和 Headplane 配置文件，参阅[安装前](/install#before-installing)。
+
+## 安装 [#installation]
+
+挂载配置文件和 Headplane 数据目录。该目录保存数据库和 Agent 状态：
+
+```yaml
+services:
+  headplane:
+    image: ghcr.io/tale/headplane:latest
+    container_name: headplane
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./config.yaml:/etc/headplane/config.yaml"
+      - "./headplane-data:/var/lib/headplane"
+```
+
+如果 Headscale 也在 Docker 中运行，将两个容器加入同一网络，并将 `headscale.url` 指向容器地址，例如 `http://headscale:8080`。
+
+运行 `docker compose up -d`，再打开 `http://localhost:3000/admin`。
+
+## 登录 [#signing-in]
+
+在配置 [SSO](/features/sso) 或[代理认证](/features/proxy-auth)前，使用 Headscale API 密钥登录。在 Headscale 容器内创建密钥：
+
+```bash
+docker exec headscale headscale apikeys create --expiration 90d
+```
+
+密钥与会话的工作方式见 [API 密钥](/configuration/api-keys)。
+
+## 健康检查 [#health-checks]
+
+镜像内置健康检查，`docker ps` 会显示 Headplane 是否正常运行。检查自动遵循 Headplane 的端口和 TLS 设置，每 30 秒执行一次，超时为 5 秒，重试 3 次。在 Compose 文件中覆盖设置可调整执行间隔：
+
+```yaml
+services:
+  headplane:
+    healthcheck:
+      interval: 2m
+```
+
+## 调试 [#debugging]
+
+普通镜像不含 shell。需要 shell 时，切换到相同版本的 `-shell` 标签，例如 `ghcr.io/tale/headplane:latest-shell`。它在 Alpine 上提供相同构建，并额外包含 `bash` 和 `curl`。
+
+## 后续步骤 [#next-steps]
+
+- 配置 [Docker 集成](/configuration/integrations#docker)，以便在界面中修改 DNS 和登录限制。
+- 为 Headplane 配置[反向代理](/configuration/reverse-proxy)。
+- 其他功能见[安装后](/install#after-installing)。

@@ -1,9 +1,9 @@
 import { readdir } from "node:fs/promises";
 
 import type { Config } from "@react-router/dev/config";
-import { createGetUrl, getSlugs } from "fumadocs-core/source";
 
-const getUrl = createGetUrl("/");
+import { docsPath } from "./app/lib/i18n";
+
 const ignoredDirs = ["app/", "build/", "public/", "node_modules/"];
 
 export default {
@@ -20,9 +20,9 @@ export default {
         continue;
       }
 
-      paths.push(getUrl(getSlugs(entry)));
+      paths.push(docsPath(entry));
     }
 
-    return paths;
+    return [...new Set(paths)];
   },
 } satisfies Config;

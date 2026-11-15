@@ -1,0 +1,92 @@
+---
+title: 原生安装
+description: 在 Linux 主机上直接构建并运行 Headplane。
+---
+
+import { versions } from "@/lib/versions";
+
+# 原生安装 [#native]
+
+Headplane 可以直接运行在宿主机上，适合 Headscale 已在主机上运行、通常由 systemd 管理的部署。先从源码构建一次，之后通过 Node.js 运行。
+
+## 前提条件 [#prerequisites]
+
+- Linux。
+- Headscale 和 Headplane 配置文件，参阅[安装前](/install#before-installing)。
+- 构建需要：与 `go.mod` 中 `go` 指令匹配的 Go，以及 pnpm <code>{versions.pnpm}</code>。
+- 运行需要：Node.js <code>{versions.node}</code>。
+
+Go 和 pnpm 只在构建时需要，构建产物仅依赖 Node.js 运行。
+
+## 构建 [#building]
+
+```bash
+# 需要时先切换到正式版本标签
+git clone https://github.com/tale/headplane.git
+cd headplane
+./build.sh
+```
+
+以上是上游源码示例。本仓库的双语开发版本位于 `https://github.com/CM-Chenqf/headscale-web.git`，完整双语发布状态见[语言与维护说明](/features/language)。
+
+`build.sh` 安装锁定版本的依赖，并构建 Web 界面、浏览器 SSH 模块、[Agent](/features/agent) 和健康检查程序。Agent 产物位于 `build/hp_agent`。将其复制到 `/usr/libexec/headplane/agent`，或按照 [Agent 文档](/features/agent#turning-it-on)使用其他位置。
+
+## 运行 [#running]
+
+创建 `server.data_path` 指定的数据目录（默认 `/var/lib/headplane`），并允许 Headplane 的运行用户写入：
+
+```bash
+sudo mkdir -p /var/lib/headplane
+sudo chown -R headplane:headplane /var/lib/headplane
+```
+
+在仓库目录启动 Headplane，以便找到 `build/`：
+
+```bash
+node build/server/index.js
+```
+
+默认读取 `/etc/headplane/config.yaml`，也可用 `HEADPLANE_CONFIG_PATH` 指定其他位置。启动后打开 `http://localhost:3000/admin`。
+
+### systemd
+
+根据实际用户和路径调整以下内容，保存为 `/etc/systemd/system/headplane.service`，然后执行 `sudo systemctl daemon-reload` 和 `sudo systemctl enable --now headplane`：
+
+```ini
+[Unit]
+Description=Headplane
+# 如果 Headscale 由 systemd 管理，可改为 headscale.service
+After=network.target
+
+[Service]
+Type=simple
+User=headplane
+WorkingDirectory=/opt/headplane
+ExecStart=/usr/bin/node /opt/headplane/build/server/index.js
+Restart=on-failure
+RestartSec=5s
+# Environment=HEADPLANE_CONFIG_PATH=/path/to/config.yaml
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## 登录 [#signing-in]
+
+在配置 [SSO](/features/sso) 或[代理认证](/features/proxy-auth)之前，使用 Headscale API 密钥登录：
+
+```bash
+headscale apikeys create --expiration 90d
+```
+
+密钥与会话的工作方式见 [API 密钥](/configuration/api-keys)。
+
+## 自定义路径前缀 [#custom-path-prefix]
+
+如需在 `/admin` 之外的路径提供 Headplane，设置 `server.base_path`，参阅[自定义路径](/configuration/reverse-proxy#a-different-path)。
+
+## 后续步骤 [#next-steps]
+
+- 配置 [proc 集成](/configuration/integrations#proc)，在界面中修改 DNS 和登录限制。
+- 配置[反向代理](/configuration/reverse-proxy)。
+- 其他功能见[安装后](/install#after-installing)。

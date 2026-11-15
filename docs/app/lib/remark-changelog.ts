@@ -15,7 +15,7 @@ const referencePattern = /^https:\/\/github\.com\/tale\/headplane\/(issues|pulls
 // as `releases` for the Upgrading page.
 export function remarkChangelog() {
   return (tree: Root, file: { path?: string; data: Record<string, unknown> }) => {
-    if (!file.path || path.basename(file.path) !== "CHANGELOG.md") {
+    if (!file.path || !/^CHANGELOG(?:\.zh-CN)?\.md$/.test(path.basename(file.path))) {
       return;
     }
 
@@ -120,7 +120,9 @@ function isBetaNotice(node: RootContent) {
     node.children.some(
       (child) =>
         child.type === "paragraph" &&
-        child.children.some((text) => text.type === "text" && /beta release/i.test(text.value)),
+        child.children.some(
+          (text) => text.type === "text" && /beta release|这是一个预览版本/i.test(text.value),
+        ),
     )
   );
 }

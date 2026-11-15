@@ -1,0 +1,16 @@
+{
+  "title": "文档",
+  "pages": [
+    "---入门---",
+    "introduction",
+    "quickstart",
+    "install",
+    "configuration",
+    "---功能---",
+    "...features",
+    "reference",
+    "---帮助---",
+    "troubleshooting",
+    "upgrading"
+  ]
+}

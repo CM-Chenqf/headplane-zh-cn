@@ -1,10 +1,11 @@
 import { Banner } from "fumadocs-ui/components/banner";
-import { useLocation } from "react-router";
 
 import { docsBuild, pageOn, stableOrigin } from "@/lib/releases";
+import { useDocsDestination, useDocsLocale } from "@/lib/use-locale";
 
 export default function VersionBanner() {
-  const { pathname } = useLocation();
+  const destination = useDocsDestination();
+  const { t } = useDocsLocale();
   if (docsBuild.channel !== "beta" && docsBuild.channel !== "archived") {
     return null;
   }
@@ -16,26 +17,28 @@ export default function VersionBanner() {
       {isBeta ? (
         <>
           <span className="sm:hidden">
-            Beta · <code>{docsBuild.version}</code>
+            {t("Beta", "预览版")} · <code>{docsBuild.version}</code>
           </span>
           <span className="max-sm:hidden">
-            Beta docs, built from <code>main</code> @{" "}
+            {t("Beta docs, built from", "预览文档，构建自")} <code>main</code> @{" "}
             <code className="font-semibold">{docsBuild.version}</code>
-            {docsBuild.date && ` on ${docsBuild.date}`}.
+            {docsBuild.date && t(` on ${docsBuild.date}.`, ` · ${docsBuild.dateZh}`)}
           </span>
         </>
       ) : (
         <>
           <span className="sm:hidden">
-            Headplane <strong>{docsBuild.version}</strong> docs.
+            Headplane <strong>{docsBuild.version}</strong> {t("docs.", "文档")}
           </span>
           <span className="max-sm:hidden">
-            These docs are for Headplane <strong>{docsBuild.version}</strong>.
+            {t("These docs are for Headplane", "本文档适用于 Headplane")}{" "}
+            <strong>{docsBuild.version}</strong>
+            {t(".", "。")}
           </span>
         </>
       )}
-      <a className="ml-2 underline" href={pageOn(stableOrigin, "/", pathname)}>
-        {isBeta ? "Stable docs →" : "Latest docs →"}
+      <a className="ml-2 underline" href={pageOn(stableOrigin, "/", destination)}>
+        {isBeta ? t("Stable docs →", "稳定版文档 →") : t("Latest docs →", "最新版文档 →")}
       </a>
     </Banner>
   );

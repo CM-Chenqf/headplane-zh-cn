@@ -1,0 +1,68 @@
+---
+title: 访问控制
+description: 在 Headplane 中编辑 Headscale ACL 策略、标签和用户组。
+---
+
+import { versions } from "@/lib/versions";
+import aclsLight from "../assets/acls-light.png";
+import aclsDark from "../assets/acls-dark.png";
+
+# 访问控制 [#access-control]
+
+Headscale 将访问控制列表（ACL）保存为单份 HuJSON 策略。**访问控制**页面提供两种编辑方式：用于规则、标签和用户组的结构化编辑器，以及用于完整策略的文件编辑器。
+
+<Figure
+  alt="Headplane 的访问控制页面"
+  light={aclsLight}
+  dark={aclsDark}
+  caption="结构化编辑器中的访问规则（上游英文界面截图）"
+/>
+
+## 前提条件 [#requirements]
+
+只有 Headscale 使用数据库策略模式时，才能通过 Web 界面写入策略：
+
+```yaml
+# Headscale config.yaml
+policy:
+  mode: database
+```
+
+使用 `file` 模式时，页面只读并显示原因。只有所有者、管理员和网络管理员可以编辑策略。
+
+## 规则 [#rules]
+
+**规则**标签页将策略分成五类：
+
+- **访问规则**：对应 `acls`，允许一组来源访问一组目标。目标包含端口范围，例如 `tag:web:80,443`。输入目标时省略端口会自动补充 `:*`，因为 Headscale 不接受没有端口的目标。
+- **授权规则**：对应 `grants`。与访问规则相似，但端口和协议使用独立字段（例如 `tcp:443`），目标不包含端口。**经由**可让流量通过带指定标签的子网路由器或出口节点；通过出口节点访问互联网时，目标使用 `autogroup:internet`。应用能力（`app`）会保留，但只能在文件中编辑。授权规则需要 Headscale {versions.headscale.grants} 或更新版本，旧版本隐藏此列表。
+- **SSH 规则**：对应 `ssh`，包括 `check` 模式及其检查周期。
+- **主机别名**：对应 `hosts`，为 IP 地址或 CIDR 网段命名，供规则引用。
+- **自动批准者**：对应 `autoApprovers`。指定用户、用户组或标签所宣告的子网路由和出口节点无需手动批准。
+
+添加或编辑条目时，通过弹窗中的标签项构建来源和目标。tailnet 中已有的用户组、标签、主机别名和 Headscale 用户会作为建议提供。
+
+## 标签和用户组 [#tags-and-groups]
+
+**标签和用户组**标签页管理 `groups` 和 `tagOwners`。
+
+- **用户组**：将多个 Headscale 用户组织在一起，供规则引用。成员写为 `username@`，这是 Headscale 策略引用用户的格式。
+- **标签**：按用途而非所有者标识设备。每个标签列出允许分配该标签的用户和用户组，并显示当前带该标签的设备。
+
+标签必须在 `tagOwners` 中声明才会生效。Headscale 允许给设备分配未声明标签，但任何规则都不会匹配它。**设备**页面的标签弹窗会对这类标签显示警告，并链接到访问控制页面。
+
+也可在**用户**页面行菜单的**编辑用户组**中修改成员关系。用户所属组会显示在名称下方。两个入口都写入同一策略的 `groups`。
+
+## 直接编辑文件 [#editing-the-file-directly]
+
+**编辑文件**标签页编辑原始策略，**预览更改**显示与已保存版本的差异。结构化编辑器修改同一编辑缓冲区，因此可视化更改在保存前就会出现在文件和差异视图中。
+
+文件编辑器实时检查 HuJSON 并标记语法错误，存在语法错误时无法保存。**格式化**应用两空格缩进和一致间距，保留现有换行、注释和尾随逗号。
+
+只有点击**保存**后，才会将策略发送到 Headscale。
+
+:::warning[结构化编辑不保留注释]
+HuJSON 支持注释和尾随逗号。Headplane 能读取它们，但结构化编辑器会重新生成策略文本，导致注释丢失。加载的策略含注释时，规则、标签和用户组标签页会显示提示。需要保留注释时，使用文件编辑器。
+:::
+
+结构化编辑器不处理的顶层字段（例如 `nodeAttrs` 和 `tests`）会原样保留。

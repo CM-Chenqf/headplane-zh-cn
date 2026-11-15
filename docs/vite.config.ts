@@ -35,6 +35,13 @@ const docsBuild = {
         timeZone: "UTC",
       })
     : "",
+  dateZh: process.env.HEADPLANE_DOCS_DATE
+    ? new Date(process.env.HEADPLANE_DOCS_DATE).toLocaleDateString("zh-CN", {
+        month: "long",
+        day: "numeric",
+        timeZone: "UTC",
+      })
+    : "",
 };
 
 export default defineConfig({

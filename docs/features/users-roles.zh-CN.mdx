@@ -1,0 +1,83 @@
+---
+title: 用户与角色
+description: Headplane 账号、角色及其与 Headscale 用户的关联方式。
+---
+
+import usersLight from "../assets/users-light.png";
+import usersDark from "../assets/users-dark.png";
+import homeLight from "../assets/home-light.png";
+import homeDark from "../assets/home-dark.png";
+import usersRoleLight from "../assets/users-role-light.png";
+import usersRoleDark from "../assets/users-role-dark.png";
+import authKeysLight from "../assets/auth-keys-light.png";
+import authKeysDark from "../assets/auth-keys-dark.png";
+
+# 用户与角色 [#users--roles]
+
+Headplane 独立保存账号，与 Headscale 用户分开。首次通过 [SSO](/features/sso) 或[代理认证](/features/proxy-auth)登录时创建账号。角色决定在 Headplane 中的操作权限；与 Headscale 用户的关联决定哪些设备和认证密钥属于该账号。
+
+<Figure
+  alt="Headplane 用户页面"
+  light={usersLight}
+  dark={usersDark}
+  caption="账号、角色与关联的 Headscale 用户（上游英文界面截图）"
+/>
+
+## 角色 [#roles]
+
+| 角色           | 权限                                                          |
+| -------------- | ------------------------------------------------------------- |
+| **所有者**     | 全部操作，包括转移所有权。始终只有一个所有者。                |
+| **管理员**     | 除转移所有权外的全部操作。                                    |
+| **网络管理员** | 管理 ACL、DNS 和网络设置；查看设备与用户；创建认证密钥。      |
+| **IT 管理员**  | 管理设备、用户、设置和登录限制；可查看但不能修改 ACL 与 DNS。 |
+| **审计员**     | 查看全部内容，并为自己创建认证密钥。                          |
+| **查看者**     | 查看设备与用户，并为自己创建认证密钥。                        |
+| **成员**       | 无法访问管理面板，只能看到帮助接入个人设备的首页。            |
+
+<Figure
+  alt="成员首页"
+  light={homeLight}
+  dark={homeDark}
+  caption="成员通过首页接入设备（上游英文界面截图）"
+/>
+
+第一个登录的人成为所有者。之后的新账号默认为成员，由所有者、管理员或 IT 管理员在**用户**页面修改角色。使用 SSO 时，也可给新账号指定其他默认角色，或从身份提供商读取角色，参阅[从身份提供商分配角色](/features/sso#roles-from-the-identity-provider)。
+
+<Figure
+  alt="修改账号角色"
+  light={usersRoleLight}
+  dark={usersRoleDark}
+  caption="在用户页面修改角色（上游英文界面截图）"
+/>
+
+使用 Headscale API 密钥登录时拥有全部权限，不关联角色，参阅 [API 密钥](/configuration/api-keys)。
+
+## 关联 Headscale 用户 [#linking-to-headscale-users]
+
+每个账号可关联一个 Headscale 用户，从而拥有该用户的设备和认证密钥。审计员、查看者需要先关联才能为自己创建认证密钥；[浏览器 SSH](/features/ssh) 也使用此关联确定连接身份。
+
+<Figure
+  alt="Headplane 设置中的认证密钥"
+  light={authKeysLight}
+  dark={authKeysDark}
+  caption="每个认证密钥属于一个 Headscale 用户（上游英文界面截图）"
+/>
+
+找到 SSO subject 或邮箱相同、且尚未被关联的 Headscale 用户时，Headplane 自动建立关联。登录时会尝试匹配；未关联账号每次打开 Headplane 时也会重试。因此，如果 Headscale 同样通过 SSO 创建用户，首台设备加入后就可以完成账号关联。subject 的匹配条件见 [SSO 文档](/features/sso#how-accounts-match-headscale-users)。
+
+没有匹配用户时，账号保持未关联状态，直到手动关联。
+
+### 手动关联 [#linking-by-hand]
+
+所有者、管理员和 IT 管理员可在**用户**页面关联任意账号：
+
+1. 如果还没有对应的 Headscale 用户，通过**添加用户**创建。
+2. 打开账号行菜单，选择**关联 Headscale 用户**。
+3. 选择尚未与其他账号关联的 Headscale 用户。
+
+同一菜单中的**更改关联用户**可调整已有关系。账号必须先关联，才能修改角色。
+
+通过 SSO 登录且尚未匹配的所有者、管理员和 IT 管理员，会在登录后看到**关联账号**页面，可选择自己的 Headscale 用户。选择**暂时跳过**可保持未关联，之后再从用户页面处理。
+
+其他角色不能自行选择用户，因为关联会授予该用户设备和密钥的访问权。完成关联前，首页会提示联系管理员。

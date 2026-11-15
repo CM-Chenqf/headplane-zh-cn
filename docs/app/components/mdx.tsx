@@ -7,10 +7,14 @@ import { CalloutContainer, CalloutDescription, CalloutTitle } from "@/components
 import DynamicCodeBlock from "@/components/dynamic-code-block";
 import Figure from "@/components/figure";
 import { Reference, Release, ReleaseList, ReleaseSection } from "@/components/release";
+import { useDocsLocale } from "@/lib/use-locale";
 
 export function useMDXComponents(components?: MDXComponents) {
+  const { href } = useDocsLocale();
+  const Anchor = defaultMdxComponents.a;
   return {
     ...defaultMdxComponents,
+    a: (props) => <Anchor {...props} href={props.href ? href(props.href) : props.href} />,
     pre: (props) => (
       <CodeBlock {...props} className="border-line bg-subtle my-5 rounded-lg">
         <Pre>{props.children}</Pre>

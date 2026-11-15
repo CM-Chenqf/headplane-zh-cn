@@ -3,9 +3,10 @@ import { Children, isValidElement, type ReactNode } from "react";
 import { useMDXComponents } from "@/components/mdx";
 import { releaseId, releaseLabel, type ReleaseSummary } from "@/lib/changelog";
 import { changelog } from "@/lib/source";
+import { useDocsLocale } from "@/lib/use-locale";
 
-function changelogEntry() {
-  const entry = changelog.get("CHANGELOG.md");
+function changelogEntry(locale = "en") {
+  const entry = changelog.get(locale === "zh-CN" ? "CHANGELOG.zh-CN.md" : "CHANGELOG.md");
   if (!entry) {
     throw new Error("CHANGELOG.md is missing from the changelog collection");
   }
@@ -15,12 +16,12 @@ function changelogEntry() {
 
 // Fumadocs only builds a page's TOC from its own headings, so the docs loader
 // adds the releases <UpgradeNotes> renders.
-export function upgradeToc() {
-  const releases = changelogEntry()._exports.releases as ReleaseSummary[];
+export function upgradeToc(locale = "en") {
+  const releases = changelogEntry(locale)._exports.releases as ReleaseSummary[];
   return releases
     .filter((release) => release.hasUpgrading)
     .map((release) => ({
-      title: releaseLabel(release.version),
+      title: releaseLabel(release.version, locale),
       url: `#${releaseId(release.version)}`,
       depth: 2,
     }));
@@ -29,7 +30,8 @@ export function upgradeToc() {
 // Renders only the `## Upgrading` section of each release in CHANGELOG.md,
 // reusing the changelog's compiled <Release> and <ReleaseSection> elements.
 export default function UpgradeNotes() {
-  const Body = changelogEntry().body;
+  const { locale } = useDocsLocale();
+  const Body = changelogEntry(locale).body;
   const components = useMDXComponents();
 
   return (
@@ -48,7 +50,7 @@ export default function UpgradeNotes() {
 
           return (
             <>
-              <components.h2 id={releaseId(version)}>{releaseLabel(version)}</components.h2>
+              <components.h2 id={releaseId(version)}>{releaseLabel(version, locale)}</components.h2>
               {section.props.children}
             </>
           );

@@ -1,0 +1,43 @@
+---
+title: 安装
+description: 选择安装方式并启动 Headplane。
+---
+
+import { versions } from "@/lib/versions";
+
+# 安装 [#installation]
+
+所有安装方式的目标相同：在已有 Headscale 旁运行 Headplane，并通过 `/admin` 提供 Web 界面。根据 Headscale 的现有运行方式选择安装方法。
+
+| 方法                             | 适用场景                                                  |
+| -------------------------------- | --------------------------------------------------------- |
+| [Docker](/install/docker)        | Headscale 已在 Docker 中运行，或两个服务都可以使用 Docker |
+| [原生安装](/install/native-mode) | Headscale 直接运行在宿主机上，通常由 systemd 管理         |
+| [Nix/NixOS](/install/nix)        | 使用 NixOS 管理主机                                       |
+
+推荐使用 Docker。镜像预先构建了全部组件，包括 Agent 和浏览器 SSH；这也是唯一无需进程监督器即可让 Headplane 重启 Headscale 的部署方式。
+
+## 安装前 [#before-installing]
+
+Headplane 需要已运行的 Headscale {versions.headscale.minimum} 或更新版本。Headplane 从 YAML 文件读取设置，默认路径为 `/etc/headplane/config.yaml`。从[示例配置](https://github.com/tale/headplane/blob/main/config.example.yaml)开始，至少设置以下两个字段：
+
+```yaml
+headscale:
+  # Headplane 访问 Headscale 的地址，例如 Docker 内的 http://headscale:8080
+  url: "http://headscale.example.com"
+
+server:
+  # 必须恰好为 32 个字符，例如运行 openssl rand -hex 16 生成
+  cookie_secret: "<32 random characters>"
+```
+
+其他字段均有默认值。[配置](/configuration)介绍了完整文件、环境变量以及如何避免在文件中直接保存敏感信息。
+
+## 安装后 [#after-installing]
+
+启动 Headplane 后，使用 Headscale API 密钥登录，再按需启用管理功能：
+
+- **在界面中修改 DNS 和登录限制**：让 Headplane 访问 Headscale 配置文件，参阅[集成](/configuration/integrations)。
+- **在同一域名下配置反向代理**：参阅[反向代理](/configuration/reverse-proxy)。
+- **使用个人账号登录**：配置 [SSO](/features/sso) 或[代理认证](/features/proxy-auth)。
+- **显示设备版本并在浏览器中打开 SSH**：启用 [Agent](/features/agent) 和[浏览器 SSH](/features/ssh)。
