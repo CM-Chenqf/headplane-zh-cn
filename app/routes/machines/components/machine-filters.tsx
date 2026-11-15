@@ -2,23 +2,13 @@ import { ChevronDown, X } from "lucide-react";
 import type { JSX } from "react";
 
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "~/components/menu";
+import { useI18n } from "~/i18n/provider";
 import type { User } from "~/types/User";
 import cn from "~/utils/cn";
 import type { PopulatedNode } from "~/utils/node-info";
 import { getUserDisplayName, sortUsersByDisplayName } from "~/utils/user";
 
 import { useMachineFilterParams } from "../hooks/use-machine-filter-params";
-
-const STATUS_OPTIONS = [
-  { value: "online", label: "Online" },
-  { value: "offline", label: "Offline" },
-  { value: "expired", label: "Expired" },
-] as const;
-
-const ROUTE_OPTIONS = [
-  { value: "exit-node", label: "Exit node" },
-  { value: "subnet", label: "Subnet router" },
-] as const;
 
 function FilterDropdown({
   label,
@@ -31,6 +21,7 @@ function FilterDropdown({
   options: readonly { value: string; label: string }[];
   onChange: (value: string | null) => void;
 }): JSX.Element {
+  const { t } = useI18n();
   const activeOption = options.find((o) => o.value === value) ?? null;
   const isActive = activeOption !== null;
 
@@ -67,7 +58,7 @@ function FilterDropdown({
         {isActive && (
           <>
             <MenuSeparator />
-            <MenuItem onClick={() => onChange(null)}>Clear filter</MenuItem>
+            <MenuItem onClick={() => onChange(null)}>{t("common.clearFilter")}</MenuItem>
           </>
         )}
       </MenuContent>
@@ -81,6 +72,18 @@ interface MachineFiltersProps {
 }
 
 export function MachineFilters({ users, populatedNodes }: MachineFiltersProps): JSX.Element {
+  const { t } = useI18n();
+  const STATUS_OPTIONS = [
+    { value: "online", label: t("machines.online") },
+    { value: "offline", label: t("machines.offline") },
+    { value: "expired", label: t("expiry.expired") },
+  ] as const;
+
+  const ROUTE_OPTIONS = [
+    { value: "exit-node", label: t("machines.exitNode") },
+    { value: "subnet", label: t("machines.subnetRouter") },
+  ] as const;
+
   const {
     filterUser,
     filterTag,
@@ -93,7 +96,7 @@ export function MachineFilters({ users, populatedNodes }: MachineFiltersProps): 
 
   const tagOwnedExists = populatedNodes.some((n) => !n.user);
   const userOptions = [
-    ...(tagOwnedExists ? [{ value: "tag-owned", label: "Tag-owned" }] : []),
+    ...(tagOwnedExists ? [{ value: "tag-owned", label: t("machines.tagOwned") }] : []),
     ...sortUsersByDisplayName(users).map((u) => ({ value: u.name, label: getUserDisplayName(u) })),
   ];
 
@@ -106,7 +109,7 @@ export function MachineFilters({ users, populatedNodes }: MachineFiltersProps): 
     <>
       {userOptions.length > 0 && (
         <FilterDropdown
-          label="User"
+          label={t("machines.user")}
           onChange={(v) => setParam("user", v)}
           options={userOptions}
           value={filterUser}
@@ -114,20 +117,20 @@ export function MachineFilters({ users, populatedNodes }: MachineFiltersProps): 
       )}
       {tagOptions.length > 0 && (
         <FilterDropdown
-          label="Tag"
+          label={t("machines.tag")}
           onChange={(v) => setParam("tag", v)}
           options={tagOptions}
           value={filterTag}
         />
       )}
       <FilterDropdown
-        label="Status"
+        label={t("machines.status")}
         onChange={(v) => setParam("status", v)}
         options={STATUS_OPTIONS}
         value={filterStatus}
       />
       <FilterDropdown
-        label="Route"
+        label={t("machines.route")}
         onChange={(v) => setParam("route", v)}
         options={ROUTE_OPTIONS}
         value={filterRoute}
@@ -143,7 +146,7 @@ export function MachineFilters({ users, populatedNodes }: MachineFiltersProps): 
           onClick={clearFilters}
           type="button"
         >
-          Clear filters
+          {t("machines.clearFilters")}
           <X className="h-3.5 w-3.5" />
         </button>
       )}

@@ -1,5 +1,7 @@
 import { data, redirect } from "react-router";
 
+import { getLocale } from "~/i18n/locale.server";
+import { createTranslator } from "~/i18n/messages";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
 import { isDataWithApiError } from "~/server/headscale/api/error-client";
 import { nodesResource } from "~/server/headscale/live-store";
@@ -9,6 +11,7 @@ import { normalizeRegistrationKey } from "~/utils/register-key";
 import type { Route } from "./+types/machine";
 
 export async function machineAction({ request, context }: Route.ActionArgs) {
+  const t = createTranslator(await getLocale(request));
   const auth = context.get(authContext);
   const getRequestApi = context.get(requestApiContext);
   const headscaleLiveStore = context.get(headscaleLiveStoreContext);
@@ -19,7 +22,7 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
 
   const action = formData.get("action_id")?.toString();
   if (!action) {
-    throw data("Missing `action_id` in the form data.", {
+    throw data(t("machines.error.missing.action_id"), {
       status: 400,
     });
   }
@@ -27,28 +30,28 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
   // Fast track register since it doesn't require an existing machine
   if (action === "register") {
     if (!auth.can(principal, Capabilities.write_machines)) {
-      throw data("You do not have permission to manage machines", {
+      throw data(t("machines.error.manageForbidden"), {
         status: 403,
       });
     }
 
     const registrationKeyInput = formData.get("register_key")?.toString();
     if (!registrationKeyInput) {
-      throw data("Missing `register_key` in the form data.", {
+      throw data(t("machines.error.missing.register_key"), {
         status: 400,
       });
     }
 
     const registrationKey = normalizeRegistrationKey(registrationKeyInput);
     if (!registrationKey) {
-      throw data("Invalid `register_key` in the form data.", {
+      throw data(t("machines.error.invalidRegistration"), {
         status: 400,
       });
     }
 
     const user = formData.get("user")?.toString();
     if (!user) {
-      throw data("Missing `user` in the form data.", {
+      throw data(t("machines.error.missing.user"), {
         status: 400,
       });
     }
@@ -61,20 +64,20 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
   // Check if the user has permission to manage this machine
   const nodeId = formData.get("node_id")?.toString();
   if (!nodeId) {
-    throw data("Missing `node_id` in the form data.", {
+    throw data(t("machines.error.missing.node_id"), {
       status: 400,
     });
   }
 
   const node = await api.nodes.get(nodeId);
   if (!node) {
-    throw data(`Machine with ID ${nodeId} not found`, {
+    throw data(t("machines.error.notFound", { id: nodeId }), {
       status: 404,
     });
   }
 
   if (!auth.canManageNode(principal, node)) {
-    throw data("You do not have permission to act on this machine", {
+    throw data(t("machines.error.forbidden"), {
       status: 403,
     });
   }
@@ -83,22 +86,19 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
     case "rename": {
       const newName = formData.get("name")?.toString();
       if (!newName) {
-        throw data("Missing `name` in the form data.", {
+        throw data(t("machines.error.missing.name"), {
           status: 400,
         });
       }
 
       const name = String(formData.get("name"));
       if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(name.toLowerCase())) {
-        throw data(
-          "Machine names must be valid DNS labels: lowercase letters, numbers, and hyphens only, and must start and end with a letter or number.",
-          { status: 400 },
-        );
+        throw data(t("machines.error.name"), { status: 400 });
       }
 
       await api.nodes.rename(nodeId, name);
       await headscaleLiveStore.refresh(nodesResource, api);
-      return { message: "Machine renamed" };
+      return { message: t("machines.success.renamed") };
     }
 
     case "delete": {
@@ -110,20 +110,24 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
     case "expire": {
       await api.nodes.expire(nodeId);
       await headscaleLiveStore.refresh(nodesResource, api);
-      return { message: "Machine expired" };
+      return { message: t("machines.success.expired") };
     }
 
     case "toggle_expiry": {
       const disableExpiry = String(formData.get("disableExpiry")) === "true";
       await api.nodes.toggleExpiry(nodeId, disableExpiry);
       await headscaleLiveStore.refresh(nodesResource, api);
-      return { message: "Machine expired" };
+      return {
+        message: t(
+          disableExpiry ? "machines.success.expiryDisabled" : "machines.success.expiryEnabled",
+        ),
+      };
     }
 
     case "update_tags": {
       const tags = formData.get("tags")?.toString().split(",") ?? [];
       if (tags.length === 0) {
-        throw data("Missing `tags` in the form data.", {
+        throw data(t("machines.error.missing.tags"), {
           status: 400,
         });
       }
@@ -135,15 +139,16 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
         );
 
         await headscaleLiveStore.refresh(nodesResource, api);
-        return { success: true as const, message: "Tags updated" };
+        return { success: true as const, message: t("machines.success.tags") };
       } catch (error) {
         if (isDataWithApiError(error) && error.data.statusCode === 400) {
+          const original = extractApiErrorMessage(error.data);
           return data(
             {
               success: false as const,
-              error:
-                extractApiErrorMessage(error.data) ??
-                "One or more tags are not defined in your ACL policy. Please add them to your policy before assigning them to a machine.",
+              error: original
+                ? t("machines.error.tagDetails", { message: original })
+                : t("machines.error.unknownTags"),
             },
             { status: 400 },
           );
@@ -157,21 +162,21 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
       const newApproved = node.approvedRoutes;
       const routes = formData.get("routes")?.toString();
       if (!routes) {
-        throw data("Missing `routes` in the form data.", {
+        throw data(t("machines.error.missing.routes"), {
           status: 400,
         });
       }
 
       const allRoutes = routes.split(",").map((route) => route.trim());
       if (allRoutes.length === 0) {
-        throw data("No routes provided to update", {
+        throw data(t("machines.error.noRoutes"), {
           status: 400,
         });
       }
 
       const enabled = formData.get("enabled")?.toString();
       if (enabled === undefined) {
-        throw data("Missing `enabled` in the form data.", {
+        throw data(t("machines.error.missing.enabled"), {
           status: 400,
         });
       }
@@ -201,29 +206,29 @@ export async function machineAction({ request, context }: Route.ActionArgs) {
 
       await api.nodes.approveRoutes(nodeId, newApproved);
       await headscaleLiveStore.refresh(nodesResource, api);
-      return { message: "Routes updated" };
+      return { message: t("machines.success.routes") };
     }
 
     case "reassign": {
       const user = formData.get("user_id")?.toString();
       if (!user) {
-        throw data("Missing `user_id` in the form data.", {
+        throw data(t("machines.error.missing.user_id"), {
           status: 400,
         });
       }
 
       if (!api.nodes.reassignUser) {
-        throw data("Reassigning a node owner is no longer supported on this Headscale version.", {
+        throw data(t("machines.error.ownerVersion"), {
           status: 400,
         });
       }
       await api.nodes.reassignUser(nodeId, user);
       await headscaleLiveStore.refresh(nodesResource, api);
-      return { message: "Machine reassigned" };
+      return { message: t("machines.success.owner") };
     }
 
     default:
-      throw data("Invalid action", {
+      throw data(t("machines.error.invalidAction"), {
         status: 400,
       });
   }

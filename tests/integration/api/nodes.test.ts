@@ -1,8 +1,10 @@
 import { RouterContextProvider } from "react-router";
 import { describe, expect, test, vi } from "vitest";
 
+import { setLocale } from "~/i18n/locale.server";
 import { machineAction } from "~/routes/machines/machine-actions";
 import { authContext, headscaleLiveStoreContext, requestApiContext } from "~/server/context";
+import { type HeadscaleAPIError, isDataWithApiError } from "~/server/headscale/api/error-client";
 import { Capabilities } from "~/server/web/roles";
 
 import { getBootstrapClient, getNode, getRuntimeClient, HS_VERSIONS } from "../setup/env";
@@ -20,7 +22,7 @@ function registerRequest(registerKey: string) {
 }
 
 function actionContext(api: Awaited<ReturnType<typeof getRuntimeClient>>) {
-  const auth = { can: vi.fn(() => true) };
+  const auth = { can: vi.fn(() => true), canManageNode: vi.fn(() => true) };
   const liveStore = { refresh: vi.fn() };
   const principal = { id: "integration-user" };
   const context = new RouterContextProvider();
@@ -30,6 +32,23 @@ function actionContext(api: Awaited<ReturnType<typeof getRuntimeClient>>) {
   context.set(requestApiContext, vi.fn(async () => ({ principal, api })) as never);
 
   return { auth, context, liveStore };
+}
+
+async function machineRequest(
+  action: string,
+  nodeId: string,
+  fields: Record<string, string>,
+  locale: "en" | "zh-CN",
+) {
+  return new Request("http://headplane.test/machines", {
+    method: "POST",
+    headers: {
+      // The stored preference must win over a different browser language.
+      Cookie: (await setLocale(locale)).split(";")[0],
+      "Accept-Language": locale === "en" ? "zh-CN" : "en",
+    },
+    body: new URLSearchParams({ action_id: action, node_id: nodeId, ...fields }),
+  });
 }
 
 describe.for(HS_VERSIONS)("Headscale %s: Users", { concurrent: false }, (version) => {
@@ -77,12 +96,90 @@ describe.for(HS_VERSIONS)("Headscale %s: Users", { concurrent: false }, (version
   test("nodes can be renamed", async () => {
     const client = await getRuntimeClient(version);
     const { nodeName } = await getNode(version);
-    const newName = `${nodeName}-renamed`;
+    const { context } = actionContext(client);
+    for (const [locale, message] of [
+      ["en", "Machine renamed"],
+      ["zh-CN", "设备已重命名"],
+    ] as const) {
+      const newName = `${nodeName}-renamed-${locale.toLowerCase()}`;
+      const response = await machineAction({
+        request: await machineRequest("rename", workingNodeId, { name: newName }, locale),
+        context,
+        params: {},
+      } as never);
+      expect(response).toEqual({ message });
+      expect((await client.nodes.get(workingNodeId)).givenName).toBe(newName);
+    }
+  });
 
-    await client.nodes.rename(workingNodeId, newName);
-    const renamedNode = await client.nodes.get(workingNodeId);
-    expect(renamedNode).toBeDefined();
-    expect(renamedNode.givenName).toBe(newName);
+  test("localized validation and permission errors do not rename the device", async () => {
+    const client = await getRuntimeClient(version);
+    const before = await client.nodes.get(workingNodeId);
+    const { context, auth, liveStore } = actionContext(client);
+    for (const [locale, expected] of [
+      ["en", "Machine names must be valid DNS labels"],
+      ["zh-CN", "设备名称必须是有效的 DNS 标签"],
+    ] as const) {
+      await expect(
+        machineAction({
+          request: await machineRequest("rename", workingNodeId, { name: "invalid name!" }, locale),
+          context,
+          params: {},
+        } as never),
+      ).rejects.toMatchObject({ data: expect.stringContaining(expected), init: { status: 400 } });
+    }
+    auth.canManageNode.mockReturnValue(false);
+    await expect(
+      machineAction({
+        request: await machineRequest("rename", workingNodeId, { name: "forbidden-name" }, "zh-CN"),
+        context,
+        params: {},
+      } as never),
+    ).rejects.toMatchObject({ data: "没有操作此设备的权限", init: { status: 403 } });
+    expect(liveStore.refresh).not.toHaveBeenCalled();
+    expect((await client.nodes.get(workingNodeId)).givenName).toBe(before.givenName);
+  });
+
+  test("tag failures preserve Headscale's actual status and diagnostic in either language", async () => {
+    const client = await getRuntimeClient(version);
+    const before = await client.nodes.get(workingNodeId);
+    let original: HeadscaleAPIError | undefined;
+    try {
+      await client.nodes.setTags(workingNodeId, ["invalid-without-tag-prefix"]);
+      throw new Error("Headscale unexpectedly accepted an invalid tag");
+    } catch (error) {
+      if (!isDataWithApiError(error)) throw error;
+      original = error.data;
+    }
+    // These Headscale versions report invalid tag prefixes as gRPC Unknown / HTTP 500.
+    // Keep that upstream response and the transport's existing HTTP 502 wrapper intact.
+    expect(original?.statusCode).toBe(500);
+    expect(original?.data?.message).toBe("tag must start with the string 'tag:'");
+    const { context, liveStore } = actionContext(client);
+    for (const locale of ["en", "zh-CN"] as const) {
+      await expect(
+        machineAction({
+          request: await machineRequest(
+            "update_tags",
+            workingNodeId,
+            { tags: "invalid-without-tag-prefix" },
+            locale,
+          ),
+          context,
+          params: {},
+        } as never),
+      ).rejects.toMatchObject({
+        data: {
+          requestUrl: original?.requestUrl,
+          statusCode: 500,
+          data: original?.data,
+          rawData: expect.stringContaining("tag must start with the string 'tag:'"),
+        },
+        init: { status: 502, statusText: "Bad Gateway" },
+      });
+    }
+    expect(liveStore.refresh).not.toHaveBeenCalled();
+    expect((await client.nodes.get(workingNodeId)).tags).toEqual(before.tags);
   });
 
   test("nodes can be reassigned to another user", async (context) => {
@@ -119,13 +216,34 @@ describe.for(HS_VERSIONS)("Headscale %s: Users", { concurrent: false }, (version
     }
 
     const client = await getRuntimeClient(version);
-    await client.nodes.toggleExpiry(workingNodeId, true);
+    const { context: actionCtx } = actionContext(client);
+    const disabled = await machineAction({
+      request: await machineRequest(
+        "toggle_expiry",
+        workingNodeId,
+        { disableExpiry: "true" },
+        "en",
+      ),
+      context: actionCtx,
+      params: {},
+    } as never);
+    expect(disabled).toEqual({ message: "Key expiry disabled" });
 
     const permanentNode = await client.nodes.get(workingNodeId);
     expect(permanentNode).toBeDefined();
     expect(permanentNode.expiry).toBeNull();
 
-    await client.nodes.toggleExpiry(workingNodeId, false);
+    const enabled = await machineAction({
+      request: await machineRequest(
+        "toggle_expiry",
+        workingNodeId,
+        { disableExpiry: "false" },
+        "zh-CN",
+      ),
+      context: actionCtx,
+      params: {},
+    } as never);
+    expect(enabled).toEqual({ message: "已启用密钥过期" });
 
     const node = await client.nodes.get(workingNodeId);
     expect(node).toBeDefined();

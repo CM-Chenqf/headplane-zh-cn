@@ -1,6 +1,8 @@
+import machines from "./en/machines";
 import release from "./en/release";
 export default {
   ...release,
+  ...machines,
   "common.close": "Close",
   "common.dismiss": "Dismiss",
   "common.actions": "Actions",

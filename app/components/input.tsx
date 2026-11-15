@@ -63,7 +63,7 @@ export default function Input(props: InputProps) {
         </Field.Description>
       )}
       {invalid && errorMessage ? (
-        <Field.Error className={cn("text-xs", "text-red-500 dark:text-red-400")}>
+        <Field.Error match className={cn("text-xs", "text-red-500 dark:text-red-400")}>
           {errorMessage}
         </Field.Error>
       ) : null}
