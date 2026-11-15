@@ -62,6 +62,35 @@ docs site, so write it as prose for them, not as a commit summary. Prose placed
 directly under `# Next`, above the subheadings, becomes the release preamble.
 Use it for compatibility notes and upgrade warnings.
 
-To cut a release, run `pnpm release cut <version>`. It renames `# Next` to the
-version, bumps `package.json`, commits, and tags. Pushing the tag builds the
-images and publishes the GitHub release from that changelog section.
+## Community fork release policy
+
+This repository is an unofficial English/Simplified Chinese fork of tale/headplane.
+Preserve LICENSE, upstream attribution and the non-official notice.
+
+- Maintain only two long-lived branches: main follows upstream main; stable follows
+  the newest published, non-prerelease upstream tag. Keep each line's native UI,
+  toolchain and supported Headscale matrix. Do not create per-version release branches.
+- Merge upstream history without force-pushing over translations. Review changed
+  English and Chinese together, then update only the selected i18n fingerprints.
+- Record upstream version/commit, community revision and acceptance status in
+  .github/fork-release.json. Upgrades reset acceptance until CI has passed.
+- Formal community tags use vX.Y.Z-zh.N; N starts at 1 and increases for Chinese,
+  packaging or docs corrections to the same upstream version. Keep package.json
+  at the upstream version. main must remain channel=development and cannot publish.
+- Do not use pnpm release cut in this fork. From a clean, accepted stable checkout,
+  use node .github/scripts/fork-release.cjs tag and push only that new tag.
+- Publishing requires successful Build, Translations and Containers (check) push
+  runs on the exact stable commit, full translations, and unused full image tags.
+- Keep upstream final/debug-shell images and amd64/arm64 support. Test startup,
+  real Headscale health, English/Chinese sign-in and authenticated access across
+  the canonical compatibility matrix. Never fake Headscale.
+- Publish a draft with source, root/archive docs, digests and checksums, then lock
+  it through GitHub immutable releases. Never retarget tags, overwrite full image
+  tags, clobber release attachments or delete historical published images.
+- latest/minor image aliases may move. Documentation hotfixes require a new
+  community revision; branch docs builds are temporary preview artifacts only.
+- main assembles Cloudflare docs from the newest published community Release
+  per minor, serving the newest at / and older lines at /X.Y/. Ignore inherited
+  upstream tags. Keep automatic branch deletion enabled; remove merged PR branches.
+
+See .github/FORK_SETUP.zh-CN.md for the operational checklist and credentials.

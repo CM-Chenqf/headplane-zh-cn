@@ -12,6 +12,10 @@ See [release-line maintenance](./docs/features/language.md) for scope and accept
 
 本仓库是基于 `tale/headplane` 的**非官方**中英双语维护分支，保留上游 MIT 许可证原文及原作者署名。0.8 界面与文档汉化已完成，Docker 运行和发布验收仍待完成，进度见[中文维护说明](./docs/zh-CN/features/language.md)。
 
+Maintenance uses fixed `main` (development) and `stable` (latest stable upstream) branches.
+Community tags such as `v0.8.2-zh.1` preserve source, documentation and image digests;
+new upstream versions do not require new maintenance branches. See the [fork release guide](./.github/FORK_SETUP.zh-CN.md).
+
 > A feature-complete web UI for [Headscale](https://headscale.net)
 
 <picture>

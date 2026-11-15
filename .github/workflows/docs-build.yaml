@@ -1,120 +1,43 @@
 name: Docs (release build)
 on:
-  # The release workflow starts this for every stable tag.
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: Build artifacts only, without uploading or deploying docs
-        type: boolean
-        required: true
-        default: true
-  # Docs hotfixes for a release line, without a new release.
   push:
-    branches:
-      - "release/*"
+    branches: [stable]
     paths:
       - "docs/**"
-      - "CHANGELOG.md"
+      - "CHANGELOG*.md"
       - "package.json"
-      - ".github/i18n/scope.json"
+      - ".github/fork-release.json"
+      - ".github/scripts/fork-release.cjs"
       - ".github/workflows/docs-build.yaml"
 
 concurrency:
   group: docs-build-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
-  actions: write
-  contents: write
-
+  contents: read
+env:
+  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headplane-zh-cn-docs') }}
+  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta') }}
 jobs:
   build:
-    name: Build Release Docs
+    name: Preview root and archived docs
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
         with:
           run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: package.json
           cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # Inherited upstream tags do not imply that this fork has published a
-      # release. Incomplete translations must remain downloadable CI artifacts.
-      - name: Determine docs version and publication readiness
-        id: release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
-        run: |
-          VERSION=$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')
-          [[ "$VERSION" =~ ^0\.8\.[0-9]+$ ]] || { echo "Unexpected release/0.8 version: $VERSION"; exit 1; }
-          TAG="v$VERSION"
-          PUBLISH=false
-          if [[ "$DRY_RUN" != true ]] && node scripts/i18n/release-status.mjs; then
-            pnpm i18n:release
-            if [[ "$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '.draft == false and .prerelease == false' 2>/dev/null)" == true ]]; then
-              PUBLISH=true
-            fi
-          fi
-          {
-            echo "tag=$TAG"
-            echo "minor=${VERSION%.*}"
-            echo "publish=$PUBLISH"
-          } >> "$GITHUB_OUTPUT"
-          echo "Version: $VERSION; publish: $PUBLISH" >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$PUBLISH" != true ]]; then
-            echo "Docs will be retained as artifacts only. Publication requires complete translations, an existing stable release in this fork, and dry_run=false." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      # Served at the site root while this release line is the newest.
-      - name: Build the root docs
-        run: |
-          pnpm docs:build
-          tar -czf "$RUNNER_TEMP/docs-root.tar.gz" -C docs/.vitepress/dist .
-
-      # Served at /<minor>/ once a newer release line takes over the root.
-      - name: Build the archived docs
-        run: |
-          rm -rf docs/.vitepress/dist
-          pnpm exec vitepress build docs --base "/$MINOR/"
-          tar -czf "$RUNNER_TEMP/docs-archive.tar.gz" -C docs/.vitepress/dist .
-        env:
-          MINOR: ${{ steps.release.outputs.minor }}
-
-      - name: Save docs build artifacts
-        uses: actions/upload-artifact@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm i18n:check
+      - run: node .github/scripts/fork-release.cjs docs "$RUNNER_TEMP/docs"
+      - uses: actions/upload-artifact@v4
         with:
-          name: docs-${{ steps.release.outputs.minor }}
-          path: |
-            ${{ runner.temp }}/docs-root.tar.gz
-            ${{ runner.temp }}/docs-archive.tar.gz
+          name: docs-preview
+          path: ${{ runner.temp }}/docs
           if-no-files-found: error
-
-      - name: Attach the docs to the release
-        if: steps.release.outputs.publish == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.release.outputs.tag }}
-        run: |
-          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber \
-            "$RUNNER_TEMP/docs-root.tar.gz" \
-            "$RUNNER_TEMP/docs-archive.tar.gz"
-
-      - name: Publish the docs
-        if: steps.release.outputs.publish == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run docs-publish.yaml --repo "$GITHUB_REPOSITORY" --ref main
+      # Docs corrections ship as new -zh.N revisions. Never clobber old assets.

@@ -94,14 +94,18 @@ async function main() {
   }
   if (
     scope.version !== 1 ||
-    scope.line !== "0.8" ||
+    scope.line !==
+      JSON.parse(read(".github/fork-release.json"))
+        .upstream.version.split(".")
+        .slice(0, 2)
+        .join(".") ||
     !scope.uiFiles.length ||
     !scope.documents.length
   )
     throw new Error("Invalid release-line translation scope");
   if (command === "release" && (!scope.complete || scope.pending.length))
     throw new Error(
-      `Release blocked: release/0.8 localization and acceptance are incomplete: ${scope.pending.join(", ")}`,
+      `Release blocked: stable localization and acceptance are incomplete: ${scope.pending.join(", ")}`,
     );
   const catalog = await catalogs();
   const problems = catalogProblems(catalog.en, catalog["zh-CN"], exceptions.messages);
