@@ -10,6 +10,10 @@ The `main` branch includes English and Simplified Chinese UI and documentation.
 Complete bilingual Docker images and the maintained documentation deployment
 have not been published yet; see the setup guide for current release status.
 
+Maintenance uses fixed `main` (development) and `stable` (latest stable upstream) branches.
+Community tags such as `v0.8.2-zh.1` preserve source, documentation and image digests;
+new upstream versions do not require new maintenance branches. See the [fork release guide](./.github/FORK_SETUP.zh-CN.md).
+
 > A feature-complete web UI for [Headscale](https://headscale.net)
 
 <picture>

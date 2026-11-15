@@ -1,0 +1,60 @@
+name: Containers (check)
+on:
+  pull_request:
+  push:
+    branches: [main, stable]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: containers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Runtime (${{ matrix.target }}, ${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [final, debug-shell]
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Read release identity
+        id: identity
+        run: |
+          node .github/scripts/fork-release.cjs info > "$RUNNER_TEMP/identity.json"
+          echo "version=$(jq -r .version "$RUNNER_TEMP/identity.json")" >> "$GITHUB_OUTPUT"
+          echo "image=$(jq -r .image "$RUNNER_TEMP/identity.json")" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build and load image without publishing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          platforms: linux/${{ matrix.arch }}
+          load: true
+          tags: headplane-smoke:${{ matrix.target }}
+          cache-from: type=gha,scope=container-${{ matrix.target }}-${{ matrix.arch }}
+          cache-to: type=gha,scope=container-${{ matrix.target }}-${{ matrix.arch }},mode=max
+          build-args: |
+            IMAGE_TAG=${{ steps.identity.outputs.image }}:${{ steps.identity.outputs.version }}${{ matrix.target == 'debug-shell' && '-shell' || '' }}
+            HEADPLANE_VERSION=${{ steps.identity.outputs.version }}
+      - name: Check runtime with every supported real Headscale version
+        env:
+          SMOKE_IMAGE: headplane-smoke:${{ matrix.target }}
+          SMOKE_PLATFORM: linux/${{ matrix.arch }}
+        run: node .github/scripts/container-smoke.mjs

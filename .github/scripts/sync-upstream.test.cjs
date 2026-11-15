@@ -12,22 +12,52 @@ const {
   pullRequestBody,
   issueBody,
   hasCommit,
+  syncTargets,
+  validateStableSource,
 } = require("./sync-upstream.cjs");
 
-test("tracks future release lines without copying upstream feature branches", () => {
+test("uses fixed main and stable targets when upstream publishes a new release series", () => {
   assert.equal(watchedBranch("main"), true);
-  assert.equal(watchedBranch("release/0.8"), true);
-  assert.equal(watchedBranch("release/12.30"), true);
-  for (const branch of ["next", "feat/new-feature", "release/0.8/fix", "release/a.b"]) {
+  assert.equal(watchedBranch("stable"), true);
+  for (const branch of [
+    "next",
+    "feat/new-feature",
+    "release/0.8",
+    "release/12.30",
+    "release/a.b",
+  ]) {
     assert.equal(watchedBranch(branch), false);
   }
+  const release = {
+    tag_name: "v1.0.0",
+    draft: false,
+    prerelease: false,
+    published_at: "2026-11-15",
+  };
+  assert.deepEqual(syncTargets(release), [
+    { branch: "main", source: "main", ref: "refs/heads/main" },
+    { branch: "stable", source: "stable/v1.0.0", ref: "refs/tags/v1.0.0" },
+  ]);
+  for (const changes of [
+    { prerelease: true },
+    { draft: true },
+    { published_at: null },
+    { tag_name: "v1.0.0-rc.1" },
+    { tag_name: "--delete" },
+  ])
+    assert.throws(() => syncTargets({ ...release, ...changes }));
+  const state = { upstream: { version: "0.8.2", commit: "a".repeat(40) } };
+  assert.doesNotThrow(() => validateStableSource(state, "v0.9.0", "b".repeat(40)));
+  assert.doesNotThrow(() => validateStableSource(state, "v0.8.2", "a".repeat(40)));
+  assert.throws(() => validateStableSource(state, "v0.8.1", "b".repeat(40)), /downgrade/);
+  assert.throws(() => validateStableSource(state, "v0.8.2", "b".repeat(40)), /retargeted/);
 });
 
 test("keeps every upstream revision in a separate branch to preserve manual conflict resolutions", () => {
-  const first = syncBranchName("release/0.8", "a".repeat(40));
-  const second = syncBranchName("release/0.8", "b".repeat(40));
+  const first = syncBranchName("stable/v0.8.2", "a".repeat(40));
+  const second = syncBranchName("stable/v0.8.2", "b".repeat(40));
   assert.notEqual(first, second);
-  assert.equal(first, "sync/upstream/release/0.8/aaaaaaaaaaaa");
+  assert.equal(first, "sync/upstream/stable/v0.8.2/aaaaaaaaaaaa");
   assert.throws(() => syncBranchName("--delete", "a".repeat(40)));
   assert.throws(() => syncBranchName("main", "invalid-sha"));
 });

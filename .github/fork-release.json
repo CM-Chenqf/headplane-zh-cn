@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "repository": "CM-Chenqf/headplane-zh-cn",
+  "channel": "development",
+  "upstream": {
+    "repository": "tale/headplane",
+    "version": "0.8.2",
+    "commit": "05e3ee33f6d3b347013654c69186791347be8bd9"
+  },
+  "revision": 1,
+  "publicationReady": false
+}
