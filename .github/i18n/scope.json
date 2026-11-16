@@ -2,7 +2,7 @@
   "version": 1,
   "line": "0.8",
   "upstreamCommit": "05e3ee33f6d3b347013654c69186791347be8bd9",
-  "complete": false,
+  "complete": true,
   "completed": [
     "language preferences",
     "sign-in and SSO notices",
@@ -13,9 +13,10 @@
     "DNS",
     "Settings",
     "Browser SSH",
-    "complete VitePress documentation"
+    "complete VitePress documentation",
+    "Docker final/debug-shell amd64/arm64 and real Headscale acceptance"
   ],
-  "pending": ["Docker and deployment acceptance"],
+  "pending": [],
   "uiFiles": [
     "app/components/input.tsx",
     "app/components/menu.tsx",
@@ -234,6 +235,10 @@
     {
       "english": "README.md",
       "chinese": "README.zh-CN.md"
+    },
+    {
+      "english": "deploy/README.md",
+      "chinese": "deploy/README.zh-CN.md"
     }
   ]
 }

@@ -32,6 +32,8 @@ jobs:
           node-version-file: package.json
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Validate deployment Compose
+        run: docker compose --env-file deploy/.env.example -f deploy/compose.yaml config --quiet
       - name: Read release identity
         id: identity
         run: |

@@ -2,8 +2,9 @@
 
 ## Changes
 
-- Full community image tags now match the GitHub Release tag, such as `v0.8.2-zh.1`; `latest` remains available after publication. Documentation is kept as bilingual source and Release snapshots, with local previews and CI build artifacts instead of hosted deployment.
-- Community maintenance now uses fixed main/stable branches and vX.Y.Z-zh.N release tags. Published source, bilingual docs and image digests remain attached to each immutable release; full image versions are not overwritten.
+- Community releases now use `vX.Y.Z-zh`, without a revision suffix, matching the upstream version. Each version retains its original images, source and bilingual documentation; later corrections ship with the next upstream release.
+- Full community image tags now match the GitHub Release tag, such as `v0.8.2-zh`; `latest` remains available after publication. Documentation is kept as bilingual source and Release snapshots, with local previews and CI build artifacts instead of hosted deployment.
+- Community maintenance now uses fixed main/stable branches and vX.Y.Z-zh release tags. Published source, bilingual docs and image digests remain attached to each immutable release; full image versions are not overwritten.
 
 - The community-maintained 0.8 fork now supports English and Simplified Chinese for DNS, Settings and Browser SSH, plus the complete VitePress documentation, navigation, search and historical changelog. Language changes preserve form drafts and SSH sessions. Docker runtime and publication acceptance remain pending; no image, release or documentation deployment is enabled by this change.
 

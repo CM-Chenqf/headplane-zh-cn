@@ -14,7 +14,7 @@ Language preferences, API-key sign-in and its errors, SSO configuration and sign
 
 [Access Control and policy editors](/features/acls) now also support bilingual rules, SSH rules, hosts, tags and groups, notices, parse explanations and editor controls. Drafts and original policy values are preserved when switching languages.
 
-[DNS](/features/dns), [Settings](/features/settings) and [Browser SSH](/features/ssh) now also support both languages. Every VitePress page has a Chinese counterpart, including installation, configuration, SSO, NixOS options, architecture and the complete historical changelog. Navigation, local search and language switching work at the root and under /0.8/. Translation coverage is complete; Docker runtime and publication acceptance are still pending. This development branch is not a published bilingual release.
+[DNS](/features/dns), [Settings](/features/settings) and [Browser SSH](/features/ssh) now also support both languages. Every VitePress page has a Chinese counterpart, including installation, configuration, SSO, NixOS options, architecture and the complete historical changelog. Navigation, local search and language switching work at the root and under /0.8/. Translation and container acceptance are complete. The `v0.8.2-zh` release candidate is ready for the tag-triggered publication workflow; check GitHub Releases for the actual publication result.
 
 ## Choose the interface language
 
@@ -22,7 +22,7 @@ Use the language button in the sign-in, signed-out or dashboard header. A first 
 
 The `headplane_locale` browser cookie saves the selection for one year. Clearing it restores browser-language detection. The preference applies before and after sign-in. It does not change the account, authentication cookie, role, Headscale configuration, other browsers or the return URL. The language endpoint accepts only a single supported locale over POST and does not accept redirect destinations.
 
-Commands, API fields, configuration keys, product names, user-provided values and original server diagnostics retain their spelling. Chinese error explanations keep the original diagnostic data visible. Application documentation buttons continue to open the upstream English site until the maintained site is deployed. The complete translated sources can be built locally or downloaded from Actions artifacts.
+Commands, API fields, configuration keys, product names, user-provided values and original server diagnostics retain their spelling. Chinese error explanations keep the original diagnostic data visible. Application documentation buttons retain upstream reference links. Complete bilingual documentation is available as repository source, local previews and community Release snapshots; no hosted documentation site is required.
 
 ## Check and review changes
 
@@ -35,7 +35,7 @@ pnpm typecheck
 pnpm docs:build
 ```
 
-`i18n:check` validates only the completed files and document pairs listed in `.github/i18n/scope.json`. It also checks the actual message catalogs, placeholders, hardcoded messages and per-entry review fingerprints. Static checks are accompanied by full source/document coverage and browser review. They do **not** approve Docker runtime or publication acceptance, which are printed separately as pending.
+`i18n:check` validates only the completed files and document pairs listed in `.github/i18n/scope.json`. It also checks the actual message catalogs, placeholders, hardcoded messages and per-entry review fingerprints. Static checks are accompanied by full source/document coverage and browser review. They do **not** approve Docker runtime or publication acceptance, which have separate acceptance records and CI checks.
 
 Review changed English and Chinese together, format first, then record only reviewed entries:
 
@@ -52,7 +52,7 @@ Static scanning cannot prove translation quality or trace every dynamic message,
 
 ## Publication status
 
-Container CI has passed, but first-release acceptance remains incomplete, so `pnpm i18n:release` currently fails. The tag-triggered release workflow also checks this status before publishing. Do not clear the pending list or mark the scope complete merely to pass a build.
+Translation and runtime acceptance are recorded in `.github/release-acceptance.json`. `pnpm i18n:release` now validates the completed scope; the release workflow also requires successful checks on the exact stable commit before publishing. An accepted candidate is not proof that registry publication has completed.
 
 Release documentation builds keep the upstream root and `/0.8/` archive formats. Branch builds only save temporary Actions artifacts. Formal releases attach bilingual snapshots after acceptance; a docs-only push does not create a release or overwrite earlier attachments. Read the source, run `pnpm docs:dev` locally, or download the matching Release snapshot and serve it over HTTP. No hosted documentation site or hosting credentials are required.
 
@@ -60,6 +60,6 @@ Release documentation builds keep the upstream root and `/0.8/` archive formats.
 
 The community fork uses two permanent branches: `main` follows upstream development, and `stable` follows the newest published upstream stable tag. A new upstream version upgrades `stable`; it does not need a new branch. Compatibility and build tools follow the corresponding upstream version.
 
-Community releases use tags such as `v0.8.2-zh.1`. Each published revision retains its source, English/Chinese documentation snapshots, both multi-architecture image digests and checksums in GitHub Releases. Full image tags match the GitHub Release tag; tags such as `v0.8.2-zh.1` and `v0.8.2-zh.1-shell` are never reused; `latest`, `0.8` and their shell aliases may move. Documentation corrections require a new community revision, preserving earlier attachments. Temporary PR branches are removed after merge.
+Community releases use tags such as `v0.8.2-zh`. Each published version retains its source, English/Chinese documentation snapshots, both multi-architecture image digests and checksums in GitHub Releases. Full image tags match the GitHub Release tag; tags such as `v0.8.2-zh` and `v0.8.2-zh-shell` are never reused; `latest`, `0.8` and their shell aliases may move. Each upstream version is published once, without a revision suffix. Later translation, packaging and documentation corrections wait for the next upstream version; earlier images, tags and attachments remain unchanged. Temporary PR branches are removed after merge.
 
 This is an unofficial community fork, not an official Chinese edition. The upstream MIT license and attribution remain intact. See `.github/FORK_SETUP.zh-CN.md` for acceptance gates and the release procedure.

@@ -1,0 +1,14 @@
+# Replace the URL, cookie secret and Headscale URL before starting.
+# 启动前修改访问地址、Cookie 密钥及 Headscale 地址。
+server:
+  host: "0.0.0.0"
+  port: 3000
+  base_url: "http://localhost:3000"
+  cookie_secret: "REPLACE_WITH_32_RANDOM_CHARACTERS"
+  cookie_secure: false
+  data_path: "/var/lib/headplane"
+headscale:
+  url: "http://headscale:8080"
+integration:
+  agent:
+    enabled: false

@@ -2,7 +2,7 @@
 
 维护仓库为 `CM-Chenqf/headplane-zh-cn`，是基于 [tale/headplane](https://github.com/tale/headplane) 的社区双语 fork，不是 Headplane、Headscale 或 Tailscale 官方中文版。保留上游 `LICENSE` 原文及原作者署名；上游网站、历史发行说明和源码示例仍明确标注来源。
 
-此仓库基于 `tale/headplane`，目标为完整保留上游功能，并提供英文、简体中文界面与文档。当前已完成仓库与自动化基础配置，以及中英切换、登录、公共导航、设备、用户、访问控制、DNS、设置和浏览器 SSH 模块翻译；文档站已接入双语正文、导航、搜索、历史更新日志和升级说明。容器 CI 已通过；首次正式发行验收尚未完成，不要把此阶段的构建称为已正式发布的完整汉化版。
+此仓库基于 `tale/headplane`，目标为完整保留上游功能，并提供英文、简体中文界面与文档。当前已完成仓库与自动化基础配置，以及中英切换、登录、公共导航、设备、用户、访问控制、DNS、设置和浏览器 SSH 模块翻译；文档站已接入双语正文、导航、搜索、历史更新日志和升级说明。翻译、文档及容器验收已完成；实际正式发布结果以 GitHub Releases 为准，不要把此阶段的构建称为已正式发布的完整汉化版。
 
 ## 双语功能进度
 
@@ -17,7 +17,7 @@
 - 使用及维护说明：`docs/features/language.mdx`；设备、用户、访问控制、DNS、设置和 SSH 操作指南保留原 `*-bilingual.mdx` 地址，并拆分同目录的 `*.zh-CN.mdx` 中文文件。旧地址不变，文档顶部按钮切换语言，搜索按语言隔离。
 - `main` 已接入双语界面、文档和翻译复核检查；`stable` 已完成语言基础、登录、公共界面、设备、用户、角色、账号关联和成员下载页，以及访问控制的五类可视化编辑器、文件编辑、差异预览及诊断，并配有对应双语指南。0.8 仍使用首页自助关联及原有 VitePress 工具链，权限、用户名规则及兼容范围不变；访问控制保留原始策略值、未知字段和动作、注释警告，并在切换语言时保留草稿，不引入 main 的 Grants 或自动批准者可视化编辑器。尚未正式发布双语镜像；双语文档保留源码及发行快照，不托管站点。
 - `stable` 已补齐 DNS、设置（预授权密钥、认证限制和 Agent）、浏览器 SSH 及完整 VitePress 文档，包含双语导航、搜索、安装、配置、NixOS 选项及完整历史更新日志。语言切换保留表单草稿和 SSH 会话，仍沿用 0.8 的权限、配置和版本矩阵。
-- 容器 CI 已通过；待完成首次正式发行验收。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
+- 翻译及容器验收已完成，待运行正式发布及匿名拉取检查。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
 
 ## 仓库和分支
 
@@ -48,7 +48,7 @@
 
 默认使用仓库的 `GITHUB_TOKEN`。如果上游更新包含 `.github/workflows/` 的变更，而 GitHub 拒绝该令牌推送工作流文件，需要额外配置仅限本仓库的 `UPSTREAM_SYNC_TOKEN` Secret：使用具有 Contents、Pull requests、Issues、Workflows 写入权限的 fine-grained token。不要关闭工作流文件同步来绕过权限错误。使用自定义令牌后创建的 PR，其检查触发规则也应在仓库中实际验证。
 
-同步提醒基于上游提交和文件变更，提供翻译工作清单。`Translations` 工作流另行检查语言键、英文变更和文档复核指纹；`stable` 的翻译检查现已覆盖完整界面与文档；首次正式发行验收仍独立保留待办，不能把翻译检查通过视为允许发布。
+同步提醒基于上游提交和文件变更，提供翻译工作清单。`Translations` 工作流另行检查语言键、英文变更和文档复核指纹；`stable` 的翻译检查现已覆盖完整界面与文档；正式发布和实际镜像拉取仍需分别核对结果，不能把翻译检查通过视为允许发布。
 
 ## Docker 镜像
 
@@ -57,17 +57,17 @@
 - 镜像仓库：`ghcr.io/cm-chenqf/headplane-zh-cn`，OCI 仓库路径使用小写。
 - 架构：`linux/amd64`、`linux/arm64`。
 - 类型：`final` 普通版、`debug-shell` 调试版。
-- 标签：社区完整版本号（如 `v0.8.2-zh.1`，与 GitHub Release 标签一致）、次版本号（`0.8`）、`latest`，以及对应的 `-shell` 标签。完整版本号不重复使用，次版本号和 latest 别名随发行前移。
+- 标签：社区完整版本号（如 `v0.8.2-zh`，与 GitHub Release 标签一致）、次版本号（`0.8`）、`latest`，以及对应的 `-shell` 标签。完整版本号不重复使用，次版本号和 latest 别名随发行前移。
 - 缓存：GitHub Actions 构建缓存。
 - 构建来源证明：沿用上游 provenance attestation。
 - 权限：使用工作流自带 `GITHUB_TOKEN`，包含 `packages: write`、`id-token: write` 和 `attestations: write`。
 
-通过 `stable` 已验收提交创建并推送 `vX.Y.Z-zh.N` 标签，才能发布社区双语镜像。工作流只响应社区标签并严格校验，不响应继承的上游 `vX.Y.Z` 标签；`-zh.N` 表示社区修订号，不标记为测试版。`main` 的 development 通道禁止正式发布。不要重新推送全部历史标签，也不要在旧的上游提交上打社区标签。上游 `pnpm release cut` 在本 fork 中禁止使用，避免误改上游版本号和标签。
+通过 `stable` 已验收提交创建并推送 `vX.Y.Z-zh` 标签，才能发布社区双语镜像。工作流只响应社区标签并严格校验，不响应继承的上游 `vX.Y.Z` 标签；`-zh` 标明非官方双语版本，不标记为测试版；每个上游版本只正式发布一次，不添加修订号。`main` 的 development 通道禁止正式发布。不要重新推送全部历史标签，也不要在旧的上游提交上打社区标签。上游 `pnpm release cut` 在本 fork 中禁止使用，避免误改上游版本号和标签。
 
 ### 固定分支、验收与发行留存
 
 1. 上游发布正式版后，将对应标签提交合并到 `stable`，保留中文改动、上游历史和对应版本的依赖、构建工具及兼容矩阵。开发变动仍合并到 `main`。
-2. 更新 `.github/fork-release.json` 的上游版本、40 位提交和社区修订号。新上游版本从 revision=1 开始；同一上游版本的汉化、打包或文档修正增加 revision。升级时先将 publicationReady 设为 false；如有翻译待办，同步保留翻译 scope 的门禁。
+2. 更新 `.github/fork-release.json` 的上游版本和 40 位提交，使用 schemaVersion=2，不设置 revision。发布后同一上游版本的汉化、打包及文档修正保留在维护分支，随下一个上游版本正式发布。升级时先将 publicationReady 设为 false；如有翻译待办，同步保留翻译 scope 的门禁。
 3. 逐项翻译并复核差异，运行翻译、构建、单元与相关集成检查。`Containers (check)` 构建 final/debug-shell × amd64/arm64，按当前源码的标准版本矩阵启动真实 Headscale，验证镜像平台、健康检查、中英登录页、真实 API 密钥登录及登录后设备页。arm64 在 QEMU 下验收。
 4. 容器和双语文档验收通过后，将 publicationReady 设为 true，并在适用的 scope 中清空待办、标记完成。再次合并到 `stable` 并等待该精确提交的全部检查通过。
 5. 从干净的 `stable` 工作区创建单个标签并推送，不使用 `--follow-tags`：
@@ -75,20 +75,20 @@
    ```bash
    node .github/scripts/fork-release.cjs tag
    # 以命令实际输出的标签为准
-   git push origin refs/tags/v0.8.2-zh.1
+   git push origin refs/tags/v0.8.2-zh
    ```
 
 6. 发布前再次核对 stable 精确提交、上游标签 SHA、CI 和翻译状态，确认完整镜像标签未被使用。只有明确的 registry manifest 不存在响应才允许继续；认证、限流、网络或服务器错误均失败退出。
-7. 两种镜像分别构建 amd64/arm64 清单，保存摘要及来源证明。GitHub Release 先以 draft 上传全部附件，再正式发布锁定。保留 `source.tar.gz`、`docs-root.tar.gz`、`docs-archive.tar.gz`、`release-manifest.json`、`SHA256SUMS`，同时保留 GitHub 自带的 Source code ZIP/tar.gz。
+7. 两种镜像分别构建 amd64/arm64 清单，保存摘要及来源证明；从 GHCR 拉取精确摘要，在两种架构上对真实 Headscale 再次验证运行。检查通过后，GitHub Release 先以 draft 上传全部附件，再正式发布锁定。保留 `source.tar.gz`、`docs-root.tar.gz`、`docs-archive.tar.gz`、`release-manifest.json`、`SHA256SUMS`，同时保留 GitHub 自带的 Source code ZIP/tar.gz。
 8. Release 已发布后才前移镜像 latest/次版本别名。每个 Release 保留本版本的源码、双语文档快照和镜像摘要；历史文档从对应 Release 下载，不额外部署文档站。
 
 仓库开启 immutable releases 和合并后自动删除分支。不得移动已发行标签、覆盖完整版本镜像、使用 `--clobber` 修改历史发行附件，也不配置自动删除历史镜像的清理规则。临时 PR 分支合并后删除；历史版本使用 Tag/Release 定位，无需长期保留对应分支。旧上游标签仅保留历史用途，不表示本 fork 发布过这些版本。
 
-发布失败时先查看已经推送的镜像和 draft，不盲目重跑覆盖。尚未正式发布的失败候选可以保留供排查；下一候选增加社区修订号。若 Release 已发布、仅别名更新失败，单独恢复别名，无需重发完整镜像。
+发布失败时先查看已经推送的镜像和 draft，不盲目重跑覆盖。尚未正式发布的失败候选保留供排查；确认镜像、附件及摘要状态后，只恢复尚未完成的步骤，不覆盖已有产物。若 Release 已发布、仅别名更新失败，单独恢复别名，无需重发完整镜像。
 
-分支上的文档构建只生成临时 Actions artifact；文档热修也增加社区修订号发新版，不再覆盖旧 Release 附件。这里的归档保留依赖 GitHub/GHCR 及仓库管理员持续保留数据，不是外部备份承诺。
+分支上的文档构建只生成临时 Actions artifact；文档热修随下一个上游版本发布，不再覆盖旧 Release 附件。这里的归档保留依赖 GitHub/GHCR 及仓库管理员持续保留数据，不是外部备份承诺。
 
-首次发布后，检查 GHCR 中包的可见性。需要匿名拉取时，将包设为 Public，并分别在 amd64、arm64 环境验证启动、登录和健康检查。本阶段未创建或发布双语镜像。
+首次发布后，检查 GHCR 中包的可见性；用于公开部署时将包设为 Public。运行 `Published images (check)`，输入正式标签，验证公开 Release 附件、源码 SHA、校验和，以及两种镜像在 amd64/arm64 上的匿名拉取、启动、中英登录和真实 Headscale 健康。本阶段未创建或发布双语镜像。
 
 ## 双语文档与归档
 
@@ -97,7 +97,7 @@
 - 日常阅读：查看仓库内英文及简体中文文档源码。部分页面含组件，完整显示时使用本地预览。
 - 本地预览：安装 package.json 要求的 Node、pnpm 后，执行 `pnpm install --frozen-lockfile` 和 `pnpm docs:dev`。应用与文档的中英切换保留。
 - 正式版本：从 GitHub Release 下载 `docs-root.tar.gz` 或 `docs-archive.tar.gz`，解压后用静态 HTTP 服务打开。后者保留上游 `/X.Y/` 路径格式，服务需挂载到该路径；静态快照无需部署 Headplane。
-- 开发预览：文档 PR 只运行构建检查；分支构建只保存临时 Actions artifact。正式文档快照随新社区修订发布并长期留存于对应 Release，不覆盖旧附件。
+- 开发预览：文档 PR 只运行构建检查；分支构建只保存临时 Actions artifact。正式文档快照随新上游版本发布并长期留存于对应 Release，不覆盖旧附件。
 
 镜像和 Release 发布使用 GitHub Actions 自带的 `GITHUB_TOKEN`；无需额外配置文档部署密钥。上游同步令牌的适用条件仍见前文。
 
@@ -106,7 +106,7 @@
 项目的 Node、pnpm 版本以 `package.json` 中的 `engines` 为准；不要为迁就本地旧版本而降级上游依赖。
 
 ```bash
-node --test .github/scripts/sync-upstream.test.cjs
+node --test .github/scripts/*.test.cjs
 pnpm i18n:check
 pnpm test:unit
 pnpm typecheck
