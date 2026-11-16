@@ -77,7 +77,9 @@ async function main() {
     run("gh", ["api", "--paginate", "--slurp", `${base}/releases?per_page=100`]),
   ).flat();
   assert.ok(!releases.some((r) => r.tag_name === tag), "Inspect existing release/draft; never replace it");
-  assert.equal(api(`${base}/immutable-releases`).enabled, true);
+  // Reading the repository setting requires administration permission, which
+  // GITHUB_TOKEN cannot hold. Publication verifies release.immutable before
+  // moving any alias; maintainers enable the setting before the original tag.
   const published = publishedVersions(releases);
   const meta = metadata(state);
   const minor = published.find((item) => parseTag(item).minor === meta.minor);
