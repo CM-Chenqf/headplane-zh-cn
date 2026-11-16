@@ -15,7 +15,6 @@ const {
   bundle,
   run,
 } = require("./fork-release.cjs");
-const { siteReleases } = require("./docs-site.cjs");
 const state = {
   schemaVersion: 1,
   repository: "CM-Chenqf/headplane-zh-cn",
@@ -48,8 +47,8 @@ test("release archives bind the exact Git source, both image digests and documen
     assert.deepEqual(
       manifest.images.map((image) => image.reference),
       [
-        "ghcr.io/cm-chenqf/headplane-zh-cn:0.8.2-zh.1",
-        "ghcr.io/cm-chenqf/headplane-zh-cn:0.8.2-zh.1-shell",
+        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh.1",
+        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh.1-shell",
       ],
     );
     for (const [name, record] of Object.entries(manifest.assets))
@@ -130,11 +129,4 @@ test("registry auth, rate limit, network and server failures never authorize ove
     [200, {}],
   ])
     assert.equal(imageMissing(status, body), false);
-});
-
-test("the documentation root follows the latest community release and archives each older minor once", () => {
-  const releases = ["v0.8.2-zh.1", "v0.8.2-zh.10", "v0.8.3-zh.1", "v0.9.0-zh.1", "v9.0.0"].map(
-    (tag_name) => ({ tag_name, published_at: "2026-11-15", draft: false, prerelease: false }),
-  );
-  assert.deepEqual(siteReleases(releases), ["v0.9.0-zh.1", "v0.8.3-zh.1"]);
 });

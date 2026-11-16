@@ -182,8 +182,8 @@ async function preflight(state, tag) {
     )
       throw new Error(`${workflow} has not passed on this exact stable commit`);
   }
-  await assertUnusedImage(meta.image, meta.version);
-  await assertUnusedImage(meta.image, `${meta.version}-shell`);
+  await assertUnusedImage(meta.image, meta.tag);
+  await assertUnusedImage(meta.image, `${meta.tag}-shell`);
   const published = publishedVersions(all);
   const newestMinor = published.find((t) => parseTag(t).minor === meta.minor);
   const result = {
@@ -252,7 +252,7 @@ function bundle(state, directory, imageDirectory) {
     return {
       target,
       platforms: ["linux/amd64", "linux/arm64"],
-      reference: `${meta.image}:${meta.version}${target === "final" ? "" : "-shell"}`,
+      reference: `${meta.image}:${meta.tag}${target === "final" ? "" : "-shell"}`,
       digest: record.digest,
     };
   });
@@ -325,8 +325,7 @@ async function main() {
   if (command === "info") console.log(JSON.stringify(metadata(state)));
   else if (command === "image-unused") {
     const meta = metadata(state);
-    if (![meta.version, `${meta.version}-shell`].includes(arg))
-      throw new Error("Unexpected image version");
+    if (![meta.tag, `${meta.tag}-shell`].includes(arg)) throw new Error("Unexpected image version");
     await assertUnusedImage(meta.image, arg);
   } else if (command === "preflight") console.log(JSON.stringify(await preflight(state, arg)));
   else if (command === "docs") buildDocs(state, arg);

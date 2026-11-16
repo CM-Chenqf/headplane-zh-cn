@@ -1,10 +1,9 @@
 import { Banner } from "fumadocs-ui/components/banner";
 
-import { docsBuild, pageOn, stableOrigin } from "@/lib/releases";
-import { useDocsDestination, useDocsLocale } from "@/lib/use-locale";
+import { docsBuild, releaseArchiveUrl } from "@/lib/releases";
+import { useDocsLocale } from "@/lib/use-locale";
 
 export default function VersionBanner() {
-  const destination = useDocsDestination();
   const { t } = useDocsLocale();
   if (docsBuild.channel !== "beta" && docsBuild.channel !== "archived") {
     return null;
@@ -37,8 +36,8 @@ export default function VersionBanner() {
           </span>
         </>
       )}
-      <a className="ml-2 underline" href={pageOn(stableOrigin, "/", destination)}>
-        {isBeta ? t("Stable docs →", "稳定版文档 →") : t("Latest docs →", "最新版文档 →")}
+      <a className="ml-2 underline" href={releaseArchiveUrl}>
+        {t("Release documentation →", "发行文档 →")}
       </a>
     </Banner>
   );

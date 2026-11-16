@@ -873,7 +873,7 @@
     "validation.required": "b609356db4df000b822a439d80f94f9ffa7f63c5cdbd6de2686ec834315ab793"
   },
   "documents": {
-    "CHANGELOG.md": "4c153fea0f05150b774ed8e3c9faf32bde557d8c5d95ece1559bf7c810de2ea0",
+    "CHANGELOG.md": "ce16cbafd9ade6460a6824807d604d457b63b7f7d7668587f1ceff7c3b2270ce",
     "docs/configuration/api-keys.md": "4f4f5f9825edb87d10d2cff11219de47029f059e029f8f733adb7f9a749adc46",
     "docs/configuration/index.md": "03391cf3a8f82271090706d000d6a6a1cb487d48dd4b5916a9b3a2ab9cf54760",
     "docs/configuration/integrations.mdx": "230d7334fdfd2a39a79e5a10131aa63fc7cba0f9e0d6dec8b0ca979c15d2b1ad",
@@ -885,7 +885,7 @@
     "docs/features/acls.mdx": "4b03616a857cbfde20d1f2ebb288da77aa987d2616c7a1e2d8fa7297d9b96693",
     "docs/features/agent.mdx": "ce722b5607f1a86dc1ef2fa9f8f3119be2a9df2a7b5fa9b0606494aafe42ac7c",
     "docs/features/dns-bilingual.mdx": "c031c55aaed369ea741e3b952c87c25f80af93a45a0eead2d30feb64f78615d4",
-    "docs/features/language.mdx": "a7052fac92ed45c90e50f85b5f587098a55140d65173fae8d8994a995a952d29",
+    "docs/features/language.mdx": "faebecdb1032b6a12b3585ea8d59d4c7c7b3bc70599e4ff720c5b4a1d7ba0123",
     "docs/features/machines-bilingual.mdx": "fd15f6f2852729248805e17d54fe372a58422b378d221e790a3821cbd687f896",
     "docs/features/meta.json": "ce0d5b08a87ed55721ef6739e09f9f0e81aaa53875147dd0be3eee9ece6889e8",
     "docs/features/proxy-auth.md": "bda8ded0b28700f99dc57407cff51d133c4d4f204c8f36c7867e55a56c84ee8d",
@@ -907,7 +907,7 @@
     "docs/reference/nixos-options.md": "80f23df72029b36661c745a97e5401522789cd0379194831ec8e77b90520147f",
     "docs/troubleshooting.mdx": "0981eb5ed739df7736f8385aac12150b31a882a99d96dae5ac4e40d6db8a0cd0",
     "docs/upgrading.mdx": "3320d4fdb24c9f2d73d44ca0477ac49e200f92a8ec9e4f9b0ed052e8d971c3c0",
-    "README.md": "425a160d9e72e2ed69c89aca8f7b2bdabc446ab958aff03954a6122a5695d304"
+    "README.md": "65db4e3cfb67b577d699d798c171ddd4c428896ab7e5d6fee5f026a39eb49aee"
   },
   "shared": {
     "docs/app/components/architecture.tsx": "c83dea130d9adea45bc15d6f2959f3403a850516b7ac549d96495f3a33791cda",
@@ -921,11 +921,11 @@
     "docs/app/components/search.tsx": "c4ece19b8fe6fb3097b163e14d110f7fda5a1eedb08091bc85fbc6321ddc703f",
     "docs/app/components/sidebar.tsx": "3ee3a8febcfe7921f79ce41349f4edfd7b4b4649cf55ad38aa575856f7d81ea3",
     "docs/app/components/upgrade-notes.tsx": "9277ff74b6c663137aa7de7887da51abc1e052b13781315b6d236c52ced27259",
-    "docs/app/components/version-banner.tsx": "27ac5f0b975d04cdf5a58dd07adb733184fc79de62dee4efc98c2bf391709a13",
-    "docs/app/components/version-picker.tsx": "daaf666923d1f2a9f48f2940469717b0cebcd52474de24a535b01b605d8b9030",
+    "docs/app/components/version-banner.tsx": "c565e14ffe9dc6c4d24f9504568d899fd90f268e452d2a2571aa84e6a1dca3e6",
+    "docs/app/components/version-picker.tsx": "26034a33f34e8a1be738f57078d53c94f0fe97dad3a8d49f949be8b65ff746f5",
     "docs/app/lib/changelog.ts": "e17d2def7869efc9da8b7a9dacca5bda38a60d55e4d85b8e87bf8485170688b0",
     "docs/app/lib/i18n.ts": "5da2af575bfb49dd7233e6cd0aa4f4699872c6e05b700bb2ebb8cb733bcbc51e",
-    "docs/app/lib/releases.ts": "cd58d479e89ac57533f137d5e907ec1f49d394bc4107985a8962088efd3b9b72",
+    "docs/app/lib/releases.ts": "f3e978aa15ef70c1f862ccc38f95a007b56ef027847964c62ac40b5096210187",
     "docs/app/lib/remark-changelog.ts": "6e071532a7d97634f67fcb9e4fee27703c64af2715d5194caaa30f7d6bd1cfae",
     "docs/app/lib/source.ts": "804a5bf6d979ef8b4e1260977c60a398f771c594491b047a52b07b268ad105f8",
     "docs/app/lib/use-locale.ts": "d9ee728b83abbd3a2255c6ba5b97eccdbfae85e0a38846439287413a4f59581b",
@@ -939,6 +939,6 @@
     "docs/configuration/compose-examples.ts": "42bdb5b04a2521918e863e617b5aa8cf7b3b7cca4a82b84192f19b1433ac72d1",
     "docs/quickstart-examples.ts": "65f331e89a49b8a9aecf6892a29bc5f8709385719a188c9231a1baf461c92c58",
     "docs/react-router.config.ts": "642f0524edeecd221ebcf65fae28bfa24a6750b4552f22c4c67c78aa9c297f2d",
-    "docs/vite.config.ts": "96dd41ce701ee94fd1da6c120e8a2c3751a8ac261bcdcb57e425074b78cd42e3"
+    "docs/vite.config.ts": "aaf1718e8a42df7e0428e31dd9cbf5fb1de91ef9064bc472d21fc9bfc11a2fc6"
   }
 }

@@ -7,8 +7,9 @@ Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
 It is not an official Chinese release of Headplane, Headscale, or Tailscale.
 The upstream [MIT license](./LICENSE) and original copyright notices are retained.
 The `main` branch includes English and Simplified Chinese UI and documentation.
-Complete bilingual Docker images and the maintained documentation deployment
-have not been published yet; see the setup guide for current release status.
+Complete bilingual Docker images have not been published yet; see the setup
+guide for current release status. Bilingual docs stay in the repository and
+Release snapshots, with local previews and no hosted documentation deployment.
 
 Maintenance uses fixed `main` (development) and `stable` (latest stable upstream) branches.
 Community tags such as `v0.8.2-zh.1` preserve source, documentation and image digests;
@@ -48,7 +49,10 @@ These are some of the features that Headplane offers:
 
 ## Deployment
 
-Refer to the [website](https://headplane.net) for detailed installation instructions.
+Refer to the [upstream website](https://headplane.net) for installation instructions.
+Read this fork’s [English documentation source](./docs/introduction.mdx), or run
+`pnpm docs:dev` for the full bilingual preview. Published community Releases retain
+versioned documentation snapshots.
 
 ## Versioning
 

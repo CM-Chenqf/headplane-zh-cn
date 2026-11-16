@@ -5,10 +5,6 @@ on:
       - "main"
   workflow_dispatch:
 
-env:
-  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headplane-zh-cn-docs') }}
-  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta') }}
-
 concurrency:
   group: docs-beta
   cancel-in-progress: true
@@ -17,8 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-    name: Deploy Beta Docs
+  build:
+    name: Build Beta Docs
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -51,18 +47,9 @@ jobs:
           HEADPLANE_DOCS_VERSION: ${{ steps.commit.outputs.sha }}
           HEADPLANE_DOCS_DATE: ${{ steps.commit.outputs.date }}
 
-      - name: Deploy to Cloudflare Pages
-        if: vars.CF_PAGES_DEPLOY_ENABLED == 'true'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy docs/build/client --project-name=${{ vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta' }}
-
-      - name: Save docs when deployment is not configured
-        if: vars.CF_PAGES_DEPLOY_ENABLED != 'true'
+      - name: Save documentation preview
         uses: actions/upload-artifact@v4
         with:
-          name: beta-docs-site
+          name: beta-docs-preview
           path: docs/build/client
           include-hidden-files: true
