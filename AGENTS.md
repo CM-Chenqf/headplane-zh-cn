@@ -72,11 +72,12 @@ Preserve LICENSE, upstream attribution and the non-official notice.
   toolchain and supported Headscale matrix. Do not create per-version release branches.
 - Merge upstream history without force-pushing over translations. Review changed
   English and Chinese together, then update only the selected i18n fingerprints.
-- Record upstream version/commit, community revision and acceptance status in
+- Record upstream version/commit and acceptance status in
   .github/fork-release.json. Upgrades reset acceptance until CI has passed.
-- Formal community tags use vX.Y.Z-zh.N; N starts at 1 and increases for Chinese,
-  packaging or docs corrections to the same upstream version. Keep package.json
-  at the upstream version. main must remain channel=development and cannot publish.
+- Formal community tags use vX.Y.Z-zh, with one release per upstream version and
+  no community revision suffix. Keep package.json at the upstream version. main
+  must remain channel=development and cannot publish. Corrections after publication
+  stay on the maintenance branches until the next upstream release.
 - Do not use pnpm release cut in this fork. From a clean, accepted stable checkout,
   use node .github/scripts/fork-release.cjs tag and push only that new tag.
 - Publishing requires successful Build, Translations and Containers (check) push
@@ -87,9 +88,9 @@ Preserve LICENSE, upstream attribution and the non-official notice.
 - Publish a draft with source, root/archive docs, digests and checksums, then lock
   it through GitHub immutable releases. Never retarget tags, overwrite full image
   tags, clobber release attachments or delete historical published images.
-- Full image tags match the community release tag (vX.Y.Z-zh.N); debug-shell
-  adds -shell. latest/minor image aliases may move. Documentation hotfixes require a new
-  community revision; branch docs builds are temporary preview artifacts only.
+- Full image tags match the community release tag (vX.Y.Z-zh); debug-shell
+  adds -shell. latest/minor image aliases may move. Documentation hotfixes wait for the
+  next upstream version; branch docs builds are temporary preview artifacts only.
 - Documentation is read from source, previewed locally or downloaded as bilingual
   snapshots from community Releases. Branch builds only save temporary CI artifacts;
   do not deploy a hosted docs site or require hosting credentials. Keep automatic

@@ -16,11 +16,10 @@ const {
   run,
 } = require("./fork-release.cjs");
 const state = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   repository: "CM-Chenqf/headplane-zh-cn",
   channel: "stable",
   upstream: { repository: "tale/headplane", version: "0.8.2", commit: "a".repeat(40) },
-  revision: 1,
   publicationReady: true,
 };
 
@@ -47,8 +46,8 @@ test("release archives bind the exact Git source, both image digests and documen
     assert.deepEqual(
       manifest.images.map((image) => image.reference),
       [
-        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh.1",
-        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh.1-shell",
+        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh",
+        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh-shell",
       ],
     );
     for (const [name, record] of Object.entries(manifest.assets))
@@ -74,30 +73,35 @@ test("release archives bind the exact Git source, both image digests and documen
   }
 });
 
-test("community releases are stable releases with a separate, strict revision namespace", () => {
-  assert.deepEqual(parseTag("v0.8.2-zh.12").parts, [0, 8, 2, 12]);
+test("community tags follow the exact upstream version without a revision suffix", () => {
+  assert.deepEqual(parseTag("v0.8.2-zh").parts, [0, 8, 2]);
   for (const tag of [
     "v0.8.2",
     "v0.8.2-beta.1",
-    "v0.8.2-zh.0",
-    "v00.8.2-zh.1",
-    "v0.8.2-zh.01",
-    "v0.8.2-zh.1-shell",
+    "v0.8.2-zh.1",
+    "v00.8.2-zh",
+    "v0.8.02-zh",
+    "v0.8.2-zh-shell",
     "--delete",
   ])
     assert.throws(() => parseTag(tag));
-  assert.equal(validateTag(state, "v0.8.2-zh.1", "0.8.2").revision, 1);
+  assert.equal(validateTag(state, "v0.8.2-zh", "0.8.2").version, "0.8.2");
   assert.equal(metadata(state).image, "ghcr.io/cm-chenqf/headplane-zh-cn");
-  for (const bad of [{ channel: "development" }, { publicationReady: false }, { revision: 2 }])
-    assert.throws(() => validateTag({ ...state, ...bad }, "v0.8.2-zh.1", "0.8.2"));
-  assert.throws(() => validateTag(state, "v0.8.2-zh.1", "0.8.1"));
+  for (const bad of [
+    { channel: "development" },
+    { publicationReady: false },
+    { upstream: { ...state.upstream, version: "0.8.3" } },
+  ])
+    assert.throws(() => validateTag({ ...state, ...bad }, "v0.8.2-zh", "0.8.2"));
+  assert.throws(() => validateTag(state, "v0.8.2-zh", "0.8.1"));
   assert.throws(() => validateState({ ...state, repository: "tale/headplane" }));
+  assert.throws(() => validateState({ ...state, revision: 1 }));
 });
 
-test("only published community releases move latest; inherited tags, drafts and beta releases do not", () => {
+test("latest follows numeric upstream versions and ignores inherited, revision, draft and beta tags", () => {
   const published = (tag_name, rest = {}) => ({
     tag_name,
-    published_at: "2026-11-15",
+    published_at: "2026-11-16",
     draft: false,
     prerelease: false,
     ...rest,
@@ -105,14 +109,15 @@ test("only published community releases move latest; inherited tags, drafts and 
   assert.deepEqual(
     publishedVersions([
       published("v9.0.0"),
-      published("v0.8.2-zh.10"),
-      published("v0.9.0-zh.1"),
-      published("v0.8.2-zh.2"),
-      published("v1.0.0-zh.1", { draft: true }),
-      published("v2.0.0-zh.1", { prerelease: true }),
-      published("v3.0.0-zh.1", { published_at: null }),
+      published("v0.8.2-zh.1"),
+      published("v0.8.2-zh"),
+      published("v0.8.10-zh"),
+      published("v0.9.0-zh"),
+      published("v1.0.0-zh", { draft: true }),
+      published("v2.0.0-zh", { prerelease: true }),
+      published("v3.0.0-zh", { published_at: null }),
     ]),
-    ["v0.9.0-zh.1", "v0.8.2-zh.10", "v0.8.2-zh.2"],
+    ["v0.9.0-zh", "v0.8.10-zh", "v0.8.2-zh"],
   );
 });
 

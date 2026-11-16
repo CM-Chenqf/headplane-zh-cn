@@ -1,0 +1,58 @@
+name: Published images (check)
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published community tag (vX.Y.Z-zh)
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  public-runtime:
+    name: Anonymous pull (${{ matrix.target }}, ${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [final, debug-shell]
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Validate public release and all attachment checksums
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: node .github/scripts/published-assets.cjs "$RUNNER_TEMP/published-assets"
+      - name: Pull without registry credentials and verify the published digest
+        env:
+          TARGET: ${{ matrix.target }}
+          PLATFORM: linux/${{ matrix.arch }}
+          DOCKER_CONFIG: ${{ runner.temp }}/anonymous-docker
+        run: |
+          set -euo pipefail
+          mkdir -p "$DOCKER_CONFIG"
+          MANIFEST="$RUNNER_TEMP/published-assets/release-manifest.json"
+          IMAGE=$(jq -r --arg target "$TARGET" '.images[] | select(.target == $target) | .reference' "$MANIFEST")
+          DIGEST=$(jq -r --arg target "$TARGET" '.images[] | select(.target == $target) | .digest' "$MANIFEST")
+          ACTUAL=$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}' | jq -r .digest)
+          test "$ACTUAL" = "$DIGEST"
+          docker pull --platform "$PLATFORM" "$IMAGE"
+          echo "SMOKE_IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          echo "SMOKE_PLATFORM=$PLATFORM" >> "$GITHUB_ENV"
+          echo "DOCKER_CONFIG=$DOCKER_CONFIG" >> "$GITHUB_ENV"
+      - name: Check startup, real Headscale, health and English/Chinese access
+        run: node .github/scripts/container-smoke.mjs

@@ -5,15 +5,15 @@ Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
 It is not an official Chinese release of Headplane, Headscale, or Tailscale.
 The upstream [MIT license](./LICENSE) and original copyright notices are retained.
 
-This is the **0.8 release line**. All application modules and the complete VitePress documentation support English and Simplified Chinese. Container CI has passed; first-release acceptance remains pending and no complete bilingual image has been published. Bilingual docs stay in the repository and Release snapshots; no hosted documentation site is deployed.
+This is the **0.8 release line**. All application modules and the complete VitePress documentation support English and Simplified Chinese. Translation and container acceptance have passed. The accepted `v0.8.2-zh` candidate is ready for publication; check [GitHub Releases](https://github.com/CM-Chenqf/headplane-zh-cn/releases) for the actual release result. Bilingual docs stay in the repository and Release snapshots; no hosted documentation site is deployed.
 See [release-line maintenance](./docs/features/language.md) for scope and acceptance status.
 
 [English](./README.md) · [简体中文](./README.zh-CN.md)
 
-本仓库是基于 `tale/headplane` 的**非官方**中英双语维护分支，保留上游 MIT 许可证原文及原作者署名。0.8 界面与文档汉化已完成，容器 CI 已通过，首次正式发行验收仍待完成，进度见[中文维护说明](./docs/zh-CN/features/language.md)。
+本仓库是基于 `tale/headplane` 的**非官方**中英双语维护分支，保留上游 MIT 许可证原文及原作者署名。0.8 界面与文档汉化已完成，翻译及容器验收已通过，正式发布结果以 GitHub Releases 为准，进度见[中文维护说明](./docs/zh-CN/features/language.md)。
 
 Maintenance uses fixed `main` (development) and `stable` (latest stable upstream) branches.
-Community tags such as `v0.8.2-zh.1` preserve source, documentation and image digests;
+Community tags such as `v0.8.2-zh` preserve source, documentation and image digests;
 new upstream versions do not require new maintenance branches. See the [fork release guide](./.github/FORK_SETUP.zh-CN.md).
 
 > A feature-complete web UI for [Headscale](https://headscale.net)

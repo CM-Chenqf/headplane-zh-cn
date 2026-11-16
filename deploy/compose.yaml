@@ -1,0 +1,17 @@
+services:
+  headplane:
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      HEADPLANE_CONFIG_PATH: /etc/headplane/config.yaml
+    volumes:
+      - ./config.yaml:/etc/headplane/config.yaml:ro
+      - headplane-data:/var/lib/headplane
+networks:
+  default:
+    external: true
+    name: ${HEADSCALE_DOCKER_NETWORK:?Set the existing Headscale Docker network in .env}
+volumes:
+  headplane-data:

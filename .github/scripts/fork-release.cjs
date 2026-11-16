@@ -13,7 +13,7 @@ const { join, resolve } = require("node:path");
 
 const VERSION = "(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)";
 const VERSION_RE = new RegExp(`^${VERSION}$`);
-const TAG_RE = new RegExp(`^v${VERSION}-zh\\.([1-9]\\d*)$`);
+const TAG_RE = new RegExp(`^v${VERSION}-zh$`);
 const SHA_RE = /^[a-f0-9]{40}$/;
 const ASSETS = ["source.tar.gz", "docs-root.tar.gz", "docs-archive.tar.gz"];
 const run = (command, args, options = {}) =>
@@ -34,13 +34,12 @@ const releases = (repo) =>
 
 function parseTag(tag) {
   const match = TAG_RE.exec(tag);
-  if (!match) throw new Error("Expected a community release tag: vX.Y.Z-zh.N (N >= 1)");
+  if (!match) throw new Error("Expected a community release tag: vX.Y.Z-zh");
   const parts = match.slice(1).map(Number);
   if (!parts.every(Number.isSafeInteger)) throw new Error("Version is too large");
   return {
     version: parts.slice(0, 3).join("."),
     minor: parts.slice(0, 2).join("."),
-    revision: parts[3],
     parts,
   };
 }
@@ -61,18 +60,17 @@ function publishedVersions(items) {
 
 function validateState(state) {
   if (
-    state?.schemaVersion !== 1 ||
+    state?.schemaVersion !== 2 ||
     state.repository !== "CM-Chenqf/headplane-zh-cn" ||
     !["development", "stable"].includes(state.channel) ||
     state.upstream?.repository !== "tale/headplane" ||
     !VERSION_RE.test(state.upstream?.version ?? "") ||
     !SHA_RE.test(state.upstream?.commit ?? "") ||
-    !Number.isSafeInteger(state.revision) ||
-    state.revision < 1 ||
+    Object.hasOwn(state, "revision") ||
     typeof state.publicationReady !== "boolean"
   )
     throw new Error("Invalid .github/fork-release.json");
-  parseTag(`v${state.upstream.version}-zh.${state.revision}`);
+  parseTag(`v${state.upstream.version}-zh`);
   return state;
 }
 
@@ -81,12 +79,8 @@ function validateTag(state, tag, packageVersion) {
   const parsed = parseTag(tag);
   if (state.channel !== "stable" || !state.publicationReady)
     throw new Error("Only an accepted stable commit can be published");
-  if (
-    parsed.version !== state.upstream.version ||
-    parsed.revision !== state.revision ||
-    packageVersion !== parsed.version
-  )
-    throw new Error("Tag, upstream record, community revision and package version must agree");
+  if (parsed.version !== state.upstream.version || packageVersion !== parsed.version)
+    throw new Error("Tag, upstream record and package version must agree");
   return parsed;
 }
 
@@ -130,7 +124,7 @@ async function assertUnusedImage(image, tag) {
   });
   if (response.ok)
     throw new Error(
-      `Image ${image}:${tag} already exists; increment the community revision instead of overwriting it`,
+      `Image ${image}:${tag} already exists; keep the existing image and publish the next upstream version instead of overwriting it`,
     );
   const body = await response.json();
   if (!imageMissing(response.status, body))
@@ -140,8 +134,8 @@ async function assertUnusedImage(image, tag) {
 function metadata(state) {
   validateState(state);
   return {
-    tag: `v${state.upstream.version}-zh.${state.revision}`,
-    version: `${state.upstream.version}-zh.${state.revision}`,
+    tag: `v${state.upstream.version}-zh`,
+    version: `${state.upstream.version}-zh`,
     minor: state.upstream.version.split(".").slice(0, 2).join("."),
     image: `ghcr.io/${state.repository.toLowerCase()}`,
   };
@@ -168,9 +162,9 @@ async function preflight(state, tag) {
   const all = releases(state.repository);
   if (all.some((r) => r.tag_name === tag))
     throw new Error(
-      "Release or draft already exists; inspect the partial run and use a new revision",
+      "Release or draft already exists; inspect the partial run without replacing its tag or assets",
     );
-  for (const workflow of ["build.yaml", "i18n-check.yaml", "containers.yaml"]) {
+  for (const workflow of ["build.yaml", "i18n-check.yaml", "containers.yaml", "docs-build.yaml"]) {
     const runs = api(
       `repos/${state.repository}/actions/workflows/${workflow}/runs?branch=stable&event=push&head_sha=${sha}&per_page=100`,
     ).workflow_runs;
@@ -262,7 +256,6 @@ function bundle(state, directory, imageDirectory) {
     tag: meta.tag,
     sourceCommit: sha,
     upstream: state.upstream,
-    communityRevision: state.revision,
     unofficial: true,
     images,
     assets: Object.fromEntries(
@@ -276,7 +269,7 @@ function bundle(state, directory, imageDirectory) {
       .map((name) => `${digest(join(output, name))}  ${name}\n`)
       .join(""),
   );
-  const notes = `Community bilingual release / 社区中英双语版 ${meta.tag}\n\nThis is an unofficial fork of [tale/headplane](https://github.com/tale/headplane), not an official Chinese edition. 上游许可证和来源说明完整保留，本项目不是官方中文版。\n\n- Upstream / 上游: v${state.upstream.version} (${state.upstream.commit})\n- Source / 源码提交: ${sha}\n- Chinese revision / 汉化修订: ${state.revision}\n- Upstream release notes / 上游发行说明: https://github.com/tale/headplane/releases/tag/v${state.upstream.version}\n\n${images.map((i) => `- ${i.target}: \`${i.reference}\`\n  - \`${meta.image}@${i.digest}\``).join("\n")}\n\nBoth images support linux/amd64 and linux/arm64. 两种镜像均支持 amd64 和 arm64。\n\nSource, English/Chinese documentation snapshots, image digests and checksums are attached. 源码、双语文档快照、镜像摘要和校验和均随此版本保留。\n\nUse the full version tag or digest to pin deployments. 完整版本标签不重复发布；latest 和次版本别名会随发行前移。\n`;
+  const notes = `Community bilingual release / 社区中英双语版 ${meta.tag}\n\nThis is an unofficial fork of [tale/headplane](https://github.com/tale/headplane), not an official Chinese edition. 上游许可证和来源说明完整保留，本项目不是官方中文版。\n\n- Upstream / 上游: v${state.upstream.version} (${state.upstream.commit})\n- Source / 源码提交: ${sha}\n- Upstream release notes / 上游发行说明: https://github.com/tale/headplane/releases/tag/v${state.upstream.version}\n\n${images.map((i) => `- ${i.target}: \`${i.reference}\`\n  - \`${meta.image}@${i.digest}\``).join("\n")}\n\nBoth images support linux/amd64 and linux/arm64. 两种镜像均支持 amd64 和 arm64。\n\nSource, English/Chinese documentation snapshots, image digests and checksums are attached. 源码、双语文档快照、镜像摘要和校验和均随此版本保留。\n\nUse the full version tag or digest to pin deployments. 完整版本标签不重复发布；latest 和次版本别名会随发行前移。\n`;
   writeFileSync(join(output, "release-notes.md"), notes);
   return manifest;
 }
