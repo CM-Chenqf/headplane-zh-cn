@@ -17,6 +17,8 @@
 
 ## Fixes
 
+- Container release checks now select the requested platform from multi-architecture images and verify the architecture of the running Node process. If image upload succeeds but verification fails, a recovery workflow can verify and publish the original artifacts without rebuilding images or changing version tags.
+
 - Read-only DNS settings now disable the local DNS override switch.
 
 - Select fields now expose their translated labels to assistive technology, including the SSH policy action selector.
