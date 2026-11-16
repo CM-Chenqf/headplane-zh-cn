@@ -873,7 +873,7 @@
     "validation.required": "b609356db4df000b822a439d80f94f9ffa7f63c5cdbd6de2686ec834315ab793"
   },
   "documents": {
-    "CHANGELOG.md": "b786ef797bfa244e25928d56fc98fdca69674694ad31a06507e033145c49e2d6",
+    "CHANGELOG.md": "1f88bb58c824fe5be31df006b82579be9403fc3c28392c70707b02ee8def5f16",
     "docs/configuration/api-keys.md": "4f4f5f9825edb87d10d2cff11219de47029f059e029f8f733adb7f9a749adc46",
     "docs/configuration/index.md": "03391cf3a8f82271090706d000d6a6a1cb487d48dd4b5916a9b3a2ab9cf54760",
     "docs/configuration/integrations.mdx": "230d7334fdfd2a39a79e5a10131aa63fc7cba0f9e0d6dec8b0ca979c15d2b1ad",

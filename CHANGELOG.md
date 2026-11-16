@@ -52,6 +52,8 @@
 
 ## Fixes
 
+- Container release checks now select the requested platform from multi-architecture images and verify the architecture of the running Node process. If image upload succeeds but verification fails, a recovery workflow can verify and publish the original artifacts without rebuilding images or changing version tags.
+
 - Documentation builds on Windows now use URL separators when prerendering nested pages.
 - Saving from the Rules or Tags & Groups tabs no longer drops the comma from text like `,}` or `,]` inside a policy value.
 - Live updates work again right after signing in. Previously the machines list and other pages only refreshed on their own after a full page reload.
