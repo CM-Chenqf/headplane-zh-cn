@@ -23,7 +23,6 @@ function validateOriginalRun(original, jobs, sha, tag, repository) {
   for (const name of [
     "Validate accepted stable source and archive docs",
     "Docker Release (final)",
-    "Docker Release (debug-shell)",
   ]) {
     const job = jobs.find((item) => item.name === name);
     assert.equal(job?.conclusion, "success", `${name} must have completed successfully`);
@@ -55,28 +54,33 @@ async function main() {
   ).flatMap((page) => page.jobs);
   validateOriginalRun(original, jobs, sha, tag, state.repository);
   const artifacts = api(`${base}/actions/runs/${runId}/artifacts?per_page=100`).artifacts;
-  for (const name of ["release-input", "digest-final", "digest-debug-shell"])
+  for (const name of ["release-input", "digest-final"])
     assert.equal(
       artifacts.filter((a) => a.name === name && !a.expired).length,
       1,
       `Require one unexpired original ${name} artifact`,
     );
-  for (const workflow of ["build.yaml", "i18n-check.yaml", "containers.yaml", "docs-build.yaml"]) {
+  for (const workflow of ["build.yaml", "i18n-check.yaml", "docs.yaml"]) {
     const checks = api(
       `${base}/actions/workflows/${workflow}/runs?branch=stable&event=push&head_sha=${sha}&per_page=100`,
     ).workflow_runs;
     assert.equal(checks[0]?.head_sha, sha);
-    assert.equal(checks[0]?.conclusion, "success", `Exact-source ${workflow} acceptance is required`);
+    assert.equal(
+      checks[0]?.conclusion,
+      "success",
+      `Exact-source ${workflow} acceptance is required`,
+    );
   }
-  const upstream = api(
-    `repos/${state.upstream.repository}/commits/v${state.upstream.version}`,
-  );
+  const upstream = api(`repos/${state.upstream.repository}/commits/v${state.upstream.version}`);
   assert.equal(upstream.sha, state.upstream.commit);
   run("git", ["merge-base", "--is-ancestor", state.upstream.commit, sha]);
   const releases = JSON.parse(
     run("gh", ["api", "--paginate", "--slurp", `${base}/releases?per_page=100`]),
   ).flat();
-  assert.ok(!releases.some((r) => r.tag_name === tag), "Inspect existing release/draft; never replace it");
+  assert.ok(
+    !releases.some((r) => r.tag_name === tag),
+    "Inspect existing release/draft; never replace it",
+  );
   // Reading the repository setting requires administration permission, which
   // GITHUB_TOKEN cannot hold. Publication verifies release.immutable before
   // moving any alias; maintainers enable the setting before the original tag.

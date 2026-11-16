@@ -28,12 +28,12 @@ test("documentation subprocesses can stream output and still propagate build fai
   assert.throws(() => run(process.execPath, ["-e", "process.exit(7)"], { stdio: "inherit" }));
 });
 
-test("release archives bind the exact Git source, both image digests and documentation checksums", () => {
+test("release archives bind the exact Git source, the final image digest and documentation checksums", () => {
   const directory = mkdtempSync(join(tmpdir(), "headplane-release-test-"));
   try {
     for (const name of ["docs-root.tar.gz", "docs-archive.tar.gz"])
       writeFileSync(join(directory, name), "documentation snapshot");
-    for (const target of ["final", "debug-shell"])
+    for (const target of ["final"])
       writeFileSync(
         join(directory, `${target}.json`),
         JSON.stringify({ target, digest: `sha256:${"a".repeat(64)}` }),
@@ -45,11 +45,17 @@ test("release archives bind the exact Git source, both image digests and documen
     );
     assert.deepEqual(
       manifest.images.map((image) => image.reference),
-      [
-        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh",
-        "ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh-shell",
-      ],
+      ["ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2"],
     );
+    assert.equal(manifest.schemaVersion, 2);
+    assert.equal(
+      manifest.sourceArchives.tar,
+      "https://github.com/CM-Chenqf/headplane-zh-cn/archive/refs/tags/v0.8.2-zh.tar.gz",
+    );
+    assert.deepEqual(Object.keys(manifest.assets).sort(), [
+      "docs-archive.tar.gz",
+      "docs-root.tar.gz",
+    ]);
     for (const [name, record] of Object.entries(manifest.assets))
       assert.equal(
         record.sha256,
@@ -57,15 +63,15 @@ test("release archives bind the exact Git source, both image digests and documen
           .update(readFileSync(join(directory, name)))
           .digest("hex"),
       );
-    assert.equal(readFileSync(join(directory, "SHA256SUMS"), "utf8").trim().split("\n").length, 4);
+    assert.equal(readFileSync(join(directory, "SHA256SUMS"), "utf8").trim().split("\n").length, 3);
     assert.ok(
       readFileSync(join(directory, "release-notes.md"), "utf8").includes(
         "not an official Chinese edition",
       ),
     );
     writeFileSync(
-      join(directory, "debug-shell.json"),
-      JSON.stringify({ target: "final", digest: `sha256:${"b".repeat(64)}` }),
+      join(directory, "final.json"),
+      JSON.stringify({ target: "debug-shell", digest: `sha256:${"b".repeat(64)}` }),
     );
     assert.throws(() => bundle(state, directory, directory), /digest record/);
   } finally {
