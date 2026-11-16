@@ -41,6 +41,12 @@ assert.equal(
   docker("image", "inspect", "--platform", platform, image, "--format", "{{.Os}}/{{.Architecture}}"),
   platform,
 );
+const entrypoint = JSON.parse(
+  docker("image", "inspect", "--platform", platform, image, "--format", "{{json .Config.Entrypoint}}"),
+);
+// Distroless uses an absolute Node entrypoint; the debug image puts Node on PATH.
+// /proc/1/exe points at the QEMU interpreter during cross-architecture checks.
+const node = entrypoint?.find((part) => /(^|\/)node$/.test(part)) ?? "node";
 
 async function freePort() {
   const server = createServer();
@@ -96,7 +102,7 @@ for (const version of versions) {
       docker(
         "exec",
         name,
-        "/proc/1/exe",
+        node,
         "-p",
         "process.platform + '/' + ({ x64: 'amd64', arm64: 'arm64' }[process.arch])",
       ),
