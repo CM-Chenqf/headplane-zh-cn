@@ -10,8 +10,9 @@
 
 ## Changes
 
-- Full community image tags now match the GitHub Release tag, such as `v0.8.2-zh.1`; `latest` remains available after publication. Documentation is kept as bilingual source and Release snapshots, with local previews and CI build artifacts instead of hosted deployment.
-- Community maintenance now uses fixed main/stable branches and vX.Y.Z-zh.N release tags. Published source, bilingual docs and image digests remain attached to each immutable release; full image versions are not overwritten.
+- Community releases now use `vX.Y.Z-zh`, without a revision suffix, matching the upstream version. Each version retains its original images, source and bilingual documentation; later corrections ship with the next upstream release.
+- Full community image tags now match the GitHub Release tag, such as `v0.8.2-zh`; `latest` remains available after publication. Documentation is kept as bilingual source and Release snapshots, with local previews and CI build artifacts instead of hosted deployment.
+- Community maintenance now uses fixed main/stable branches and vX.Y.Z-zh release tags. Published source, bilingual docs and image digests remain attached to each immutable release; full image versions are not overwritten.
 
 - The community-maintained localization fork is now named `headplane-zh-cn`. Repository links and future image and documentation destinations use the new name; upstream licensing and attribution are retained, and this is not an official Chinese release.
 - Translation checks now flag missing messages, hardcoded interface text and documentation changes that need Chinese review. The dismissible callout's close action now follows the selected language for screen readers.

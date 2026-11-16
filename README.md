@@ -12,7 +12,7 @@ guide for current release status. Bilingual docs stay in the repository and
 Release snapshots, with local previews and no hosted documentation deployment.
 
 Maintenance uses fixed `main` (development) and `stable` (latest stable upstream) branches.
-Community tags such as `v0.8.2-zh.1` preserve source, documentation and image digests;
+Community tags such as `v0.8.2-zh` preserve source, documentation and image digests;
 new upstream versions do not require new maintenance branches. See the [fork release guide](./.github/FORK_SETUP.zh-CN.md).
 
 > A feature-complete web UI for [Headscale](https://headscale.net)
