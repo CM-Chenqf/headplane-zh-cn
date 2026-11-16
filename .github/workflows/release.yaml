@@ -1,5 +1,19 @@
 name: Release
 on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Recover uploads, verify a release, or add its short image tag
+        type: choice
+        options: [verify, recover, short-tag]
+        default: verify
+      tag:
+        description: Existing community Git tag (vX.Y.Z-zh)
+        type: string
+        required: true
+      original_run:
+        description: Failed original Release run ID (recover only)
+        type: string
   push:
     tags:
       - "v*-zh"
@@ -15,7 +29,7 @@ permissions:
 jobs:
   prepare:
     name: Validate accepted stable source and archive docs
-    if: github.repository == 'CM-Chenqf/headplane-zh-cn'
+    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -25,6 +39,7 @@ jobs:
       image: ${{ steps.release.outputs.image }}
       version: ${{ steps.release.outputs.version }}
       tag: ${{ steps.release.outputs.tag }}
+      image_tag: ${{ steps.release.outputs.image_tag }}
       minor: ${{ steps.release.outputs.minor }}
       latest: ${{ steps.release.outputs.latest }}
       minor_latest: ${{ steps.release.outputs.minor_latest }}
@@ -61,7 +76,7 @@ jobs:
           if-no-files-found: error
 
   docker:
-    name: Docker Release (${{ matrix.target }})
+    name: Docker Release (final)
     needs: prepare
     runs-on: ubuntu-latest
     permissions:
@@ -69,14 +84,6 @@ jobs:
       packages: write
       id-token: write
       attestations: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: final
-            suffix: ""
-          - target: debug-shell
-            suffix: "-shell"
     steps:
       - uses: actions/checkout@v6
       - uses: docker/setup-qemu-action@v3
@@ -91,7 +98,7 @@ jobs:
       - name: Refuse an already used full image version
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.prepare.outputs.tag }}${{ matrix.suffix }}
+          VERSION: ${{ needs.prepare.outputs.image_tag }}
         run: node .github/scripts/fork-release.cjs image-unused "$VERSION"
       # Full versions first; moving aliases follow the immutable release.
       - name: Build and push the accepted image
@@ -100,15 +107,15 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          target: ${{ matrix.target }}
+          target: final
           push: true
-          tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}${{ matrix.suffix }}
+          tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.image_tag }}
           platforms: linux/amd64,linux/arm64
           cache-from: |
-            type=gha,scope=container-${{ matrix.target }}-amd64
-            type=gha,scope=container-${{ matrix.target }}-arm64
+            type=gha,scope=container-final-amd64
+            type=gha,scope=container-final-arm64
           build-args: |
-            IMAGE_TAG=${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}${{ matrix.suffix }}
+            IMAGE_TAG=${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.image_tag }}
             HEADPLANE_VERSION=${{ needs.prepare.outputs.version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
@@ -122,17 +129,17 @@ jobs:
           push-to-registry: true
       - name: Record multi-architecture image digest
         env:
-          TARGET: ${{ matrix.target }}
+          TARGET: final
           DIGEST: ${{ steps.push.outputs.digest }}
         run: jq -n --arg target "$TARGET" --arg digest "$DIGEST" '{target:$target,digest:$digest}' > "$TARGET.json"
       - uses: actions/upload-artifact@v4
         with:
-          name: digest-${{ matrix.target }}
-          path: ${{ matrix.target }}.json
+          name: digest-final
+          path: final.json
           if-no-files-found: error
 
   verify:
-    name: Verify uploaded image (${{ matrix.target }}, ${{ matrix.arch }})
+    name: Verify uploaded image (final, ${{ matrix.arch }})
     needs: [prepare, docker]
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -142,7 +149,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [final, debug-shell]
         arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v6
@@ -156,7 +162,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v4
         with:
-          name: digest-${{ matrix.target }}
+          name: digest-final
           path: release-digests
       - uses: docker/setup-qemu-action@v3
       - uses: docker/login-action@v3
@@ -167,7 +173,7 @@ jobs:
       - name: Pull exact uploaded digest
         env:
           IMAGE: ${{ needs.prepare.outputs.image }}
-          TARGET: ${{ matrix.target }}
+          TARGET: final
           PLATFORM: linux/${{ matrix.arch }}
         run: |
           DIGEST=$(jq -r .digest "release-digests/$TARGET.json")
@@ -218,8 +224,8 @@ jobs:
           MINOR_LATEST: ${{ needs.prepare.outputs.minor_latest }}
         run: |
           set -euo pipefail
-          for TARGET in final debug-shell; do
-            SUFFIX=""; [[ "$TARGET" == final ]] || SUFFIX="-shell"
+          for TARGET in final; do
+            SUFFIX=""
             DIGEST=$(jq -r .digest "release-digests/$TARGET.json")
             TAGS=()
             [[ "$MINOR_LATEST" != true ]] || TAGS+=(--tag "$IMAGE:$MINOR$SUFFIX")
@@ -228,3 +234,262 @@ jobs:
               docker buildx imagetools create "${TAGS[@]}" "$IMAGE@$DIGEST"
             fi
           done
+
+  recover-prepare:
+    runs-on: ubuntu-latest
+    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name == 'workflow_dispatch' && inputs.operation == 'recover'
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      image: ${{ steps.guard.outputs.image }}
+      tag: ${{ steps.guard.outputs.tag }}
+      image_tag: ${{ steps.guard.outputs.image_tag }}
+      minor: ${{ steps.guard.outputs.minor }}
+      latest: ${{ steps.guard.outputs.latest }}
+      minor_latest: ${{ steps.guard.outputs.minor_latest }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: release-tools
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+          path: source
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: source/package.json
+      - name: Validate original build provenance and unchanged accepted source
+        id: guard
+        working-directory: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ORIGINAL_RUN: ${{ inputs.original_run }}
+          TAG: ${{ inputs.tag }}
+        run: node ../release-tools/.github/scripts/recover-release.cjs "$ORIGINAL_RUN" "$TAG"
+
+  recover-verify:
+    needs: recover-prepare
+    name: Verify existing image (final, ${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: release-tools
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+          path: source
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: source/package.json
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: source/package.json
+          cache: pnpm
+          cache-dependency-path: source/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: source
+      - uses: actions/download-artifact@v4
+        with:
+          name: digest-final
+          path: release-digests
+          run-id: ${{ inputs.original_run }}
+          github-token: ${{ github.token }}
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Require the original digest and both original platforms
+        env:
+          IMAGE: ${{ needs.recover-prepare.outputs.image }}
+          TAG: ${{ needs.recover-prepare.outputs.image_tag }}
+          TARGET: final
+          PLATFORM: linux/${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          SUFFIX=""
+          DIGEST=$(jq -er --arg target "$TARGET" 'select(.target == $target) | .digest | select(test("^sha256:[a-f0-9]{64}$"))' "release-digests/$TARGET.json")
+          docker buildx imagetools inspect "$IMAGE:$TAG$SUFFIX" --format '{{json .Manifest}}' > "$RUNNER_TEMP/index.json"
+          test "$(jq -r .digest "$RUNNER_TEMP/index.json")" = "$DIGEST"
+          for ARCH in amd64 arm64; do
+            jq -e --arg arch "$ARCH" '.manifests[] | select(.platform.os == "linux" and .platform.architecture == $arch)' "$RUNNER_TEMP/index.json" > /dev/null
+          done
+          docker pull --platform "$PLATFORM" "$IMAGE@$DIGEST"
+          echo "SMOKE_IMAGE=$IMAGE@$DIGEST" >> "$GITHUB_ENV"
+          echo "SMOKE_PLATFORM=$PLATFORM" >> "$GITHUB_ENV"
+      - name: Validate real Headscale, health and both interface languages
+        working-directory: source
+        run: node ../release-tools/.github/scripts/container-smoke.mjs
+
+  recover-publish:
+    needs: [recover-prepare, recover-verify]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: release-tools
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+          path: source
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: source/package.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-input
+          path: release-assets
+          run-id: ${{ inputs.original_run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: digest-*
+          merge-multiple: true
+          path: release-digests
+          run-id: ${{ inputs.original_run }}
+          github-token: ${{ github.token }}
+      - name: Bundle unchanged tag source with original documentation and digests
+        working-directory: source
+        run: node ../release-tools/.github/scripts/fork-release.cjs bundle ../release-assets ../release-digests
+      - name: Publish and lock the complete draft
+        working-directory: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ needs.recover-prepare.outputs.latest }}
+        run: node ../release-tools/.github/scripts/fork-release.cjs publish ../release-assets "$LATEST"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Move only latest and minor aliases to the published original digests
+        env:
+          IMAGE: ${{ needs.recover-prepare.outputs.image }}
+          MINOR: ${{ needs.recover-prepare.outputs.minor }}
+          LATEST: ${{ needs.recover-prepare.outputs.latest }}
+          MINOR_LATEST: ${{ needs.recover-prepare.outputs.minor_latest }}
+        run: |
+          set -euo pipefail
+          for TARGET in final; do
+            SUFFIX=""
+            DIGEST=$(jq -r .digest "release-digests/$TARGET.json")
+            TAGS=()
+            [[ "$MINOR_LATEST" != true ]] || TAGS+=(--tag "$IMAGE:$MINOR$SUFFIX")
+            [[ "$LATEST" != true ]] || TAGS+=(--tag "$IMAGE:latest$SUFFIX")
+            if ((${#TAGS[@]})); then
+              docker buildx imagetools create "${TAGS[@]}" "$IMAGE@$DIGEST"
+            fi
+          done
+
+  short-tag:
+    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name == 'workflow_dispatch' && inputs.operation == 'short-tag'
+    name: Add short tag to the original published final image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: release-tools
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+          path: source
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: source/package.json
+      - name: Validate immutable assets and copy the exact existing image index
+        working-directory: source
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node ../release-tools/.github/scripts/published-assets.cjs "$RUNNER_TEMP/assets"
+          node ../release-tools/.github/scripts/short-image-tag.cjs "$RUNNER_TEMP/assets/release-manifest.json"
+
+  public-runtime:
+    needs: [release, recover-publish, short-tag]
+    if: >-
+      always() && github.repository == 'CM-Chenqf/headplane-zh-cn' &&
+      (needs.release.result == 'success' || needs.recover-publish.result == 'success' ||
+       needs.short-tag.result == 'success' ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'verify'))
+    name: Anonymous pull (final, ${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: release-tools
+          persist-credentials: false
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          path: source
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: source/package.json
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: source/package.json
+          cache: pnpm
+          cache-dependency-path: source/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: source
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Validate public release and all attachment checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: node ../release-tools/.github/scripts/published-assets.cjs "$RUNNER_TEMP/published-assets"
+        working-directory: source
+      - name: Pull without registry credentials and verify the published digest
+        env:
+          TARGET: final
+          PLATFORM: linux/${{ matrix.arch }}
+          DOCKER_CONFIG: ${{ runner.temp }}/anonymous-docker
+        run: |
+          set -euo pipefail
+          mkdir -p "$DOCKER_CONFIG"
+          # Keep the executable plugin available while isolating all credentials.
+          ln -s "$HOME/.docker/cli-plugins" "$DOCKER_CONFIG/cli-plugins"
+          MANIFEST="$RUNNER_TEMP/published-assets/release-manifest.json"
+          IMAGE=$(jq -r .pullReference "$RUNNER_TEMP/published-assets/verification-result.json")
+          DIGEST=$(jq -r --arg target "$TARGET" '.images[] | select(.target == $target) | .digest' "$MANIFEST")
+          ACTUAL=$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest}}' | jq -r .digest)
+          test "$ACTUAL" = "$DIGEST"
+          docker pull --platform "$PLATFORM" "$IMAGE"
+          echo "SMOKE_IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          echo "SMOKE_PLATFORM=$PLATFORM" >> "$GITHUB_ENV"
+          echo "DOCKER_CONFIG=$DOCKER_CONFIG" >> "$GITHUB_ENV"
+      - name: Check startup, real Headscale, health and English/Chinese access
+        run: node ../release-tools/.github/scripts/container-smoke.mjs
+        working-directory: source

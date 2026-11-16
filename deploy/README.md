@@ -16,4 +16,4 @@ Run Docker and Docker Compose with an existing Headscale instance. Keep the supp
 
 The named volume preserves Headplane data across restarts. The minimal configuration enables device, user and policy management through Headscale's API. Editing Headscale configuration, DNS settings or OIDC restrictions requires the optional integration and shared files described in [Docker installation](../docs/install/docker.md). Browser SSH and Agent setup are also opt-in.
 
-The full tag `v0.8.2-zh` remains fixed. `latest` and `0.8` follow later published versions; `v0.8.2-zh-shell` provides the matching debug image. Both image types support amd64 and arm64. No Cloudflare account or documentation hosting is required.
+The full image tag `v0.8.2` remains fixed. `latest` and `0.8` follow later published versions. Future releases publish only the final image, supporting amd64 and arm64. No Cloudflare account or documentation hosting is required.

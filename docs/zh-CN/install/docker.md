@@ -13,7 +13,7 @@ outline: [2, 3]
 Docker 是推荐的安装方式，部署方便，适用于多数环境。此处的集成方案要求 Headscale 也在 Docker 中运行。
 
 ::: info 镜像来源
-本页使用非官方社区双语镜像 `v0.8.2-zh`。部署前确认 [GitHub Release](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布。上游镜像仍为 `ghcr.io/tale/headplane`，许可证和来源说明完整保留。详见[语言与维护说明](/zh-CN/features/language)。
+本页使用非官方社区双语镜像 `v0.8.2`。部署前确认 [GitHub Release](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布。上游镜像仍为 `ghcr.io/tale/headplane`，许可证和来源说明完整保留。详见[语言与维护说明](/zh-CN/features/language)。
 :::
 
 ## 前提条件 {#prerequisites}
@@ -29,7 +29,7 @@ Docker 是推荐的安装方式，部署方便，适用于多数环境。此处�
 ```yaml
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     container_name: headplane
     restart: unless-stopped
     ports:
@@ -50,7 +50,7 @@ services:
 ```yaml
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     healthcheck:
       test: ["CMD", "/bin/hp_healthcheck"]
       interval: 30s
@@ -94,7 +94,7 @@ Headplane 与 Headscale 应运行在同一 Docker 主机上，Headplane 需要�
 ```yaml
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     container_name: headplane
     restart: unless-stopped
     ports:
@@ -178,7 +178,7 @@ Headscale 支持[多种反向代理](https://headscale.net/stable/ref/integratio
 services:
   # 与前面的配置相同
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     container_name: headplane
     restart: unless-stopped
     ports:

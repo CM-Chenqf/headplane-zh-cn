@@ -15,7 +15,7 @@ const VERSION = "(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)";
 const VERSION_RE = new RegExp(`^${VERSION}$`);
 const TAG_RE = new RegExp(`^v${VERSION}-zh$`);
 const SHA_RE = /^[a-f0-9]{40}$/;
-const ASSETS = ["source.tar.gz", "docs-root.tar.gz", "docs-archive.tar.gz"];
+const ASSETS = ["docs-root.tar.gz", "docs-archive.tar.gz"];
 const run = (command, args, options = {}) =>
   (
     execFileSync(command, args, {
@@ -135,6 +135,7 @@ function metadata(state) {
   validateState(state);
   return {
     tag: `v${state.upstream.version}-zh`,
+    image_tag: `v${state.upstream.version}`,
     version: `${state.upstream.version}-zh`,
     minor: state.upstream.version.split(".").slice(0, 2).join("."),
     image: `ghcr.io/${state.repository.toLowerCase()}`,
@@ -164,7 +165,7 @@ async function preflight(state, tag) {
     throw new Error(
       "Release or draft already exists; inspect the partial run without replacing its tag or assets",
     );
-  for (const workflow of ["build.yaml", "i18n-check.yaml", "containers.yaml", "docs-build.yaml"]) {
+  for (const workflow of ["build.yaml", "i18n-check.yaml", "docs.yaml"]) {
     const runs = api(
       `repos/${state.repository}/actions/workflows/${workflow}/runs?branch=stable&event=push&head_sha=${sha}&per_page=100`,
     ).workflow_runs;
@@ -176,8 +177,7 @@ async function preflight(state, tag) {
     )
       throw new Error(`${workflow} has not passed on this exact stable commit`);
   }
-  await assertUnusedImage(meta.image, meta.tag);
-  await assertUnusedImage(meta.image, `${meta.tag}-shell`);
+  await assertUnusedImage(meta.image, meta.image_tag);
   const published = publishedVersions(all);
   const newestMinor = published.find((t) => parseTag(t).minor === meta.minor);
   const result = {
@@ -211,8 +211,13 @@ function buildDocs(state, directory) {
       env: {
         ...process.env,
         HEADPLANE_DOCS_BASE: archived ? `/${minor}/` : "/",
-        HEADPLANE_DOCS_CHANNEL: archived ? "archived" : "latest",
-        HEADPLANE_DOCS_VERSION: version,
+        HEADPLANE_DOCS_CHANNEL: archived
+          ? "archived"
+          : state.channel === "development"
+            ? "beta"
+            : "latest",
+        HEADPLANE_DOCS_VERSION:
+          state.channel === "development" ? git("rev-parse", "--short", "HEAD") : version,
       },
     });
     run("tar", [
@@ -231,27 +236,23 @@ function bundle(state, directory, imageDirectory) {
   const meta = metadata(state);
   const sha = git("rev-parse", "HEAD");
   const output = resolve(directory);
-  run("git", [
-    "archive",
-    "--format=tar.gz",
-    `--prefix=headplane-zh-cn-${meta.version}/`,
-    "-o",
-    join(output, "source.tar.gz"),
-    "HEAD",
-  ]);
-  const images = ["final", "debug-shell"].map((target) => {
+  const images = ["final"].map((target) => {
     const record = json(join(imageDirectory, `${target}.json`));
     if (record.target !== target || !/^sha256:[a-f0-9]{64}$/.test(record.digest))
       throw new Error("Invalid image digest record");
     return {
       target,
       platforms: ["linux/amd64", "linux/arm64"],
-      reference: `${meta.image}:${meta.tag}${target === "final" ? "" : "-shell"}`,
+      reference: `${meta.image}:${meta.image_tag}`,
       digest: record.digest,
     };
   });
   const manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    sourceArchives: {
+      zip: `https://github.com/${state.repository}/archive/refs/tags/${meta.tag}.zip`,
+      tar: `https://github.com/${state.repository}/archive/refs/tags/${meta.tag}.tar.gz`,
+    },
     repository: state.repository,
     tag: meta.tag,
     sourceCommit: sha,
@@ -269,7 +270,7 @@ function bundle(state, directory, imageDirectory) {
       .map((name) => `${digest(join(output, name))}  ${name}\n`)
       .join(""),
   );
-  const notes = `Community bilingual release / 社区中英双语版 ${meta.tag}\n\nThis is an unofficial fork of [tale/headplane](https://github.com/tale/headplane), not an official Chinese edition. 上游许可证和来源说明完整保留，本项目不是官方中文版。\n\n- Upstream / 上游: v${state.upstream.version} (${state.upstream.commit})\n- Source / 源码提交: ${sha}\n- Upstream release notes / 上游发行说明: https://github.com/tale/headplane/releases/tag/v${state.upstream.version}\n\n${images.map((i) => `- ${i.target}: \`${i.reference}\`\n  - \`${meta.image}@${i.digest}\``).join("\n")}\n\nBoth images support linux/amd64 and linux/arm64. 两种镜像均支持 amd64 和 arm64。\n\nSource, English/Chinese documentation snapshots, image digests and checksums are attached. 源码、双语文档快照、镜像摘要和校验和均随此版本保留。\n\nUse the full version tag or digest to pin deployments. 完整版本标签不重复发布；latest 和次版本别名会随发行前移。\n`;
+  const notes = `Community bilingual release / 社区中英双语版 ${meta.tag}\n\nThis is an unofficial fork of [tale/headplane](https://github.com/tale/headplane), not an official Chinese edition. 上游许可证和来源说明完整保留，本项目不是官方中文版。\n\n- Upstream / 上游: v${state.upstream.version} (${state.upstream.commit})\n- Source / 源码提交: ${sha}\n- Upstream release notes / 上游发行说明: https://github.com/tale/headplane/releases/tag/v${state.upstream.version}\n\n${images.map((i) => `- ${i.target}: \`${i.reference}\`\n  - \`${meta.image}@${i.digest}\``).join("\n")}\n\nThe image supports linux/amd64 and linux/arm64. 正式镜像支持 amd64 和 arm64。\n\nSource is available in GitHub’s Source code ZIP/tar.gz archives. English/Chinese documentation snapshots, image digests and checksums are attached. 源码使用 GitHub 自带 Source code ZIP/tar.gz，附件保留双语文档快照、镜像摘要和校验和。\n\nUse the full version tag or digest to pin deployments. 完整版本标签不重复发布；latest 和次版本别名会随发行前移。\n`;
   writeFileSync(join(output, "release-notes.md"), notes);
   return manifest;
 }
@@ -292,7 +293,7 @@ function publish(state, directory, latest) {
     "--verify-tag",
     "--draft",
     "--title",
-    `${meta.tag} · Community / 社区双语版`,
+    meta.tag,
     "--notes-file",
     join(directory, "release-notes.md"),
     ...[...ASSETS, "release-manifest.json", "SHA256SUMS"].map((n) => join(directory, n)),
@@ -318,7 +319,7 @@ async function main() {
   if (command === "info") console.log(JSON.stringify(metadata(state)));
   else if (command === "image-unused") {
     const meta = metadata(state);
-    if (![meta.tag, `${meta.tag}-shell`].includes(arg)) throw new Error("Unexpected image version");
+    if (arg !== meta.image_tag) throw new Error("Unexpected image version");
     await assertUnusedImage(meta.image, arg);
   } else if (command === "preflight") console.log(JSON.stringify(await preflight(state, arg)));
   else if (command === "docs") buildDocs(state, arg);

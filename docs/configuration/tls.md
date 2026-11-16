@@ -1,7 +1,7 @@
 # TLS & Certificates
 
 ::: info Image source
-Examples use upstream published images. This community bilingual fork has not published its validated image yet. The intended image is `ghcr.io/cm-chenqf/headplane-zh-cn`; use its tags only after runtime and publication acceptance. See [Language and maintenance](/features/language).
+Examples use upstream published images. The community bilingual stable image is available as `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`. See [Language and maintenance](/features/language).
 :::
 
 Everything Headplane does with TLS lives on this page: terminating HTTPS

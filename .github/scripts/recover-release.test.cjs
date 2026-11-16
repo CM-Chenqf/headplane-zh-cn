@@ -19,9 +19,12 @@ test("recovery rejects unrelated sources, incomplete image uploads and already a
   const jobs = [
     "Validate accepted stable source and archive docs",
     "Docker Release (final)",
-    "Docker Release (debug-shell)",
     "Publish immutable source, docs and image manifest",
-  ].map((name, index) => ({ name, head_sha: sha, conclusion: index === 3 ? "skipped" : "success" }));
+  ].map((name, index) => ({
+    name,
+    head_sha: sha,
+    conclusion: index === 2 ? "skipped" : "success",
+  }));
   validateOriginalRun(original, jobs, sha, tag, repository);
   for (const change of [
     { head_sha: "b".repeat(40) },
@@ -32,9 +35,14 @@ test("recovery rejects unrelated sources, incomplete image uploads and already a
     { status: "in_progress" },
     { run_attempt: 2 },
   ])
-    assert.throws(() => validateOriginalRun({ ...original, ...change }, jobs, sha, tag, repository));
-  for (const index of [0, 1, 2, 3]) {
-    const changed = jobs.map((job, i) => ({ ...job, ...(i === index ? { conclusion: "failure" } : {}) }));
+    assert.throws(() =>
+      validateOriginalRun({ ...original, ...change }, jobs, sha, tag, repository),
+    );
+  for (const index of [0, 1, 2]) {
+    const changed = jobs.map((job, i) => ({
+      ...job,
+      ...(i === index ? { conclusion: "failure" } : {}),
+    }));
     assert.throws(() => validateOriginalRun(original, changed, sha, tag, repository));
   }
 });

@@ -16,4 +16,4 @@
 
 命名卷在容器重启后保留 Headplane 数据。此最小配置通过 Headscale API 管理设备、用户和策略；修改 Headscale 配置、DNS 设置及 OIDC 限制时，按 [Docker 安装文档](../docs/zh-CN/install/docker.md) 配置可选集成和共享文件。浏览器 SSH 和 Agent 也按需启用。
 
-完整标签 `v0.8.2-zh` 固定保留；`latest` 和 `0.8` 随后续正式版本前移。对应调试镜像为 `v0.8.2-zh-shell`。两种镜像均支持 amd64、arm64。无需 Cloudflare 账号或文档托管服务。
+完整镜像标签 `v0.8.2` 固定保留；`latest` 和 `0.8` 随后续正式版本前移。后续仅发布普通正式镜像，保留 amd64、arm64。无需 Cloudflare 账号或文档托管服务。
