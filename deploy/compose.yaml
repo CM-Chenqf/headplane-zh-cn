@@ -1,6 +1,6 @@
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     restart: unless-stopped
     ports:
       - "3000:3000"

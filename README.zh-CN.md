@@ -4,7 +4,7 @@
 
 本仓库为社区维护的 [tale/headplane](https://github.com/tale/headplane) 中英双语 fork，**不是 Headplane、Headscale 或 Tailscale 的官方中文版**。保留上游 [MIT 许可证原文](./LICENSE)及原作者版权声明。
 
-当前为 **0.8 发布线**。设备、用户、角色、账号关联、成员下载页、访问控制和编辑器、DNS、设置及浏览器 SSH，以及完整 VitePress 文档均已接入中英切换。翻译及容器验收已通过，`v0.8.2-zh` 候选版本可进入正式发布流程；实际发布结果以 [GitHub Releases](https://github.com/CM-Chenqf/headplane-zh-cn/releases) 为准。双语文档保留在仓库及 Release 快照中，不部署托管文档站。进度见[语言与维护说明](./docs/zh-CN/features/language.md)。
+当前为 **0.8 发布线**。设备、用户、角色、账号关联、成员下载页、访问控制和编辑器、DNS、设置及浏览器 SSH，以及完整 VitePress 文档均已接入中英切换。双语正式版 [v0.8.2-zh](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布，正式镜像为 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`（amd64/arm64）。双语文档保留在仓库及 Release 快照中，不部署托管文档站。进度见[语言与维护说明](./docs/zh-CN/features/language.md)。
 
 Headscale 是 Tailscale 控制服务器的自托管实现，默认不带 Web 界面。Headplane 为其提供设备、网络及 ACL 管理界面，参考官方 Tailscale 管理面板的功能与布局。
 
@@ -24,7 +24,7 @@ Headscale 是 Tailscale 控制服务器的自托管实现，默认不带 Web 界
 
 ## 版本
 
-上游自 v0.6.0 起采用[语义化版本](https://semver.org/)。上游预发布构建使用 next 标签，并在发行 PR 测试期间更新。维护 fork 保留相同功能兼容范围；正式镜像标签与 GitHub Release 一致，例如 `v0.8.2-zh`，另提供 `latest`；应在本仓库正式发布并验证后使用。
+上游自 v0.6.0 起采用[语义化版本](https://semver.org/)。上游预发布构建使用 next 标签，并在发行 PR 测试期间更新。维护 fork 保留相同功能兼容范围；正式镜像使用 `v0.8.2`，另提供 `latest` 和 `0.8`，GitHub Release 标签仍为 `v0.8.2-zh`。后续仅发布普通正式镜像，保留 amd64/arm64。
 
 ## 贡献
 

@@ -16,7 +16,7 @@
 
 [访问控制与策略编辑器](/zh-CN/features/acls)也已接入：访问规则、SSH 规则、主机别名、标签、用户组、提示、解析说明及编辑器控件。切换语言保留草稿和策略原始值。
 
-[DNS](/zh-CN/features/dns)、[设置](/zh-CN/features/settings)和[浏览器 SSH](/zh-CN/features/ssh)现已支持双语。全部 VitePress 页面均有中文版本，包括安装、配置、SSO、NixOS 选项、架构及完整历史更新日志；导航、本地搜索和语言切换支持根路径及 /0.8/ 归档。翻译及容器验收已完成，`v0.8.2-zh` 候选版本可进入标签触发的发布流程；实际发布结果以 GitHub Releases 为准。
+[DNS](/zh-CN/features/dns)、[设置](/zh-CN/features/settings)和[浏览器 SSH](/zh-CN/features/ssh)现已支持双语。全部 VitePress 页面均有中文版本，包括安装、配置、SSO、NixOS 选项、架构及完整历史更新日志；导航、本地搜索和语言切换支持根路径及 /0.8/ 归档。翻译及容器验收已完成，`v0.8.2-zh` 双语正式版已发布，正式镜像为 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`（amd64/arm64）。
 
 ## 选择界面语言 {#choose-the-interface-language}
 
@@ -64,6 +64,8 @@ pnpm i18n:check
 
 社区维护仓库只保留两条长期分支：`main` 跟随上游开发，`stable` 跟随上游最新正式发行标签。上游升级后继续更新 `stable`，不为每个版本新建分支；兼容范围和构建工具随对应上游版本保持一致。
 
-社区版本标签例如 `v0.8.2-zh`。每个已发布版本都在 GitHub Releases 保留源码、双语文档快照、两种多架构镜像的摘要和校验和。完整镜像标签与 GitHub Release 一致，例如 `v0.8.2-zh`、`v0.8.2-zh-shell`，不重复使用；`latest`、`0.8` 及对应 shell 别名可以前移。每个上游版本只正式发布一次，不添加修订号。后续汉化、打包及文档修正随下一个上游版本发布，保留旧镜像、标签和附件。临时 PR 分支合并后自动删除。
+社区版本标签例如 `v0.8.2-zh`。每个已发布版本都在 GitHub Releases 保留源码、双语文档快照、正式多架构镜像的摘要和校验和。Docker 完整镜像标签使用 `vX.Y.Z`，例如 `v0.8.2`；GitHub Release/Git 标签保留 `-zh`。完整镜像标签不重复使用；`latest`、`0.8` 可以前移。后续仅发布普通正式镜像，保留 amd64/arm64。源码使用 GitHub 自带 ZIP/tar.gz，后续发行不再附加重复的源码包。每个上游版本只正式发布一次，不添加修订号。后续汉化、打包及文档修正随下一个上游版本发布，保留旧镜像、标签和附件。临时 PR 分支合并后自动删除。
 
 本项目是非官方社区维护版本，完整保留上游 MIT 许可证及来源说明。验收门禁和操作步骤见仓库内的 `.github/FORK_SETUP.zh-CN.md`。
+
+工作流保留 5 个：**Build**（编译、单元/集成测试、Nix 和容器运行验收）、**Translations**、**Docs**（根路径/归档预览）、**Upstream sync** 和 **Release**。Release 同时负责上传恢复及匿名镜像检查。现有不可变发行及历史调试镜像继续保留。

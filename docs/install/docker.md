@@ -7,7 +7,7 @@ outline: [2, 3]
 # Docker Installation
 
 ::: info Image source
-Examples use this unofficial bilingual fork’s `v0.8.2-zh` image. Confirm the version in [GitHub Releases](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) before deployment. The upstream image remains `ghcr.io/tale/headplane`; its license and attribution are preserved. See [Language and maintenance](/features/language).
+Examples use this unofficial bilingual fork’s `v0.8.2` image. Confirm the version in [GitHub Releases](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) before deployment. The upstream image remains `ghcr.io/tale/headplane`; its license and attribution are preserved. See [Language and maintenance](/features/language).
 :::
 
 ::: tip
@@ -32,7 +32,7 @@ Running Headplane in with Docker is as simple as applying 1 compose file:
 ```yaml
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     container_name: headplane
     restart: unless-stopped
     ports:
@@ -59,7 +59,7 @@ If you need to override the default healthcheck behavior, you can do so in your
 ```yaml
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     healthcheck:
       test: ["CMD", "/bin/hp_healthcheck"]
       interval: 30s
@@ -117,7 +117,7 @@ environment. Here is an example `compose.yaml` file that accomplishes this:
 ```yaml
 services:
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     container_name: headplane
     restart: unless-stopped
     ports:
@@ -230,7 +230,7 @@ the routing for Headplane and Headscale.
 services:
   # Same as before
   headplane:
-    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2-zh
+    image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
     container_name: headplane
     restart: unless-stopped
     ports:

@@ -1,114 +1,92 @@
 # Headplane zh-CN 双语版本维护（非官方）
 
-维护仓库为 `CM-Chenqf/headplane-zh-cn`，是基于 [tale/headplane](https://github.com/tale/headplane) 的社区双语 fork，不是 Headplane、Headscale 或 Tailscale 官方中文版。保留上游 `LICENSE` 原文及原作者署名；上游网站、历史发行说明和源码示例仍明确标注来源。
+`CM-Chenqf/headplane-zh-cn` 是 [tale/headplane](https://github.com/tale/headplane) 的社区中英双语 fork，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 `LICENSE` 原文、作者版权及来源说明。
 
-此仓库基于 `tale/headplane`，目标为完整保留上游功能，并提供英文、简体中文界面与文档。当前已完成仓库与自动化基础配置，以及中英切换、登录、公共导航、设备、用户、访问控制、DNS、设置和浏览器 SSH 模块翻译；文档站已接入双语正文、导航、搜索、历史更新日志和升级说明。翻译、文档及容器验收已完成；实际正式发布结果以 GitHub Releases 为准，不要把此阶段的构建称为已正式发布的完整汉化版。
+## 当前状态与分支
 
-## 双语功能进度
+- 双语正式版 [v0.8.2-zh](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布并锁定。正式镜像使用 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`，支持 amd64/arm64。
+- 应用、服务端可见错误及完整文档支持 English / 简体中文；远端终端输出、原始诊断和配置字段保留原文。翻译检查及真实 Headscale 容器验收已通过。
+- 只保留两条长期维护分支：`main` 跟随上游开发，`stable` 跟随最新已发布正式标签。新版本继续更新 `stable`，不新建长期版本分支。
+- 各分支沿用对应上游功能、依赖、工具链和 Headscale 兼容矩阵。0.8 使用 VitePress、原有账号关联及访问控制编辑器；开发线使用 Fumadocs，不将新功能强行移植到旧版。
+- 本地 `origin` 指向维护仓库，`upstream` 指向 `tale/headplane`。原空仓库 `CM-Chenqf/headscale-web-empty` 仅作历史留存。
+- 双语文档保留源码、本地预览和 Release 快照；不部署托管文档站，不需要 Cloudflare 或托管凭据。
 
-- 已完成：请求级语言识别、浏览器偏好 Cookie、中英切换、登录与退出、API 密钥错误、SSO 配置及登录错误、公共导航与主题选项、相对时间与日期提示、设备密钥过期提示，以及设备列表、详情、筛选、操作菜单、弹窗、表单校验和操作结果。公共错误页和设备使用的复制、表单、徽标等组件也已接入翻译。
-- 用户模块已完成：用户列表、账号关联、角色及权限说明、所有权转移、用户组、操作结果和服务端错误，以及登录后关联页面和成员设备接入首页。权限、角色标识、用户名规则和 Headscale API 行为保持上游一致。
-- 访问控制已完成：访问规则、授权规则、SSH 策略、主机别名、自动批准者、标签和用户组，文件与差异编辑器、查找替换等编辑器提示、HuJSON 语法诊断与行列位置、只读和权限提示及保存结果。策略字段、未知操作、额外配置与上游版本限制保持不变。
-- DNS 已完成：常规设置、Magic DNS、覆盖本地 DNS、全局与分域 DNS 服务器、搜索域、A/AAAA 记录、添加和移除弹窗、排序按钮、表单校验及服务端操作结果。权限、原始配置值、配置文件写入、重启与记录热更新流程保持不变。
-- 设置已完成：认证密钥列表、筛选、创建与过期弹窗、有效期校验、OIDC 域名/用户组/用户限制、Agent 状态与已知不可用原因、同步覆盖情况和诊断说明。本人密钥边界、原始字段及数值、配置写入、重启和 Agent 版本要求保持不变。
-- 浏览器 SSH 已完成：用户名表单、离线页面、版本兼容提醒、连接状态、重新认证提示、错误页和文档按钮。切换语言不会重新申请连接密钥或重建终端；身份限制、临时密钥、远端输出、诊断原文和原有兼容要求保持不变。
-- 英文资源：`app/i18n/en.ts`；中文资源：`app/i18n/zh-CN.ts`。两者一起更新，类型检查校验键名，单元测试校验句子占位符。
-- 文档已完成：英文保留原 URL，简体中文使用 `/zh-CN/`；首页、侧栏、主题、搜索、版本切换、错误页及文档组件提示跟随语言。全部 28 个文档页面均有中文对应文件，中文历史更新日志位于 `CHANGELOG.zh-CN.md`。命令、配置值、产品标识和原始诊断保留原文，上游界面截图注明为英文截图。
-- 使用及维护说明：`docs/features/language.mdx`；设备、用户、访问控制、DNS、设置和 SSH 操作指南保留原 `*-bilingual.mdx` 地址，并拆分同目录的 `*.zh-CN.mdx` 中文文件。旧地址不变，文档顶部按钮切换语言，搜索按语言隔离。
-- `main` 已接入双语界面、文档和翻译复核检查；`stable` 已完成语言基础、登录、公共界面、设备、用户、角色、账号关联和成员下载页，以及访问控制的五类可视化编辑器、文件编辑、差异预览及诊断，并配有对应双语指南。0.8 仍使用首页自助关联及原有 VitePress 工具链，权限、用户名规则及兼容范围不变；访问控制保留原始策略值、未知字段和动作、注释警告，并在切换语言时保留草稿，不引入 main 的 Grants 或自动批准者可视化编辑器。尚未正式发布双语镜像；双语文档保留源码及发行快照，不托管站点。
-- `stable` 已补齐 DNS、设置（预授权密钥、认证限制和 Agent）、浏览器 SSH 及完整 VitePress 文档，包含双语导航、搜索、安装、配置、NixOS 选项及完整历史更新日志。语言切换保留表单草稿和 SSH 会话，仍沿用 0.8 的权限、配置和版本矩阵。
-- 翻译及容器验收已完成，待运行正式发布及匿名拉取检查。Headscale 原始诊断保留原文，中文界面附说明与 HTTP 状态。
+## 五个工作流
 
-## 仓库和分支
+| 工作流        | 用途                                                      | 触发方式                   |
+| ------------- | --------------------------------------------------------- | -------------------------- |
+| Build         | 编译、单元及集成测试、Nix 检查、正式镜像双架构运行验收    | PR、main/stable 推送、手动 |
+| Translations  | 语言键、文档配对和翻译复核指纹                            | PR、main/stable 推送、手动 |
+| Docs          | 双语根路径及归档构建、类型检查、7 天临时预览产物          | PR、main/stable 推送、手动 |
+| Upstream sync | 上游同步 PR、翻译跟踪 Issue；依赖变更时更新 Nix PNPM 哈希 | 每日、手动；依赖文件推送   |
+| Release       | 正式发布、上传恢复、短镜像标签迁移和匿名拉取验收          | 新社区标签、手动           |
 
-- 维护仓库：`CM-Chenqf/headplane-zh-cn`。
-- 上游仓库：`tale/headplane`。
-- 原空仓库仍保留为 `CM-Chenqf/headscale-web-empty`，这是历史留存仓库，不是当前维护仓库。
-- 本地 `origin` 指向维护仓库，`upstream` 指向上游。
-- 只保留两条长期维护分支：`main` 跟随上游 `main`，`stable` 跟随上游最新已发布正式版标签；兼容范围和测试版本沿用对应上游版本，不单独扩大支持承诺。
-- 功能和汉化改动保存在维护分支中，使用合并上游提交的方式升级。不要用上游分支强制覆盖维护分支。
+原独立容器检查并入 Build；文档检查及预览并入 Docs；发布恢复和公开验收并入 Release。不再运行上游专用的自动分流、标签、生命周期、过期提醒或 Pullfrog 工作流。检查和验收范围保留。
 
-自动化基础配置位于 `main`。`stable` 保留 VitePress 文档工具链及自身的阶段翻译检查，文档构建目前仅保存产物；0.8 界面及完整文档的翻译覆盖已完成，仍沿用 VitePress，不直接覆盖成 `main` 的文档站。任何发布分支都要完成双语和发布配置验收后再发版。
+## 上游更新与汉化提醒
 
-## 上游更新和汉化提醒
+Upstream sync 每日北京时间约 09:27 检查上游。发现新提交或正式版本后，向固定维护分支创建合并 PR，并建立或更新分配给 `CM-Chenqf` 的翻译跟踪 Issue。同一提交不会反复创建 PR 或提醒；不会自动合并、发布或强推覆盖中文改动。
 
-`Upstream sync` 每天北京时间 09:27 发起检查，也支持手动运行。GitHub 定时任务可能延迟运行；仓库长期不活跃导致定时任务停用时，需要在 Actions 页面重新启用。
+在 GitHub Watch 中订阅仓库或跟踪 Issue，按个人通知设置接收更新。仓库需启用 Issues、Actions 和 Actions 创建 PR 的权限。
 
-流程检测到尚未合并的上游提交时：
+默认使用 `GITHUB_TOKEN`。若同步包含工作流文件且 GitHub 拒绝默认令牌推送，配置限于本仓库的 `UPSTREAM_SYNC_TOKEN` Secret，授予 Contents、Pull requests、Issues、Workflows 所需写入权限。自定义令牌也用于 Nix 哈希自动提交，以便触发后续 CI；仅有默认令牌时，机器人提交不会自动触发新的工作流，发布前手动运行并核对精确提交验收。不要删除工作流同步来绕过权限错误。
 
-1. 为对应分支和提交建立独立的 `sync/upstream/...` 分支并打开同步 PR。
-2. 按界面与提示、文档、其他功能列出变更文件，附带汉化检查清单。
-3. 建立或更新分配给 `CM-Chenqf` 的跟踪 Issue；清单变化时追加评论，供 GitHub 发送通知。
+将上游历史合并进维护分支，逐项检查英文和中文差异。保留手工冲突处理，不用上游提交强制覆盖汉化。同步提醒本身不代表翻译已完成。
 
-同一提交重复检查不会反复开 PR 或追加评论。自动化不强推维护者的分支，不自动合并，不导入上游标签，也不自动发布。上游发布新的正式版后，继续向固定 `stable` 分支创建同步 PR，不再新建长期版本分支；缺失固定分支时报告错误并提醒恢复。
+## Docker 与版本规则
 
-优先使用普通 merge commit 合并同步 PR。同一发布线出现多个待处理 PR 时，处理最新 PR，再关闭已经包含在其中的旧 PR。关闭但未合并的 PR 仍会在跟踪 Issue 中保留，便于明确决定是否跳过。
+- 仓库：`ghcr.io/cm-chenqf/headplane-zh-cn`。
+- 后续仅构建和发布 Dockerfile 的 `final` 普通正式镜像；支持 `linux/amd64`、`linux/arm64`，不再发布调试版。
+- Docker 完整标签：`vX.Y.Z`，例如 `v0.8.2`。不加 `-zh` 或修订号，完整标签不覆盖。`latest`、次版本别名 `0.8` 可随正式发行前移。
+- GitHub Release/Git 标签：`vX.Y.Z-zh`，每个上游版本只正式发布一次。Release 标题只显示标签；正文保留非官方声明和上游来源。
+- 保留多阶段 Dockerfile、Agent、Go/WASM、健康检查、构建缓存和 provenance。镜像发布使用工作流 `GITHUB_TOKEN` 的 Packages、OIDC 和 Attestations 权限。
+- 已发布的旧 `-zh` 标签、调试镜像和附件保持原样。`v0.8.2` 通过迁移指向原正式镜像的相同多架构摘要，不重新构建。
 
-仓库设置需要启用 Issues、GitHub Actions，以及 Actions 创建 PR 的权限。若 GitHub 要求批准自动创建 PR 的工作流运行，在 PR 页面批准。将仓库加入 Watch 或订阅跟踪 Issue，并在 GitHub 个人通知设置中启用需要的通知渠道。
+部署示例：
 
-默认使用仓库的 `GITHUB_TOKEN`。如果上游更新包含 `.github/workflows/` 的变更，而 GitHub 拒绝该令牌推送工作流文件，需要额外配置仅限本仓库的 `UPSTREAM_SYNC_TOKEN` Secret：使用具有 Contents、Pull requests、Issues、Workflows 写入权限的 fine-grained token。不要关闭工作流文件同步来绕过权限错误。使用自定义令牌后创建的 PR，其检查触发规则也应在仓库中实际验证。
+```yaml
+image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
+```
 
-同步提醒基于上游提交和文件变更，提供翻译工作清单。`Translations` 工作流另行检查语言键、英文变更和文档复核指纹；`stable` 的翻译检查现已覆盖完整界面与文档；正式发布和实际镜像拉取仍需分别核对结果，不能把翻译检查通过视为允许发布。
+## 正式发布
 
-## Docker 镜像
-
-继续使用上游多阶段 Dockerfile、Go/WASM 模块、Agent、健康检查和 GitHub Actions 发布流程：
-
-- 镜像仓库：`ghcr.io/cm-chenqf/headplane-zh-cn`，OCI 仓库路径使用小写。
-- 架构：`linux/amd64`、`linux/arm64`。
-- 类型：`final` 普通版、`debug-shell` 调试版。
-- 标签：社区完整版本号（如 `v0.8.2-zh`，与 GitHub Release 标签一致）、次版本号（`0.8`）、`latest`，以及对应的 `-shell` 标签。完整版本号不重复使用，次版本号和 latest 别名随发行前移。
-- 缓存：GitHub Actions 构建缓存。
-- 构建来源证明：沿用上游 provenance attestation。
-- 权限：使用工作流自带 `GITHUB_TOKEN`，包含 `packages: write`、`id-token: write` 和 `attestations: write`。
-
-通过 `stable` 已验收提交创建并推送 `vX.Y.Z-zh` 标签，才能发布社区双语镜像。工作流只响应社区标签并严格校验，不响应继承的上游 `vX.Y.Z` 标签；`-zh` 标明非官方双语版本，不标记为测试版；每个上游版本只正式发布一次，不添加修订号。`main` 的 development 通道禁止正式发布。不要重新推送全部历史标签，也不要在旧的上游提交上打社区标签。上游 `pnpm release cut` 在本 fork 中禁止使用，避免误改上游版本号和标签。
-
-### 固定分支、验收与发行留存
-
-1. 上游发布正式版后，将对应标签提交合并到 `stable`，保留中文改动、上游历史和对应版本的依赖、构建工具及兼容矩阵。开发变动仍合并到 `main`。
-2. 更新 `.github/fork-release.json` 的上游版本和 40 位提交，使用 schemaVersion=2，不设置 revision。发布后同一上游版本的汉化、打包及文档修正保留在维护分支，随下一个上游版本正式发布。升级时先将 publicationReady 设为 false；如有翻译待办，同步保留翻译 scope 的门禁。
-3. 逐项翻译并复核差异，运行翻译、构建、单元与相关集成检查。`Containers (check)` 构建 final/debug-shell × amd64/arm64，按当前源码的标准版本矩阵启动真实 Headscale，验证镜像平台、健康检查、中英登录页、真实 API 密钥登录及登录后设备页。arm64 在 QEMU 下验收。
-4. 容器和双语文档验收通过后，将 publicationReady 设为 true，并在适用的 scope 中清空待办、标记完成。再次合并到 `stable` 并等待该精确提交的全部检查通过。
-5. 从干净的 `stable` 工作区创建单个标签并推送，不使用 `--follow-tags`：
+1. 合并最新上游正式标签到 `stable`，更新 `.github/fork-release.json` 的版本及 40 位提交；升级时先将 `publicationReady` 设为 false。
+2. 完成双语翻译、文档和差异复核，保留对应上游工具链与兼容矩阵；运行本地检查和 CI。
+3. Build 对普通正式镜像的 amd64/arm64 执行真实 Headscale 验收，检查平台、启动、健康、中英登录、API 密钥认证及登录后的设备页；arm64 使用 QEMU。容器矩阵从各分支标准测试定义读取，禁止伪造 Headscale。
+4. 验收后设 `publicationReady=true`，适用的翻译 scope 必须完整。等待 **Build、Translations、Docs** 在同一个 `stable` 精确提交上的 push 检查全部成功。
+5. 从干净且已验收的 `stable` 创建标签，仅推送该标签：
 
    ```bash
    node .github/scripts/fork-release.cjs tag
-   # 以命令实际输出的标签为准
-   git push origin refs/tags/v0.8.2-zh
+   # 使用命令实际输出的新标签，不重复使用已发行的 v0.8.2-zh
+   git push origin refs/tags/vX.Y.Z-zh
    ```
 
-6. 发布前再次核对 stable 精确提交、上游标签 SHA、CI 和翻译状态，确认完整镜像标签未被使用。只有明确的 registry manifest 不存在响应才允许继续；认证、限流、网络或服务器错误均失败退出。
-7. 两种镜像分别构建 amd64/arm64 清单，保存摘要及来源证明；从 GHCR 拉取精确摘要，在两种架构上对真实 Headscale 再次验证运行。检查通过后，GitHub Release 先以 draft 上传全部附件，再正式发布锁定。保留 `source.tar.gz`、`docs-root.tar.gz`、`docs-archive.tar.gz`、`release-manifest.json`、`SHA256SUMS`，同时保留 GitHub 自带的 Source code ZIP/tar.gz。
-8. Release 已发布后才前移镜像 latest/次版本别名。每个 Release 保留本版本的源码、双语文档快照和镜像摘要；历史文档从对应 Release 下载，不额外部署文档站。
+6. Release 校验 stable、上游提交、翻译、CI 和未使用的 Docker 完整标签，再构建、上传并按摘要验收正式镜像。认证、限流、网络或服务器错误均不会被视为“镜像不存在”。`main` 的 development 通道禁止发布；禁止使用上游 `pnpm release cut` 或批量推送历史标签。
+7. 先创建完整 draft、上传双语文档及摘要，再正式发布并验证 immutable 锁定。随后前移 latest/次版本别名，并匿名拉取 `vX.Y.Z` 在两个架构上运行真实 Headscale 验收。
 
-仓库开启 immutable releases 和合并后自动删除分支。不得移动已发行标签、覆盖完整版本镜像、使用 `--clobber` 修改历史发行附件，也不配置自动删除历史镜像的清理规则。临时 PR 分支合并后删除；历史版本使用 Tag/Release 定位，无需长期保留对应分支。旧上游标签仅保留历史用途，不表示本 fork 发布过这些版本。
+Release 附件保留 `docs-root.tar.gz`、`docs-archive.tar.gz`、`release-manifest.json`、`SHA256SUMS`。源码使用 GitHub 自带 Source code ZIP/tar.gz；清单固定记录源码提交及源码归档 URL，后续不再上传重复的 `source.tar.gz`。历史 `v0.8.2-zh` 已锁定，原附件和校验和继续保留。GitHub 自带源码归档由平台提供，不能单独关闭。
 
-发布失败时先查看已经推送的镜像和 draft，不盲目重跑覆盖。尚未正式发布的失败候选保留供排查；确认镜像、附件及摘要状态后，只恢复尚未完成的步骤，不覆盖已有产物。若 Release 已发布、仅别名更新失败，单独恢复别名，无需重发完整镜像。
+保持 immutable releases 和合并后自动删除分支开启。不得移动已发行 Git 标签、覆盖 Docker 完整版本、使用 `--clobber` 或删除历史镜像、附件。发布后的汉化、打包与文档修正随下一个上游版本发行；分支文档只生成临时预览，不覆盖旧快照。
 
+## Release 手动操作
 
-使用 `Release (recover uploaded images)` 恢复“镜像上传成功、原发布任务尚未执行”的失败运行：输入原社区标签和原 Release run ID。恢复工具从维护分支读取，但源码、依赖、文档快照和摘要仍使用原标签及原运行；必须重新通过两种镜像、两个架构和完整 Headscale 矩阵，再发布完整 draft 并锁定。工作流校验原运行的仓库、提交、上传任务、精确源码 CI、上游记录和原始摘要；已有 Release/draft 时停止，不重复构建或覆盖完整镜像。已发布版本仅做公开验收时，使用 `Published images (check)`；验收工具使用执行分支的新脚本，应用源码仍固定到正式标签。
+在 Actions → Release → Run workflow 选择维护分支和操作，标签始终输入 GitHub 社区标签 `vX.Y.Z-zh`：
 
-分支上的文档构建只生成临时 Actions artifact；文档热修随下一个上游版本发布，不再覆盖旧 Release 附件。这里的归档保留依赖 GitHub/GHCR 及仓库管理员持续保留数据，不是外部备份承诺。
+- `verify`：核对 immutable Release、源码 SHA、双语附件及全部校验和，匿名拉取普通正式镜像短标签，在 amd64/arm64 上验收中英访问及真实 Headscale。
+- `short-tag`：为现有发行添加 `vX.Y.Z` 镜像标签；先验证不可变附件，复制原正式镜像 index 的原始字节，核对摘要及平台。目标存在且摘要相同则跳过；摘要不同或无法确认状态时停止。完成后自动执行匿名验收。
+- `recover`：输入原失败 Release run ID，恢复“正式镜像已上传成功、原发布任务尚未执行”的运行。工具从维护分支读取，应用、文档和摘要仍固定到原标签及原运行。重新验收两个架构后发布完整 draft 并锁定；已有 Release/draft 时停止。不会重建或覆盖完整镜像。
 
-首次发布后，检查 GHCR 中包的可见性；用于公开部署时将包设为 Public。运行 `Published images (check)`，输入正式标签，验证公开 Release 附件、源码 SHA、校验和，以及两种镜像在 amd64/arm64 上的匿名拉取、启动、中英登录和真实 Headscale 健康。本阶段未创建或发布双语镜像。
+失败时先检查原运行、镜像和 draft，再恢复未完成步骤。完整镜像已上传后不要盲目重跑构建；Release 已发布而别名更新失败时，只恢复别名，不重新发布。公开部署要求 GHCR 包可见性为 Public。
 
-## 双语文档与归档
+## 双语文档与检查
 
-不部署托管文档站，不需要文档托管账号、项目或部署凭据。
+日常从仓库源码阅读；含组件页面使用 `pnpm docs:dev` 本地预览。正式快照从对应 Release 下载，解压并用静态 HTTP 服务打开；`docs-archive.tar.gz` 需挂载到版本次路径（例如 `/0.8/`），不需要运行 Headplane。GitHub/GHCR 留存依赖平台及管理员持续保留数据。
 
-- 日常阅读：查看仓库内英文及简体中文文档源码。部分页面含组件，完整显示时使用本地预览。
-- 本地预览：安装 package.json 要求的 Node、pnpm 后，执行 `pnpm install --frozen-lockfile` 和 `pnpm docs:dev`。应用与文档的中英切换保留。
-- 正式版本：从 GitHub Release 下载 `docs-root.tar.gz` 或 `docs-archive.tar.gz`，解压后用静态 HTTP 服务打开。后者保留上游 `/X.Y/` 路径格式，服务需挂载到该路径；静态快照无需部署 Headplane。
-- 开发预览：文档 PR 只运行构建检查；分支构建只保存临时 Actions artifact。正式文档快照随新上游版本发布并长期留存于对应 Release，不覆盖旧附件。
-
-镜像和 Release 发布使用 GitHub Actions 自带的 `GITHUB_TOKEN`；无需额外配置文档部署密钥。上游同步令牌的适用条件仍见前文。
-
-## 本地检查
-
-项目的 Node、pnpm 版本以 `package.json` 中的 `engines` 为准；不要为迁就本地旧版本而降级上游依赖。
+使用 `package.json` 中 engines 要求的 Node、pnpm：
 
 ```bash
+pnpm install --frozen-lockfile
 node --test .github/scripts/*.test.cjs
 pnpm i18n:check
 pnpm test:unit
@@ -116,14 +94,12 @@ pnpm typecheck
 pnpm docs:build
 ```
 
-路由、认证、Headscale API 等功能变更，还要按 `AGENTS.md` 运行相关集成测试。镜像构建、发布和文档归档需要分别查看各工作流结果，不能只凭配置文件存在就视为成功。
+路由、认证、Headscale API 等功能变化还需按 `AGENTS.md` 执行集成测试。检查翻译语义、命令及配置值后，仅复核改动项：
 
-`Translations` 工作流检查消息、文档配对及翻译复核指纹。英文单独更新同样会要求复核；检查只读，不会自动放行。确认中文语义、命令及配置值后，使用 `pnpm i18n:review --message KEY` 或 `pnpm i18n:review --file ENGLISH_PATH` 记录指定项，再运行检查。参数可重复，文档对使用英文路径。只改共享文档代码时也需确认内联双语文案。完整范围和限制见 `.github/I18N_AUDIT.zh-CN.md`；要求强制阻止未通过的 PR 合并时，将 `Translation completeness and freshness` 配为分支保护必需检查。
+```bash
+pnpm i18n:review --message common.dismiss
+pnpm i18n:review --file docs/features/language.mdx
+pnpm i18n:check
+```
 
-## 后续阶段
-
-1. 登录、公共导航、设备、用户、访问控制、DNS、设置及浏览器 SSH 双语已接入；继续进行场景验收。
-2. 界面、表单校验、服务端可见错误、时间及 SSH 提示已有双语资源；保留原始诊断和远端输出。
-3. 双语文档路由、导航、搜索、全部正文和历史日志已接入；截图沿用上游英文图并说明来源，中文截图可后续更新。
-4. 漏译扫描、文档配对、翻译复核指纹及 CI 已接入；每次上游同步按检查结果逐项核对中文。
-5. 验证上游支持的兼容版本、两种镜像及两个架构，再发布完整双语版本。
+文档对使用当前分支英文路径（stable 使用 `.md`），参数可重复。不要全量刷新指纹绕过复核。范围及原始诊断限制见 `.github/I18N_AUDIT.zh-CN.md`。分支保护可将 Translation completeness and freshness 配为必需检查。

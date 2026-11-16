@@ -5,7 +5,7 @@ Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
 It is not an official Chinese release of Headplane, Headscale, or Tailscale.
 The upstream [MIT license](./LICENSE) and original copyright notices are retained.
 
-This is the **0.8 release line**. All application modules and the complete VitePress documentation support English and Simplified Chinese. Translation and container acceptance have passed. The accepted `v0.8.2-zh` candidate is ready for publication; check [GitHub Releases](https://github.com/CM-Chenqf/headplane-zh-cn/releases) for the actual release result. Bilingual docs stay in the repository and Release snapshots; no hosted documentation site is deployed.
+This is the **0.8 release line**. All application modules and the complete VitePress documentation support English and Simplified Chinese. Translation and container acceptance have passed. The bilingual `v0.8.2-zh` release is published; deploy `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2` (amd64/arm64). See [GitHub Releases](https://github.com/CM-Chenqf/headplane-zh-cn/releases) for source and documentation snapshots. Bilingual docs stay in the repository and Release snapshots; no hosted documentation site is deployed.
 See [release-line maintenance](./docs/features/language.md) for scope and acceptance status.
 
 [English](./README.md) · [简体中文](./README.zh-CN.md)
