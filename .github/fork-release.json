@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "repository": "CM-Chenqf/headplane-zh-cn",
   "channel": "development",
   "upstream": {
@@ -7,6 +7,5 @@
     "version": "0.8.2",
     "commit": "05e3ee33f6d3b347013654c69186791347be8bd9"
   },
-  "revision": 1,
   "publicationReady": false
 }
