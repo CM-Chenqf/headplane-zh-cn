@@ -37,6 +37,7 @@ jobs:
         run: |
           node .github/scripts/fork-release.cjs info > "$RUNNER_TEMP/identity.json"
           echo "version=$(jq -r .version "$RUNNER_TEMP/identity.json")" >> "$GITHUB_OUTPUT"
+          echo "tag=$(jq -r .tag "$RUNNER_TEMP/identity.json")" >> "$GITHUB_OUTPUT"
           echo "image=$(jq -r .image "$RUNNER_TEMP/identity.json")" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
@@ -51,7 +52,7 @@ jobs:
           cache-from: type=gha,scope=container-${{ matrix.target }}-${{ matrix.arch }}
           cache-to: type=gha,scope=container-${{ matrix.target }}-${{ matrix.arch }},mode=max
           build-args: |
-            IMAGE_TAG=${{ steps.identity.outputs.image }}:${{ steps.identity.outputs.version }}${{ matrix.target == 'debug-shell' && '-shell' || '' }}
+            IMAGE_TAG=${{ steps.identity.outputs.image }}:${{ steps.identity.outputs.tag }}${{ matrix.target == 'debug-shell' && '-shell' || '' }}
             HEADPLANE_VERSION=${{ steps.identity.outputs.version }}
       - name: Check runtime with every supported real Headscale version
         env:

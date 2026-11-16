@@ -805,8 +805,8 @@
     "validation.required": "b609356db4df000b822a439d80f94f9ffa7f63c5cdbd6de2686ec834315ab793"
   },
   "documents": {
-    "CHANGELOG.md": "ef47d4c1c5ff9fdbfbc0533d89874093a99a658be48109b9a7f77971593526ca",
-    "docs/CHANGELOG.md": "453829a13558702e3e18927cf9183782a12656721a1e166a393e7e2854d0684a",
+    "CHANGELOG.md": "25f720227ba004cb0208a78da576ef29eed96b17ef236bbdcc993371303f6ecd",
+    "docs/CHANGELOG.md": "9cb5e37e29adb0a7020bff6b5a198979b6e9592d107c8104e5944f463866a2ce",
     "docs/configuration/common-issues.md": "6ae48554aa4f0c0755102963b0c9a1d9e8ae04d482c38cf9253c091c40ce22eb",
     "docs/configuration/index.md": "1aa30ce04d3ade08d2b50810136c78dbbbbd54d451ff10ae9366e1e3e63b1cf1",
     "docs/configuration/tls.md": "3967e5a30d5eef9054693f2e313843f38b3a8ed015bf8ba87e52248e40d40ccb",
@@ -815,13 +815,13 @@
     "docs/features/acls.md": "4b74e227c3b3e45ccdbd8d218b9b7507fc4b8235dd7189c60722cd7b929bcf03",
     "docs/features/agent.md": "549496f80a69fd1166e095356d7a05b8a9f9c4817e9bfdcdfc5d1762a6eb22a5",
     "docs/features/dns.md": "44f6905d04c8e414ae51807ea9915ba3ce87e4ebee5ecbcda079341e89fbc9ac",
-    "docs/features/language.md": "2836f99802f502c163e418463e46c0dc3d228b533dcbb9834c5d16a18101cde2",
+    "docs/features/language.md": "74b3031911fafeb84a66f4c5cf6081974dab8d8ffcb8db1f92c4a84d20ae0bdf",
     "docs/features/machines-bilingual.md": "94e50a70221b7682320531288c2694eeaa1341f89499fb3dc70ca8fab93ba322",
     "docs/features/proxy-auth.md": "1c672175c877739659e1a7469129ce03c7575bef172f5c917d1090f72ee971ff",
     "docs/features/settings.md": "68ce49454437351e1ced2ed345876d98ac57a4689f17c9ee96c9911c59589ec5",
     "docs/features/ssh.md": "ec6ce20b5379fe147f4bc2a1199dbd1a421afd80e289e5b5f7cf417a8d85c253",
     "docs/features/sso.md": "454d248df2d4ac38b91ac1925faefe81ef0c89071076afb2ea341504f4cf7dd7",
-    "docs/features/users-bilingual.md": "fa257a1b8df9240e74ac6638bc1d10bb193d471df526094d78760746ed675e73",
+    "docs/features/users-bilingual.md": "0f8f74f4ca3ac9f01367b189fb77c24fe9fe66ee0b7ab465d01e8f0689bded3a",
     "docs/index.md": "9e30d248e1bca0dfad7c7806ff06b48b61d7be9ba4e64db9f43f0bf26d8bc074",
     "docs/install/docker.md": "1c9c668a41b6b3debdb124b019b2b8e99bc38a5f832b7c995be0ff1505e529ba",
     "docs/install/index.md": "87dc6a1724ea321ebc28caa33298b07f2d1767e5dc9ea3c60fbeb6d95b37e286",
@@ -831,7 +831,7 @@
     "docs/Nix.md": "48f1100f595fba578dd8d6d42547299d4e5a3bd18bccfffbb44cbc7299c8f314",
     "docs/NixOS-options.md": "c187a8ec1da30a2be6ae843c1e443d48d226b8d748cb7dab5a7f9d6301bdf101",
     "docs/SECURITY.md": "03fc3ce13b719b49587c0c2d3c53ad23b9b775ae8e5873cc4697eea36624cb9d",
-    "README.md": "14c481572f6df8c75ca51366be6e66763ca79e399c5a278b6f7701bdfbea3e6e"
+    "README.md": "8a510b96a02f757695f2d62868f7bfb1e7b91b906b39a94768b6c226b57ef485"
   },
   "shared": {
     ".github/i18n/scope.json": "bf6aa0b30db529420666536e47388cc3320a4d923740e88bb3aa8b417cc3b1d7",

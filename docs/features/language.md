@@ -52,14 +52,14 @@ Static scanning cannot prove translation quality or trace every dynamic message,
 
 ## Publication status
 
-`pnpm i18n:release` currently fails because Docker runtime and publication acceptance are incomplete. The tag-triggered release workflow also checks this status before publishing. Do not clear the pending list or mark the scope complete merely to pass a build.
+Container CI has passed, but first-release acceptance remains incomplete, so `pnpm i18n:release` currently fails. The tag-triggered release workflow also checks this status before publishing. Do not clear the pending list or mark the scope complete merely to pass a build.
 
-Release documentation builds keep the upstream root and `/0.8/` archive formats. During adaptation they upload Actions artifacts only. Uploading documentation to a GitHub Release requires a completed scope, an existing fork release and publication mode; no release is created by a docs-only push. Cloudflare deployment uses the separately configured workflow on `main` and remains a later acceptance step.
+Release documentation builds keep the upstream root and `/0.8/` archive formats. Branch builds only save temporary Actions artifacts. Formal releases attach bilingual snapshots after acceptance; a docs-only push does not create a release or overwrite earlier attachments. Read the source, run `pnpm docs:dev` locally, or download the matching Release snapshot and serve it over HTTP. No hosted documentation site or hosting credentials are required.
 
 ## Fixed maintenance branches and release history
 
 The community fork uses two permanent branches: `main` follows upstream development, and `stable` follows the newest published upstream stable tag. A new upstream version upgrades `stable`; it does not need a new branch. Compatibility and build tools follow the corresponding upstream version.
 
-Community releases use tags such as `v0.8.2-zh.1`. Each published revision retains its source, English/Chinese documentation snapshots, both multi-architecture image digests and checksums in GitHub Releases. Full image tags such as `0.8.2-zh.1` and `0.8.2-zh.1-shell` are never reused; `latest`, `0.8` and their shell aliases may move. Documentation corrections require a new community revision, preserving earlier attachments. Temporary PR branches are removed after merge.
+Community releases use tags such as `v0.8.2-zh.1`. Each published revision retains its source, English/Chinese documentation snapshots, both multi-architecture image digests and checksums in GitHub Releases. Full image tags match the GitHub Release tag; tags such as `v0.8.2-zh.1` and `v0.8.2-zh.1-shell` are never reused; `latest`, `0.8` and their shell aliases may move. Documentation corrections require a new community revision, preserving earlier attachments. Temporary PR branches are removed after merge.
 
 This is an unofficial community fork, not an official Chinese edition. The upstream MIT license and attribution remain intact. See `.github/FORK_SETUP.zh-CN.md` for acceptance gates and the release procedure.
