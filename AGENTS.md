@@ -202,10 +202,12 @@ Preserve LICENSE, upstream attribution and the non-official notice.
 - Publish a draft with source, root/archive docs, digests and checksums, then lock
   it through GitHub immutable releases. Never retarget tags, overwrite full image
   tags, clobber release attachments or delete historical published images.
-- latest/minor image aliases may move. Documentation hotfixes require a new
+- Full image tags match the community release tag (vX.Y.Z-zh.N); debug-shell
+  adds -shell. latest/minor image aliases may move. Documentation hotfixes require a new
   community revision; branch docs builds are temporary preview artifacts only.
-- main assembles Cloudflare docs from the newest published community Release
-  per minor, serving the newest at / and older lines at /X.Y/. Ignore inherited
-  upstream tags. Keep automatic branch deletion enabled; remove merged PR branches.
+- Documentation is read from source, previewed locally or downloaded as bilingual
+  snapshots from community Releases. Branch builds only save temporary CI artifacts;
+  do not deploy a hosted docs site or require hosting credentials. Keep automatic
+  branch deletion enabled; remove merged PR branches.
 
 See .github/FORK_SETUP.zh-CN.md for the operational checklist and credentials.
