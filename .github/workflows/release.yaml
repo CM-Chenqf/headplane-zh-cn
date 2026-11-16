@@ -12,10 +12,6 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headplane-zh-cn-docs') }}
-  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta') }}
-
 jobs:
   prepare:
     name: Validate accepted stable source and archive docs
@@ -28,6 +24,7 @@ jobs:
     outputs:
       image: ${{ steps.release.outputs.image }}
       version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
       minor: ${{ steps.release.outputs.minor }}
       latest: ${{ steps.release.outputs.latest }}
       minor_latest: ${{ steps.release.outputs.minor_latest }}
@@ -94,7 +91,7 @@ jobs:
       - name: Refuse an already used full image version
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.prepare.outputs.version }}${{ matrix.suffix }}
+          VERSION: ${{ needs.prepare.outputs.tag }}${{ matrix.suffix }}
         run: node .github/scripts/fork-release.cjs image-unused "$VERSION"
       # Full versions first; moving aliases follow the immutable release.
       - name: Build and push the accepted image
@@ -105,13 +102,13 @@ jobs:
           file: ./Dockerfile
           target: ${{ matrix.target }}
           push: true
-          tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.version }}${{ matrix.suffix }}
+          tags: ${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}${{ matrix.suffix }}
           platforms: linux/amd64,linux/arm64
           cache-from: |
             type=gha,scope=container-${{ matrix.target }}-amd64
             type=gha,scope=container-${{ matrix.target }}-arm64
           build-args: |
-            IMAGE_TAG=${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.version }}${{ matrix.suffix }}
+            IMAGE_TAG=${{ needs.prepare.outputs.image }}:${{ needs.prepare.outputs.tag }}${{ matrix.suffix }}
             HEADPLANE_VERSION=${{ needs.prepare.outputs.version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
@@ -139,7 +136,6 @@ jobs:
     needs: [prepare, docker]
     runs-on: ubuntu-latest
     permissions:
-      actions: write
       contents: write
       packages: write
     steps:
@@ -186,7 +182,3 @@ jobs:
               docker buildx imagetools create "${TAGS[@]}" "$IMAGE@$DIGEST"
             fi
           done
-      - name: Assemble published documentation
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run docs-publish.yaml --repo "$GITHUB_REPOSITORY" --ref main

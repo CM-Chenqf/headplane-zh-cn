@@ -16,9 +16,6 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-env:
-  HEADPLANE_DOCS_ORIGIN: ${{ vars.HEADPLANE_DOCS_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'headplane-zh-cn-docs') }}
-  HEADPLANE_DOCS_BETA_ORIGIN: ${{ vars.HEADPLANE_DOCS_BETA_ORIGIN || format('https://{0}.pages.dev', vars.CF_PAGES_BETA_PROJECT || 'headplane-zh-cn-docs-beta') }}
 jobs:
   build:
     name: Preview root and archived docs

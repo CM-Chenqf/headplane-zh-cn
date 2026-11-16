@@ -71,6 +71,6 @@
 
 验收两种语言、无效用户名与邮箱、必选项、角色限制、已占用用户过滤和策略注释警告。切换语言时，本地表单错误跟随语言变化，并保留草稿值。API 集成测试使用本发布线原有的 Headscale 版本矩阵，运行真实 Headscale，并使用内存数据库中的真实认证服务。
 
-执行 `pnpm i18n:check`、`pnpm test:unit`、`pnpm typecheck`、`pnpm lint` 和 `pnpm docs:build`。集成测试需要项目的 Docker 环境。根路径及 `/0.8/` 文档归档会分别检查。本模块检查通过不代表完整汉化、Docker 发布或 Cloudflare 部署已获验收。
+执行 `pnpm i18n:check`、`pnpm test:unit`、`pnpm typecheck`、`pnpm lint` 和 `pnpm docs:build`。集成测试需要项目的 Docker 环境。根路径及 `/0.8/` 文档归档会分别检查。本模块检查通过不代表完整汉化、Docker 发布已获验收。
 
 </div>

@@ -69,4 +69,4 @@ The 0.8 page provides downloads and installation guidance. It does not generate 
 
 Check both languages, invalid usernames and emails, required selections, role restrictions, claimed-user filtering and comment warnings. Switching language updates local validation messages without replacing form drafts. The API integration suite runs the user actions against this release line's existing Headscale version matrix; it uses real Headscale and real in-memory authentication data.
 
-Run `pnpm i18n:check`, `pnpm test:unit`, `pnpm typecheck`, `pnpm lint` and `pnpm docs:build`. Integration tests require the project's Docker environment. Root and `/0.8/` documentation archives are checked separately. Passing this module's checks does not approve a complete localization release, Docker publication or Cloudflare deployment.
+Run `pnpm i18n:check`, `pnpm test:unit`, `pnpm typecheck`, `pnpm lint` and `pnpm docs:build`. Integration tests require the project's Docker environment. Root and `/0.8/` documentation archives are checked separately. Passing this module's checks does not approve a complete localization release, Docker publication.
