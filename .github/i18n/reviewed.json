@@ -805,9 +805,9 @@
     "validation.required": "b609356db4df000b822a439d80f94f9ffa7f63c5cdbd6de2686ec834315ab793"
   },
   "documents": {
-    "CHANGELOG.md": "a969e16fac823a8e4d6e941aa8d069a86075579e6da47742c20932ec92aa327d",
+    "CHANGELOG.md": "6fcf41d8aa5937fb58f195bb168606d291857866de9335928778d3a6d39e4e5d",
     "deploy/README.md": "e4b04b3735752f8d1b321bf86b9cf977e3de21447f2643a8e52de7e8110f20b9",
-    "docs/CHANGELOG.md": "d8d39c23d7274f30796c3ddda535aaddc1796e7b8e9911157149200de2ab146b",
+    "docs/CHANGELOG.md": "ae71e5ec701f2dfb860a101d22226e1283e125ae628641c5415b571b32f66e42",
     "docs/configuration/common-issues.md": "6ae48554aa4f0c0755102963b0c9a1d9e8ae04d482c38cf9253c091c40ce22eb",
     "docs/configuration/index.md": "1aa30ce04d3ade08d2b50810136c78dbbbbd54d451ff10ae9366e1e3e63b1cf1",
     "docs/configuration/tls.md": "3967e5a30d5eef9054693f2e313843f38b3a8ed015bf8ba87e52248e40d40ccb",

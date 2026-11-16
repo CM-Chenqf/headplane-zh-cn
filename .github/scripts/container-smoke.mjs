@@ -35,7 +35,18 @@ const { startHeadscale } = await import(
     ),
   )
 );
-assert.equal(docker("image", "inspect", image, "--format", "{{.Os}}/{{.Architecture}}"), platform);
+// A registry digest can identify an index. Inspect its selected platform rather
+// than Docker's host-default entry, which may have no downloaded image config.
+assert.equal(
+  docker("image", "inspect", "--platform", platform, image, "--format", "{{.Os}}/{{.Architecture}}"),
+  platform,
+);
+const entrypoint = JSON.parse(
+  docker("image", "inspect", "--platform", platform, image, "--format", "{{json .Config.Entrypoint}}"),
+);
+// Distroless uses an absolute Node entrypoint; the debug image puts Node on PATH.
+// /proc/1/exe points at the QEMU interpreter during cross-architecture checks.
+const node = entrypoint?.find((part) => /(^|\/)node$/.test(part)) ?? "node";
 
 async function freePort() {
   const server = createServer();
@@ -86,6 +97,17 @@ for (const version of versions) {
       "-e",
       "HEADPLANE_CONFIG_PATH=/etc/headplane/config.yaml",
       image,
+    );
+    assert.equal(
+      docker(
+        "exec",
+        name,
+        node,
+        "-p",
+        "process.platform + '/' + ({ x64: 'amd64', arm64: 'arm64' }[process.arch])",
+      ),
+      platform,
+      "The running Node executable must match the requested image platform",
     );
     const deadline = Date.now() + 120_000;
     let ready = false;
