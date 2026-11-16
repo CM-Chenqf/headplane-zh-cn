@@ -195,20 +195,24 @@ Preserve LICENSE, upstream attribution and the non-official notice.
   stay on the maintenance branches until the next upstream release.
 - Do not use pnpm release cut in this fork. From a clean, accepted stable checkout,
   use node .github/scripts/fork-release.cjs tag and push only that new tag.
-- Publishing requires successful Build, Translations and Containers (check) push
+- Publishing requires successful Build (including containers), Translations and Docs push
   runs on the exact stable commit, full translations, and unused full image tags.
-- Keep upstream final/debug-shell images and amd64/arm64 support. Test startup,
+- Publish only the final image, with amd64/arm64 support. Test startup,
   real Headscale health, English/Chinese sign-in and authenticated access across
   the canonical compatibility matrix. Never fake Headscale.
-- Publish a draft with source, root/archive docs, digests and checksums, then lock
+- Publish a draft with GitHub source archives, root/archive docs, digests and checksums, then lock
   it through GitHub immutable releases. Never retarget tags, overwrite full image
   tags, clobber release attachments or delete historical published images.
-- Full image tags match the community release tag (vX.Y.Z-zh); debug-shell
-  adds -shell. latest/minor image aliases may move. Documentation hotfixes wait for the
-  next upstream version; branch docs builds are temporary preview artifacts only.
+- Docker full image tags use vX.Y.Z; GitHub Release/Git tags use vX.Y.Z-zh.
+  Do not build or publish debug-shell images. latest/minor image aliases may move.
+  Documentation hotfixes wait for the next upstream version; branch docs builds are temporary preview artifacts only.
 - Documentation is read from source, previewed locally or downloaded as bilingual
   snapshots from community Releases. Branch builds only save temporary CI artifacts;
   do not deploy a hosted docs site or require hosting credentials. Keep automatic
   branch deletion enabled; remove merged PR branches.
+
+Keep exactly five workflows: Build, Translations, Docs, Upstream sync and Release.
+Release includes recovery and anonymous pull verification. Do not add duplicate
+source.tar.gz attachments; preserve existing immutable release assets.
 
 See .github/FORK_SETUP.zh-CN.md for the operational checklist and credentials.
