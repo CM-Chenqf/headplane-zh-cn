@@ -2,6 +2,8 @@
 
 ## Upgrading
 
+- 将社区镜像地址改为 `ghcr.io/laity-cqf/headplane-zh-cn`，保留原版本标签或摘要。GitHub 账号已更名，已发布镜像内容及应用数据不变。
+
 - DNS 记录仅从 Headscale 的 `dns.extra_records_path` 文件读取并写入。直接列在 `dns.extra_records` 中的记录只读；需要继续编辑时，将记录迁移到独立文件。
 - `proc` 和 `kubernetes` 集成现在会重启 Headscale，而非仅重新加载。必须有组件负责恢复进程：设置 `Restart=always` 的 systemd（Headscale 自带 unit 和 NixOS 模块已配置），或 kubelet。
 - 同时启用多个集成会全部停用，并在日志中报错。仅保留一种集成。
@@ -53,6 +55,8 @@
 - 访问控制文件编辑器支持格式化 HuJSON，格式化时保留注释，并在保存无效策略前显示语法错误。
 
 ## Fixes
+
+- 社区仓库链接、镜像示例、上游通知及发布自动化已改用 GitHub 新账号 `laity-cqf`。历史不可变发行仍按原始记录的所有者和校验和验收。
 
 - 容器发行检查现按指定平台读取多架构镜像，并核对实际运行的 Node 架构。镜像上传成功但验收失败时，可通过恢复工作流验证并发布原始产物，无需重建镜像或修改版本标签。
 

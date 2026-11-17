@@ -92,7 +92,7 @@ export function ErrorDetails({ details, className }: { details: string; classNam
 export function ReportLink() {
   const { t } = useI18n();
   return (
-    <Link external styled to="https://github.com/CM-Chenqf/headplane-zh-cn/issues/new">
+    <Link external styled to="https://github.com/laity-cqf/headplane-zh-cn/issues/new">
       {t("error.report")}
     </Link>
   );

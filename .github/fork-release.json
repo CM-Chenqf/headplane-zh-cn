@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "repository": "CM-Chenqf/headplane-zh-cn",
+  "repository": "laity-cqf/headplane-zh-cn",
   "channel": "development",
   "upstream": {
     "repository": "tale/headplane",

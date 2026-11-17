@@ -25,7 +25,7 @@ const admonitionTypes = {
 const docsBuild = {
   channel: process.env.HEADPLANE_DOCS_CHANNEL ?? "",
   version: process.env.HEADPLANE_DOCS_VERSION ?? "",
-  repository: process.env.GITHUB_REPOSITORY ?? "CM-Chenqf/headplane-zh-cn",
+  repository: process.env.GITHUB_REPOSITORY ?? "laity-cqf/headplane-zh-cn",
   date: process.env.HEADPLANE_DOCS_DATE
     ? new Date(process.env.HEADPLANE_DOCS_DATE).toLocaleDateString("en-US", {
         month: "short",

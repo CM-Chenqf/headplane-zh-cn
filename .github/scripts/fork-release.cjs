@@ -16,6 +16,8 @@ const VERSION_RE = new RegExp(`^${VERSION}$`);
 const TAG_RE = new RegExp(`^v${VERSION}-zh$`);
 const SHA_RE = /^[a-f0-9]{40}$/;
 const ASSETS = ["docs-root.tar.gz", "docs-archive.tar.gz"];
+const REPOSITORY = "laity-cqf/headplane-zh-cn";
+const LEGACY_REPOSITORY = "CM-Chenqf/headplane-zh-cn";
 const run = (command, args, options = {}) =>
   (
     execFileSync(command, args, {
@@ -58,10 +60,10 @@ function publishedVersions(items) {
     .sort((a, b) => compareTags(b, a));
 }
 
-function validateState(state) {
+function validateState(state, { allowLegacy = false } = {}) {
   if (
     state?.schemaVersion !== 2 ||
-    state.repository !== "CM-Chenqf/headplane-zh-cn" ||
+    (state.repository !== REPOSITORY && !(allowLegacy && state.repository === LEGACY_REPOSITORY)) ||
     !["development", "stable"].includes(state.channel) ||
     state.upstream?.repository !== "tale/headplane" ||
     !VERSION_RE.test(state.upstream?.version ?? "") ||
@@ -131,8 +133,8 @@ async function assertUnusedImage(image, tag) {
     throw new Error(`Cannot confirm unused image tag (${response.status})`);
 }
 
-function metadata(state) {
-  validateState(state);
+function metadata(state, options) {
+  validateState(state, options);
   return {
     tag: `v${state.upstream.version}-zh`,
     image_tag: `v${state.upstream.version}`,
@@ -341,6 +343,7 @@ async function main() {
 }
 
 module.exports = {
+  REPOSITORY,
   parseTag,
   compareTags,
   publishedVersions,

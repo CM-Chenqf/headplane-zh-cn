@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   sync:
-    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name != 'push'
+    if: github.repository == 'laity-cqf/headplane-zh-cn' && github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the maintained branch

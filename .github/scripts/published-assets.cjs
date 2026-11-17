@@ -3,10 +3,11 @@ const assert = require("node:assert/strict");
 const { createHash } = require("node:crypto");
 const { mkdirSync, readFileSync, writeFileSync } = require("node:fs");
 const { resolve, join } = require("node:path");
-const { metadata, validateState, parseTag, run } = require("./fork-release.cjs");
+const { REPOSITORY, metadata, validateState, parseTag, run } = require("./fork-release.cjs");
 
 function validateSnapshot(release, files, state, sha, tag) {
-  const meta = metadata(state);
+  // Immutable snapshots retain the owner recorded when they were published.
+  const meta = metadata(state, { allowLegacy: true });
   assert.equal(tag, meta.tag);
   assert.equal(release.tag_name, tag);
   assert.equal(release.draft, false);
@@ -56,7 +57,7 @@ function validateSnapshot(release, files, state, sha, tag) {
     });
   }
   return {
-    pullReference: `${meta.image}:${meta.image_tag}`,
+    pullReference: `ghcr.io/${REPOSITORY}:${meta.image_tag}`,
     digest: manifest.images.find((i) => i.target === "final").digest,
   };
 }
@@ -78,14 +79,16 @@ async function download(url, authenticated = false) {
 }
 
 async function main() {
-  const state = validateState(JSON.parse(readFileSync(".github/fork-release.json", "utf8")));
+  const state = validateState(JSON.parse(readFileSync(".github/fork-release.json", "utf8")), {
+    allowLegacy: true,
+  });
   const tag = process.env.RELEASE_TAG;
   parseTag(tag);
-  assert.equal(tag, metadata(state).tag);
+  assert.equal(tag, metadata(state, { allowLegacy: true }).tag);
   const directory = resolve(process.argv[2]);
   mkdirSync(directory, { recursive: true });
   const release = JSON.parse(
-    await download(`https://api.github.com/repos/${state.repository}/releases/tags/${tag}`, true),
+    await download(`https://api.github.com/repos/${REPOSITORY}/releases/tags/${tag}`, true),
   );
   const files = new Map();
   const names = ["docs-root.tar.gz", "docs-archive.tar.gz", "release-manifest.json", "SHA256SUMS"];

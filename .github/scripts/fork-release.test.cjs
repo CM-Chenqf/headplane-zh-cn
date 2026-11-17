@@ -17,7 +17,7 @@ const {
 } = require("./fork-release.cjs");
 const state = {
   schemaVersion: 2,
-  repository: "CM-Chenqf/headplane-zh-cn",
+  repository: "laity-cqf/headplane-zh-cn",
   channel: "stable",
   upstream: { repository: "tale/headplane", version: "0.8.2", commit: "a".repeat(40) },
   publicationReady: true,
@@ -45,12 +45,12 @@ test("release archives bind the exact Git source, the final image digest and doc
     );
     assert.deepEqual(
       manifest.images.map((image) => image.reference),
-      ["ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2"],
+      ["ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2"],
     );
     assert.equal(manifest.schemaVersion, 2);
     assert.equal(
       manifest.sourceArchives.tar,
-      "https://github.com/CM-Chenqf/headplane-zh-cn/archive/refs/tags/v0.8.2-zh.tar.gz",
+      "https://github.com/laity-cqf/headplane-zh-cn/archive/refs/tags/v0.8.2-zh.tar.gz",
     );
     assert.deepEqual(Object.keys(manifest.assets).sort(), [
       "docs-archive.tar.gz",
@@ -92,7 +92,7 @@ test("community tags follow the exact upstream version without a revision suffix
   ])
     assert.throws(() => parseTag(tag));
   assert.equal(validateTag(state, "v0.8.2-zh", "0.8.2").version, "0.8.2");
-  assert.equal(metadata(state).image, "ghcr.io/cm-chenqf/headplane-zh-cn");
+  assert.equal(metadata(state).image, "ghcr.io/laity-cqf/headplane-zh-cn");
   for (const bad of [
     { channel: "development" },
     { publicationReady: false },
@@ -102,6 +102,14 @@ test("community tags follow the exact upstream version without a revision suffix
   assert.throws(() => validateTag(state, "v0.8.2-zh", "0.8.1"));
   assert.throws(() => validateState({ ...state, repository: "tale/headplane" }));
   assert.throws(() => validateState({ ...state, revision: 1 }));
+});
+
+test("account rename keeps historical metadata readable but forbids publishing legacy or unrelated repositories", () => {
+  const legacy = { ...state, repository: "CM-Chenqf/headplane-zh-cn" };
+  assert.throws(() => validateTag(legacy, "v0.8.2-zh", "0.8.2"));
+  assert.throws(() => metadata(legacy));
+  assert.equal(metadata(legacy, { allowLegacy: true }).image, "ghcr.io/cm-chenqf/headplane-zh-cn");
+  assert.throws(() => validateState({ ...state, repository: "other/fork" }, { allowLegacy: true }));
 });
 
 test("latest follows numeric upstream versions and ignores inherited, revision, draft and beta tags", () => {
