@@ -1,14 +1,20 @@
 # Headplane zh-CN 双语版本维护（非官方）
 
-`CM-Chenqf/headplane-zh-cn` 是 [tale/headplane](https://github.com/tale/headplane) 的社区中英双语 fork，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 `LICENSE` 原文、作者版权及来源说明。
+`laity-cqf/headplane-zh-cn` 是 [tale/headplane](https://github.com/tale/headplane) 的社区中英双语 fork，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 `LICENSE` 原文、作者版权及来源说明。
+
+## 账号更名后的地址
+
+GitHub 账号已由 `CM-Chenqf` 更名为 `laity-cqf`。仓库使用 `https://github.com/laity-cqf/headplane-zh-cn`，镜像使用 `ghcr.io/laity-cqf/headplane-zh-cn`；已有部署需修改镜像命名空间，版本标签和摘要保持不变。已确认 `v0.8.2` 在新地址与原正式镜像摘要一致，支持 amd64/arm64，无需重建。
+
+历史不可变发行附件中的旧账号、源码和文档快照保持原样，以保留原始校验和。Release 验收读取历史源码及清单时仅兼容已知旧账号，实际 API 请求和镜像拉取使用新地址；新发行仅接受新仓库身份。仓库 `origin`、工作流仓库门禁、上游提醒接收者及示例已同步更名。
 
 ## 当前状态与分支
 
-- 双语正式版 [v0.8.2-zh](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布并锁定。正式镜像使用 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`，支持 amd64/arm64。
+- 双语正式版 [v0.8.2-zh](https://github.com/laity-cqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布并锁定。正式镜像使用 `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2`，支持 amd64/arm64。
 - 应用、服务端可见错误及完整文档支持 English / 简体中文；远端终端输出、原始诊断和配置字段保留原文。翻译检查及真实 Headscale 容器验收已通过。
 - 只保留两条长期维护分支：`main` 跟随上游开发，`stable` 跟随最新已发布正式标签。新版本继续更新 `stable`，不新建长期版本分支。
 - 各分支沿用对应上游功能、依赖、工具链和 Headscale 兼容矩阵。0.8 使用 VitePress、原有账号关联及访问控制编辑器；开发线使用 Fumadocs，不将新功能强行移植到旧版。
-- 本地 `origin` 指向维护仓库，`upstream` 指向 `tale/headplane`。原空仓库 `CM-Chenqf/headscale-web-empty` 仅作历史留存。
+- 本地 `origin` 指向维护仓库，`upstream` 指向 `tale/headplane`。原空仓库 `laity-cqf/headscale-web-empty` 仅作历史留存。
 - 双语文档保留源码、本地预览和 Release 快照；不部署托管文档站，不需要 Cloudflare 或托管凭据。
 
 ## 五个工作流
@@ -25,7 +31,7 @@
 
 ## 上游更新与汉化提醒
 
-Upstream sync 每日北京时间约 09:27 检查上游。发现新提交或正式版本后，向固定维护分支创建合并 PR，并建立或更新分配给 `CM-Chenqf` 的翻译跟踪 Issue。同一提交不会反复创建 PR 或提醒；不会自动合并、发布或强推覆盖中文改动。
+Upstream sync 每日北京时间约 09:27 检查上游。发现新提交或正式版本后，向固定维护分支创建合并 PR，并建立或更新分配给 `laity-cqf` 的翻译跟踪 Issue。同一提交不会反复创建 PR 或提醒；不会自动合并、发布或强推覆盖中文改动。
 
 在 GitHub Watch 中订阅仓库或跟踪 Issue，按个人通知设置接收更新。仓库需启用 Issues、Actions 和 Actions 创建 PR 的权限。
 
@@ -35,7 +41,7 @@ Upstream sync 每日北京时间约 09:27 检查上游。发现新提交或正�
 
 ## Docker 与版本规则
 
-- 仓库：`ghcr.io/cm-chenqf/headplane-zh-cn`。
+- 仓库：`ghcr.io/laity-cqf/headplane-zh-cn`。
 - 后续仅构建和发布 Dockerfile 的 `final` 普通正式镜像；支持 `linux/amd64`、`linux/arm64`，不再发布调试版。
 - Docker 完整标签：`vX.Y.Z`，例如 `v0.8.2`。不加 `-zh` 或修订号，完整标签不覆盖。`latest`、次版本别名 `0.8` 可随正式发行前移。
 - GitHub Release/Git 标签：`vX.Y.Z-zh`，每个上游版本只正式发布一次。Release 标题只显示标签；正文保留非官方声明和上游来源。
@@ -45,7 +51,7 @@ Upstream sync 每日北京时间约 09:27 检查上游。发现新提交或正�
 部署示例：
 
 ```yaml
-image: ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2
+image: ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2
 ```
 
 ## 正式发布

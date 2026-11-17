@@ -2,6 +2,8 @@
 
 ## Upgrading
 
+- Change community container image references to `ghcr.io/laity-cqf/headplane-zh-cn`, retaining the existing version tag or digest. The GitHub account has been renamed; the published image contents and application data are unchanged.
+
 - DNS records are only read from and written to the file in Headscale's `dns.extra_records_path`. Records listed inline under `dns.extra_records` show as read-only, so move them into the file to keep editing them.
 - The `proc` and `kubernetes` integrations now restart Headscale instead of reloading it, so Headscale needs a supervisor that brings it back: systemd with `Restart=always`, which Headscale's own unit and the NixOS module already set, or the kubelet.
 - Enabling more than one integration now turns them all off, with an error in the log. Keep one.
@@ -53,6 +55,8 @@
 - The Access Control file editor now formats HuJSON, preserves comments while formatting, and shows syntax errors before an invalid policy can be saved.
 
 ## Fixes
+
+- Community repository links, image examples, upstream notifications and release automation now use the renamed GitHub account `laity-cqf`. Verification still checks the original owner and checksums recorded in immutable historical releases.
 
 - Container release checks now select the requested platform from multi-architecture images and verify the architecture of the running Node process. If image upload succeeds but verification fails, a recovery workflow can verify and publish the original artifacts without rebuilding images or changing version tags.
 

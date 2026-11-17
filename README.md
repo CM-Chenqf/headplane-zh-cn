@@ -2,13 +2,13 @@
 
 [简体中文](./README.zh-CN.md) · [Bilingual fork setup](./.github/FORK_SETUP.zh-CN.md)
 
-This is `CM-Chenqf/headplane-zh-cn`, a community-maintained English and
+This is `laity-cqf/headplane-zh-cn`, a community-maintained English and
 Simplified Chinese fork of [tale/headplane](https://github.com/tale/headplane).
 It is not an official Chinese release of Headplane, Headscale, or Tailscale.
 The upstream [MIT license](./LICENSE) and original copyright notices are retained.
 The `main` branch includes English and Simplified Chinese UI and documentation.
 The bilingual stable release is published as `v0.8.2-zh`; its final Docker image
-is `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2` (amd64/arm64). Bilingual docs stay in the repository and
+is `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2` (amd64/arm64). Bilingual docs stay in the repository and
 Release snapshots, with local previews and no hosted documentation deployment.
 
 Maintenance uses fixed `main` (development) and `stable` (latest stable upstream) branches.
