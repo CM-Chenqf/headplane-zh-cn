@@ -12,7 +12,7 @@ description: 以受限模式安装 Headplane。
 受限模式用于测试 Headplane 的基本功能，只通过 Headscale API 工作，不启用高级集成，适合本地测试和开发。
 
 ::: info 镜像来源
-本页保留上游已发布镜像的示例。社区完整双语正式镜像已发布，可使用 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`。进度见[语言与维护说明](/zh-CN/features/language)。
+本页保留上游已发布镜像的示例。社区完整双语正式镜像已发布，可使用 `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2`。进度见[语言与维护说明](/zh-CN/features/language)。
 :::
 
 ## 前提条件 {#prerequisites}

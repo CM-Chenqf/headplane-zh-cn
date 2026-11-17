@@ -5,7 +5,7 @@ const { validateOriginalRun } = require("./recover-release.cjs");
 test("recovery rejects unrelated sources, incomplete image uploads and already attempted publication", () => {
   const sha = "a".repeat(40);
   const tag = "v0.8.2-zh";
-  const repository = "CM-Chenqf/headplane-zh-cn";
+  const repository = "laity-cqf/headplane-zh-cn";
   const original = {
     repository: { full_name: repository },
     event: "push",

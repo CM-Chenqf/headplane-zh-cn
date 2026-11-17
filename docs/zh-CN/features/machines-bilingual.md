@@ -9,7 +9,7 @@ description: 在社区维护的 0.8 分支中使用英文或简体中文管理�
 
 [English](/features/machines-bilingual)
 
-本指南适用于基于 [tale/headplane](https://github.com/tale/headplane) 的非官方维护仓库 `CM-Chenqf/headplane-zh-cn` 的 `release/0.8` 分支，说明原有 0.8 界面的操作。其他业务模块和完整文档仍在适配中，当前不能称为完整汉化发行版。进度见[语言与发布线维护](/zh-CN/features/language)。
+本指南适用于基于 [tale/headplane](https://github.com/tale/headplane) 的非官方维护仓库 `laity-cqf/headplane-zh-cn` 的 `stable` 分支，说明原有 0.8 界面的操作。其他业务模块和完整文档仍在适配中，当前不能称为完整汉化发行版。进度见[语言与发布线维护](/zh-CN/features/language)。
 
 ## 选择语言 {#choose-a-language}
 

@@ -2,7 +2,7 @@
 
 [简体中文](/zh-CN/features/users-bilingual)
 
-This guide covers the **0.8 release line** of the community-maintained `CM-Chenqf/headplane-zh-cn` fork, based on [tale/headplane](https://github.com/tale/headplane). This is not an official Chinese release of Headplane, Headscale or Tailscale. The upstream MIT license and copyright notices are retained. Localization of other modules and publication acceptance are still in progress; see [language and maintenance](/features/language).
+This guide covers the **0.8 release line** of the community-maintained `laity-cqf/headplane-zh-cn` fork, based on [tale/headplane](https://github.com/tale/headplane). This is not an official Chinese release of Headplane, Headscale or Tailscale. The upstream MIT license and copyright notices are retained. Localization of other modules and publication acceptance are still in progress; see [language and maintenance](/features/language).
 
 ## Two kinds of user
 

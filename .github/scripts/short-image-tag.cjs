@@ -2,7 +2,7 @@
 const assert = require("node:assert/strict");
 const { createHash } = require("node:crypto");
 const { readFileSync } = require("node:fs");
-const { metadata, validateState, imageMissing } = require("./fork-release.cjs");
+const { REPOSITORY, metadata, validateState, imageMissing } = require("./fork-release.cjs");
 
 function checkDestination(status, body, digest, expected) {
   if (status === 200) {
@@ -14,8 +14,13 @@ function checkDestination(status, body, digest, expected) {
 }
 
 async function main() {
-  const state = validateState(JSON.parse(readFileSync(".github/fork-release.json", "utf8")));
-  const meta = metadata(state);
+  const state = validateState(JSON.parse(readFileSync(".github/fork-release.json", "utf8")), {
+    allowLegacy: true,
+  });
+  const meta = {
+    ...metadata(state, { allowLegacy: true }),
+    image: `ghcr.io/${REPOSITORY}`,
+  };
   const manifest = JSON.parse(readFileSync(process.argv[2], "utf8"));
   assert.equal(manifest.tag, meta.tag);
   assert.equal(manifest.repository, state.repository);

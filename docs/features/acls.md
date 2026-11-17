@@ -7,7 +7,7 @@ description: Edit the Headscale ACL policy, tags and groups from the Headplane U
 
 [简体中文](/zh-CN/features/acls)
 
-This guide describes the **0.8 release line** of the unofficial `CM-Chenqf/headplane-zh-cn` fork, based on `tale/headplane` 0.8.2. The upstream MIT license and copyright notices are retained. This is not an official Chinese release of Headplane, Headscale or Tailscale.
+This guide describes the **0.8 release line** of the unofficial `laity-cqf/headplane-zh-cn` fork, based on `tale/headplane` 0.8.2. The upstream MIT license and copyright notices are retained. This is not an official Chinese release of Headplane, Headscale or Tailscale.
 
 Headscale stores its Access Control List (ACL) as a single HuJSON policy. The
 **Access Control** page in Headplane exposes that policy in two ways: a

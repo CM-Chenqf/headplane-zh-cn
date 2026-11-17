@@ -56,7 +56,7 @@ github:tale/headplane/ec6d455461955242393b60d9ce60c5123fa9784f?narHash=sha256-CM
 2. 导入默认 overlay，提供 `pkgs.headplane`。
 3. 导入 `services.headplane.*` NixOS 模块。
 
-以下保留上游输入示例。需要社区双语源码时，应选择维护仓库 `CM-Chenqf/headplane-zh-cn` 的 `release/0.8` 引用；当前不把上游 Nix 包或镜像称为本 fork 的已发布产物。
+以下保留上游输入示例。需要社区双语源码时，应选择维护仓库 `laity-cqf/headplane-zh-cn` 的 `stable` 引用；当前不把上游 Nix 包或镜像称为本 fork 的已发布产物。
 
 ```nix
 # 项目的 flake.nix

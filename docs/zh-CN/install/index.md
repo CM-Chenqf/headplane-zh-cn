@@ -10,7 +10,7 @@ Headplane 支持多种部署环境。先准备配置文件，再选择适合现�
 
 ## 配置 {#configuration}
 
-Headplane 需要配置文件。可从[示例配置](https://github.com/CM-Chenqf/headplane-zh-cn/blob/release/0.8/config.example.yaml)开始，主要字段如下：
+Headplane 需要配置文件。可从[示例配置](https://github.com/laity-cqf/headplane-zh-cn/blob/stable/config.example.yaml)开始，主要字段如下：
 
 | 字段                       | 说明                                                                                           |
 | -------------------------- | ---------------------------------------------------------------------------------------------- |

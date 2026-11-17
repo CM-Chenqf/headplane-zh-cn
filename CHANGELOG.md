@@ -1,5 +1,9 @@
 # Next
 
+## Upgrading
+
+- Change community container image references to `ghcr.io/laity-cqf/headplane-zh-cn`, retaining the existing version tag or digest. The GitHub account has been renamed; the published image contents and application data are unchanged.
+
 ## Changes
 
 - Community automation is consolidated into five workflows. Docker releases use short `vX.Y.Z` tags and publish only the final amd64/arm64 image. Release titles show only the tag; source uses GitHub’s built-in archives, while bilingual docs, image digests and checksums remain attached.
@@ -18,6 +22,8 @@
 - This fork's 0.8 release line can switch English and Simplified Chinese for sign-in, SSO notices, shared navigation and common controls. Other pages and the full documentation are still being adapted; publication remains disabled until adaptation and acceptance are complete.
 
 ## Fixes
+
+- Community repository links, image examples, upstream notifications and release automation now use the renamed GitHub account `laity-cqf`. Verification still checks the original owner and checksums recorded in immutable historical releases.
 
 - Container release checks now select the requested platform from multi-architecture images and verify the architecture of the running Node process. If image upload succeeds but verification fails, a recovery workflow can verify and publish the original artifacts without rebuilding images or changing version tags.
 

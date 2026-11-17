@@ -2,7 +2,7 @@
 
 [简体中文](./README.zh-CN.md)
 
-This is the unofficial bilingual fork of [tale/headplane](https://github.com/tale/headplane). Upstream licensing and attribution remain intact. Confirm [v0.8.2-zh](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) has been published before pulling the image.
+This is the unofficial bilingual fork of [tale/headplane](https://github.com/tale/headplane). Upstream licensing and attribution remain intact. Confirm [v0.8.2-zh](https://github.com/laity-cqf/headplane-zh-cn/releases/tag/v0.8.2-zh) has been published before pulling the image.
 
 Run Docker and Docker Compose with an existing Headscale instance. Keep the supported Headscale range of upstream 0.8.2; CI tests 0.27.0, 0.27.1, 0.28.0, 0.29.0 and 0.29.1.
 
