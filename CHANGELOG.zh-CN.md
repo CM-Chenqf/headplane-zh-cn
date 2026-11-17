@@ -1,5 +1,9 @@
 # 下一版本（Next） {#next}
 
+## 升级步骤 {#upgrading}
+
+- 将社区镜像地址改为 `ghcr.io/laity-cqf/headplane-zh-cn`，保留原版本标签或摘要。GitHub 账号已更名，已发布镜像内容及应用数据不变。
+
 ## 变更 {#changes}
 
 - 社区自动化精简为 5 个工作流；Docker 发行使用 `vX.Y.Z` 短标签，仅发布支持 amd64/arm64 的普通正式镜像。Release 标题仅显示标签；源码使用 GitHub 自带归档，附件继续保留双语文档、镜像摘要和校验和。
@@ -18,6 +22,8 @@
 - 此 fork 的 0.8 线已支持登录、SSO 提示、公共导航和控件的中英切换。本条记录时其他页面和完整文档仍在适配，发布在完成适配和验收前保持关闭。
 
 ## 修复 {#fixes}
+
+- 社区仓库链接、镜像示例、上游通知及发布自动化已改用 GitHub 新账号 `laity-cqf`。历史不可变发行仍按原始记录的所有者和校验和验收。
 
 - 容器发行检查现按指定平台读取多架构镜像，并核对实际运行的 Node 架构。镜像上传成功但验收失败时，可通过恢复工作流验证并发布原始产物，无需重建镜像或修改版本标签。
 
@@ -400,10 +406,10 @@
 
 > 这是一次大规模重构，包含重要的破坏性变更。
 > 全部设置改用配置文件，不再使用环境变量。
-> 新配置格式见 [config.example.yaml](https://github.com/CM-Chenqf/headplane-zh-cn/blob/release/0.8/config.example.yaml)。
+> 新配置格式见 [config.example.yaml](https://github.com/laity-cqf/headplane-zh-cn/blob/stable/config.example.yaml)。
 
 - 从头重新设计界面，改善无障碍和性能。
-- 改用配置文件设置（属于破坏性变更，新格式见 [config.example.yaml](https://github.com/CM-Chenqf/headplane-zh-cn/blob/release/0.8/config.example.yaml)）。
+- 改用配置文件设置（属于破坏性变更，新格式见 [config.example.yaml](https://github.com/laity-cqf/headplane-zh-cn/blob/stable/config.example.yaml)）。
 - 配置只读时仍显示选项，但禁止修改（fixes [#48](https://github.com/tale/headplane/issues/48)）
 - 支持 Headscale 0.25.0，不再支持更早版本。
 - 修复通过用户操作无法重命名、删除或更改节点所有者的问题（fixes [#91](https://github.com/tale/headplane/issues/91)）

@@ -7,7 +7,7 @@ description: Manage devices in English or Simplified Chinese on the community-ma
 
 [简体中文](/zh-CN/features/machines-bilingual)
 
-This guide applies to the unofficial `CM-Chenqf/headplane-zh-cn` fork of [tale/headplane](https://github.com/tale/headplane), on `release/0.8`. It describes the original 0.8 interface. Other business modules and the complete documentation are still being adapted; this is not a complete Chinese release. See [language and maintenance](/features/language).
+This guide applies to the unofficial `laity-cqf/headplane-zh-cn` fork of [tale/headplane](https://github.com/tale/headplane), on `stable`. It describes the original 0.8 interface. Other business modules and the complete documentation are still being adapted; this is not a complete Chinese release. See [language and maintenance](/features/language).
 
 ## Choose a language
 

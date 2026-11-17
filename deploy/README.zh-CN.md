@@ -2,7 +2,7 @@
 
 [English](./README.md)
 
-本项目是 [tale/headplane](https://github.com/tale/headplane) 的非官方中英双语 fork，保留上游许可证和来源说明。拉取前确认 [v0.8.2-zh](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已正式发布。
+本项目是 [tale/headplane](https://github.com/tale/headplane) 的非官方中英双语 fork，保留上游许可证和来源说明。拉取前确认 [v0.8.2-zh](https://github.com/laity-cqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已正式发布。
 
 部署主机需要 Docker、Docker Compose 及已运行的 Headscale。兼容范围沿用上游 0.8.2；CI 检查 0.27.0、0.27.1、0.28.0、0.29.0 和 0.29.1。
 

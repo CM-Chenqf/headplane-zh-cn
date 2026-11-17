@@ -6,7 +6,7 @@ description: Install Headplane in Limited Mode.
 # Limited Mode
 
 ::: info Image source
-Examples use upstream published images. The community bilingual stable image is available as `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`. See [Language and maintenance](/features/language).
+Examples use upstream published images. The community bilingual stable image is available as `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2`. See [Language and maintenance](/features/language).
 :::
 
 ::: warning

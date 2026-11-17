@@ -15,7 +15,7 @@ hero:
       link: "/install"
       theme: "alt"
     - text: "GitHub"
-      link: "https://github.com/CM-Chenqf/headplane-zh-cn"
+      link: "https://github.com/laity-cqf/headplane-zh-cn"
       theme: "alt"
 
 features:

@@ -2,7 +2,7 @@
 
 > Headplane 旧版本仅使用环境变量，不使用配置文件。从 0.5 起，需要手动迁移到新的配置格式。
 
-Headplane 使用配置文件管理设置，参阅 [config.example.yaml](https://github.com/CM-Chenqf/headplane-zh-cn/blob/release/0.8/config.example.yaml)。默认读取 `/etc/headplane/config.yaml`，可通过 **`HEADPLANE_CONFIG_PATH`** 指定其他位置。
+Headplane 使用配置文件管理设置，参阅 [config.example.yaml](https://github.com/laity-cqf/headplane-zh-cn/blob/stable/config.example.yaml)。默认读取 `/etc/headplane/config.yaml`，可通过 **`HEADPLANE_CONFIG_PATH`** 指定其他位置。
 
 默认数据目录为 `/var/lib/headplane`，各配置节可分别调整。必须保证数据目录持久化，且运行 Headplane 的用户可写。
 

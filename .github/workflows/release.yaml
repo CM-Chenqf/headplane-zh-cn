@@ -29,7 +29,7 @@ permissions:
 jobs:
   prepare:
     name: Validate accepted stable source and archive docs
-    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name == 'push'
+    if: github.repository == 'laity-cqf/headplane-zh-cn' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -237,7 +237,7 @@ jobs:
 
   recover-prepare:
     runs-on: ubuntu-latest
-    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name == 'workflow_dispatch' && inputs.operation == 'recover'
+    if: github.repository == 'laity-cqf/headplane-zh-cn' && github.event_name == 'workflow_dispatch' && inputs.operation == 'recover'
     permissions:
       contents: read
       actions: read
@@ -402,7 +402,7 @@ jobs:
           done
 
   short-tag:
-    if: github.repository == 'CM-Chenqf/headplane-zh-cn' && github.event_name == 'workflow_dispatch' && inputs.operation == 'short-tag'
+    if: github.repository == 'laity-cqf/headplane-zh-cn' && github.event_name == 'workflow_dispatch' && inputs.operation == 'short-tag'
     name: Add short tag to the original published final image
     runs-on: ubuntu-latest
     permissions:
@@ -431,7 +431,7 @@ jobs:
   public-runtime:
     needs: [release, recover-publish, short-tag]
     if: >-
-      always() && github.repository == 'CM-Chenqf/headplane-zh-cn' &&
+      always() && github.repository == 'laity-cqf/headplane-zh-cn' &&
       (needs.release.result == 'success' || needs.recover-publish.result == 'success' ||
        needs.short-tag.result == 'success' ||
        (github.event_name == 'workflow_dispatch' && inputs.operation == 'verify'))

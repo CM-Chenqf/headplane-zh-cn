@@ -34,7 +34,7 @@ sudo chown -R $(whoami):$(whoami) /var/lib/headplane
 
 ```bash
 # 也可检出特定发行版的标签。
-git clone --branch release/0.8 https://github.com/CM-Chenqf/headplane-zh-cn.git
+git clone --branch stable https://github.com/laity-cqf/headplane-zh-cn.git
 cd headplane-zh-cn
 ./build.sh
 ```
@@ -99,11 +99,11 @@ Headplane 与 Headscale 应在同一主机运行，Headplane 需要：
 
 在 Headplane 配置中设置：
 
-| 字段                           | 说明                                                                                                                            |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| **`integration.proc.enabled`** | 设为 `true` 启用进程检查集成。                                                                                                  |
-| **`headscale.config_path`**    | Headscale 配置文件路径，例如 `/etc/headscale/config.yaml`。                                                                     |
-| `headscale.dns_records_path`   | 可选。DNS 记录文件路径覆盖，参阅[示例配置](https://github.com/CM-Chenqf/headplane-zh-cn/blob/release/0.8/config.example.yaml)。 |
+| 字段                           | 说明                                                                                                                       |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| **`integration.proc.enabled`** | 设为 `true` 启用进程检查集成。                                                                                             |
+| **`headscale.config_path`**    | Headscale 配置文件路径，例如 `/etc/headscale/config.yaml`。                                                                |
+| `headscale.dns_records_path`   | 可选。DNS 记录文件路径覆盖，参阅[示例配置](https://github.com/laity-cqf/headplane-zh-cn/blob/stable/config.example.yaml)。 |
 
 重启 Headplane 后，可在 DNS 和设置等页面管理 Tailnet 配置。保留 0.8 原有集成及重载方式。
 
@@ -187,7 +187,7 @@ server {
 
 ```bash
 # /headplane 路径前缀的示例
-git clone --branch release/0.8 https://github.com/CM-Chenqf/headplane-zh-cn.git
+git clone --branch stable https://github.com/laity-cqf/headplane-zh-cn.git
 cd headplane-zh-cn
 # 在此设置路径前缀
 __INTERNAL_PREFIX=/headplane ./build.sh

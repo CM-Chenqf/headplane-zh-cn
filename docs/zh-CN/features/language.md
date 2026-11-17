@@ -4,7 +4,7 @@
 
 [English](/features/language)
 
-本页说明社区维护仓库 `CM-Chenqf/headplane-zh-cn` 的 **0.8 发布线**，基于上游 [tale/headplane](https://github.com/tale/headplane) 0.8.2，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 MIT 许可证原文及原作者版权声明。本发布线保留原有界面、VitePress 文档工具链、配置、权限及兼容要求，不引入 `main` 的新版界面或新功能。
+本页说明社区维护仓库 `laity-cqf/headplane-zh-cn` 的 **0.8 发布线**，基于上游 [tale/headplane](https://github.com/tale/headplane) 0.8.2，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 MIT 许可证原文及原作者版权声明。本发布线保留原有界面、VitePress 文档工具链、配置、权限及兼容要求，不引入 `main` 的新版界面或新功能。
 
 ## 当前范围 {#current-scope}
 
@@ -16,7 +16,7 @@
 
 [访问控制与策略编辑器](/zh-CN/features/acls)也已接入：访问规则、SSH 规则、主机别名、标签、用户组、提示、解析说明及编辑器控件。切换语言保留草稿和策略原始值。
 
-[DNS](/zh-CN/features/dns)、[设置](/zh-CN/features/settings)和[浏览器 SSH](/zh-CN/features/ssh)现已支持双语。全部 VitePress 页面均有中文版本，包括安装、配置、SSO、NixOS 选项、架构及完整历史更新日志；导航、本地搜索和语言切换支持根路径及 /0.8/ 归档。翻译及容器验收已完成，`v0.8.2-zh` 双语正式版已发布，正式镜像为 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`（amd64/arm64）。
+[DNS](/zh-CN/features/dns)、[设置](/zh-CN/features/settings)和[浏览器 SSH](/zh-CN/features/ssh)现已支持双语。全部 VitePress 页面均有中文版本，包括安装、配置、SSO、NixOS 选项、架构及完整历史更新日志；导航、本地搜索和语言切换支持根路径及 /0.8/ 归档。翻译及容器验收已完成，`v0.8.2-zh` 双语正式版已发布，正式镜像为 `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2`（amd64/arm64）。
 
 ## 选择界面语言 {#choose-the-interface-language}
 

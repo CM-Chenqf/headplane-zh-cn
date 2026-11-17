@@ -4,7 +4,7 @@
 
 [English](/features/users-bilingual)
 
-本指南适用于社区维护仓库 `CM-Chenqf/headplane-zh-cn` 的 **0.8 发布线**，基于上游 [tale/headplane](https://github.com/tale/headplane)，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 MIT 许可证及原作者版权声明。其他模块汉化和发布验收仍在进行，详见[语言与维护说明](/zh-CN/features/language)。
+本指南适用于社区维护仓库 `laity-cqf/headplane-zh-cn` 的 **0.8 发布线**，基于上游 [tale/headplane](https://github.com/tale/headplane)，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。保留上游 MIT 许可证及原作者版权声明。其他模块汉化和发布验收仍在进行，详见[语言与维护说明](/zh-CN/features/language)。
 
 ## 区分两类用户
 

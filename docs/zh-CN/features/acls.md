@@ -7,7 +7,7 @@ description: 在 Headplane 0.8 界面中编辑 Headscale ACL 策略、访问规�
 
 [English](/features/acls)
 
-本指南适用于基于 `tale/headplane` 0.8.2 的社区维护仓库 `CM-Chenqf/headplane-zh-cn` 的 **0.8 发布线**。保留上游 MIT 许可证原文及原作者版权声明，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。
+本指南适用于基于 `tale/headplane` 0.8.2 的社区维护仓库 `laity-cqf/headplane-zh-cn` 的 **0.8 发布线**。保留上游 MIT 许可证原文及原作者版权声明，**不是 Headplane、Headscale 或 Tailscale 官方中文版**。
 
 Headscale 将访问控制列表（ACL）存储为单个 HuJSON 策略。“访问控制”页面提供两种编辑方式：使用可视化表单修改常用部分，或直接编辑原始策略文件。
 

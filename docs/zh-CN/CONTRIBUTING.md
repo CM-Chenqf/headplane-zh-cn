@@ -2,7 +2,7 @@
 
 感谢参与。本页翻译上游的贡献规则：上游由原作者独立维护，遵循规则有助于审阅和合并。
 
-本仓库是非官方双语 fork。汉化问题请提交到[维护仓库](https://github.com/CM-Chenqf/headplane-zh-cn/issues)；上游功能问题按以下规则反馈，避免将维护仓库误认为官方中文版。
+本仓库是非官方双语 fork。汉化问题请提交到[维护仓库](https://github.com/laity-cqf/headplane-zh-cn/issues)；上游功能问题按以下规则反馈，避免将维护仓库误认为官方中文版。
 
 ## 贡献类型 {#contribution-types}
 

@@ -14,7 +14,7 @@ Headplane Agent 是可选组件，定期从 Tailnet 同步节点版本、操作�
 
 ## 配置 {#configuration}
 
-在 Headplane 配置中设置以下字段。完整说明见[示例配置](https://github.com/CM-Chenqf/headplane-zh-cn/blob/release/0.8/config.example.yaml)。
+在 Headplane 配置中设置以下字段。完整说明见[示例配置](https://github.com/laity-cqf/headplane-zh-cn/blob/stable/config.example.yaml)。
 
 | 字段                                | 说明                                                         |
 | ----------------------------------- | ------------------------------------------------------------ |

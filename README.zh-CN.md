@@ -4,7 +4,7 @@
 
 本仓库为社区维护的 [tale/headplane](https://github.com/tale/headplane) 中英双语 fork，**不是 Headplane、Headscale 或 Tailscale 的官方中文版**。保留上游 [MIT 许可证原文](./LICENSE)及原作者版权声明。
 
-当前为 **0.8 发布线**。设备、用户、角色、账号关联、成员下载页、访问控制和编辑器、DNS、设置及浏览器 SSH，以及完整 VitePress 文档均已接入中英切换。双语正式版 [v0.8.2-zh](https://github.com/CM-Chenqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布，正式镜像为 `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2`（amd64/arm64）。双语文档保留在仓库及 Release 快照中，不部署托管文档站。进度见[语言与维护说明](./docs/zh-CN/features/language.md)。
+当前为 **0.8 发布线**。设备、用户、角色、账号关联、成员下载页、访问控制和编辑器、DNS、设置及浏览器 SSH，以及完整 VitePress 文档均已接入中英切换。双语正式版 [v0.8.2-zh](https://github.com/laity-cqf/headplane-zh-cn/releases/tag/v0.8.2-zh) 已发布，正式镜像为 `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2`（amd64/arm64）。双语文档保留在仓库及 Release 快照中，不部署托管文档站。进度见[语言与维护说明](./docs/zh-CN/features/language.md)。
 
 Headscale 是 Tailscale 控制服务器的自托管实现，默认不带 Web 界面。Headplane 为其提供设备、网络及 ACL 管理界面，参考官方 Tailscale 管理面板的功能与布局。
 

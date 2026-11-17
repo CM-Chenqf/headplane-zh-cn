@@ -14,7 +14,7 @@ hero:
       link: "/zh-CN/install"
       theme: "alt"
     - text: "维护仓库"
-      link: "https://github.com/CM-Chenqf/headplane-zh-cn"
+      link: "https://github.com/laity-cqf/headplane-zh-cn"
       theme: "alt"
 features:
   - title: "浏览器远程 SSH"

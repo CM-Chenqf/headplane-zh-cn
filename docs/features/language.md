@@ -2,7 +2,7 @@
 
 [简体中文](/zh-CN/features/language)
 
-This page describes the community-maintained `CM-Chenqf/headplane-zh-cn` fork's **0.8 release line**, based on [tale/headplane](https://github.com/tale/headplane) 0.8.2. It is not an official Chinese release of Headplane, Headscale, or Tailscale. The upstream MIT license and original copyright notices are retained. This line keeps its original interface, VitePress documentation, configuration, permissions and compatibility requirements. It does not include the newer interface or features from `main`.
+This page describes the community-maintained `laity-cqf/headplane-zh-cn` fork's **0.8 release line**, based on [tale/headplane](https://github.com/tale/headplane) 0.8.2. It is not an official Chinese release of Headplane, Headscale, or Tailscale. The upstream MIT license and original copyright notices are retained. This line keeps its original interface, VitePress documentation, configuration, permissions and compatibility requirements. It does not include the newer interface or features from `main`.
 
 ## Current scope
 
@@ -14,7 +14,7 @@ Language preferences, API-key sign-in and its errors, SSO configuration and sign
 
 [Access Control and policy editors](/features/acls) now also support bilingual rules, SSH rules, hosts, tags and groups, notices, parse explanations and editor controls. Drafts and original policy values are preserved when switching languages.
 
-[DNS](/features/dns), [Settings](/features/settings) and [Browser SSH](/features/ssh) now also support both languages. Every VitePress page has a Chinese counterpart, including installation, configuration, SSO, NixOS options, architecture and the complete historical changelog. Navigation, local search and language switching work at the root and under /0.8/. Translation and container acceptance are complete. The bilingual `v0.8.2-zh` release is published; the final image is `ghcr.io/cm-chenqf/headplane-zh-cn:v0.8.2` (amd64/arm64).
+[DNS](/features/dns), [Settings](/features/settings) and [Browser SSH](/features/ssh) now also support both languages. Every VitePress page has a Chinese counterpart, including installation, configuration, SSO, NixOS options, architecture and the complete historical changelog. Navigation, local search and language switching work at the root and under /0.8/. Translation and container acceptance are complete. The bilingual `v0.8.2-zh` release is published; the final image is `ghcr.io/laity-cqf/headplane-zh-cn:v0.8.2` (amd64/arm64).
 
 ## Choose the interface language
 
